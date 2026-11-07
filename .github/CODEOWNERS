@@ -1,10 +1,9 @@
-# Each team commits only inside its own folder. Replace the placeholders with GitHub handles
-# (one or more @user or @org/team per line) and uncomment.
-#
-# /twin/      @TWIN_TEAM_HANDLE
-# /brain/     @BRAIN_TEAM_HANDLE
-# /guardian/  @GUARDIAN_TEAM_HANDLE
-#
+# Each team commits only inside its own folder.
+
+/twin/      @tsypcschallenger
+/brain/     @tsypanyonyme77-dotcom
+# /guardian/  @GUARDIAN_TEAM_HANDLE   <- uncomment and fill in
+
 # Root files and folders (README, INTEGRATION, TESTBOOK, docker-compose.yml, scenarios/, logs/, docs/)
-# are shared by the triplet:
-# *           @TWIN_TEAM_HANDLE @BRAIN_TEAM_HANDLE @GUARDIAN_TEAM_HANDLE
+# are shared by the triplet. Add the Guardian handle once known.
+*           @tsypcschallenger @tsypanyonyme77-dotcom
