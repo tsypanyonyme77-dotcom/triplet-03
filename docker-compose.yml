@@ -1,0 +1,25 @@
+# Starts the whole city: docker compose up --build
+# Each layer must provide <layer>/Dockerfile. Partner addresses come from .env (see .env.example).
+x-partners: &partners
+  TWIN_URL: ${TWIN_URL:-http://twin:8001}
+  BRAIN_URL: ${BRAIN_URL:-http://brain:8002}
+  GUARDIAN_URL: ${GUARDIAN_URL:-http://guardian:8003}
+  TWIN_TOKEN: ${TWIN_TOKEN:-change-me}
+  BRAIN_TOKEN: ${BRAIN_TOKEN:-change-me}
+  GUARDIAN_TOKEN: ${GUARDIAN_TOKEN:-change-me}
+
+services:
+  twin:
+    build: ./twin
+    environment: *partners
+    ports: ["8001:8001"]
+  guardian:
+    build: ./guardian
+    environment: *partners
+    ports: ["8003:8003"]
+    depends_on: [twin]
+  brain:
+    build: ./brain
+    environment: *partners
+    ports: ["8002:8002"]
+    depends_on: [twin, guardian]
