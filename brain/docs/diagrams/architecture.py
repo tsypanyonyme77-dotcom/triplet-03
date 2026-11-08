@@ -94,14 +94,14 @@ def system() -> str:
                         "dispatch_unit", "broadcast_alert", "recall_unit", "set_signal_phase", "set_valve_state", "set_grid_connection"],
                  mono=("dispatch_unit", "broadcast_alert", "recall_unit", "set_signal_phase", "set_valve_state", "set_grid_connection")))
     p.append(box(930, 184, 150, 136, "Guardian layer",
-                 lines=["a trust verdict", "for every reading", "", "a quarantine list", "of actuators"]))
+                 lines=["a trust verdict", "for every reading", "", "a quarantine list", "of actuators", "", "v1 only: audits", "valve, grid, signal", "and dispatch calls"]))
 
     # The Brain.
     p.append(rect(272, 84, 576, 732, fill=BOARD, stroke=INK, width=2, radius=10))
     p.append(text(288, 106, "City Brain layer", size=14, weight=700))
     left, wide = 288, 544
     p.append(box(left, 118, wide, 50, "1 · Ports and adapters",
-                 lines=["Twin over MCP, HTTP or MQTT · Guardian over REST · partner addresses live in config"], title_size=13.5))
+                 lines=["Twin over MCP, HTTP or MQTT · Guardian over REST or its v1 contract · partner addresses live in config"], title_size=13.5))
     p.append(box(left, 182, wide, 62, "2 · Perception",
                  lines=["Checks contract version, schema, HMAC signature and sequence number",
                         "Drops demographic fields · joins the Guardian's verdict to each reading"]))
@@ -230,12 +230,14 @@ def scenario() -> str:
                    note="3 ms after the arrest report")
 
     foot = bottom + 18
-    p.append(rect(24, foot, 1052, 52, fill=BOARD, stroke=RULE, width=1, radius=6))
+    p.append(rect(24, foot, 1052, 70, fill=BOARD, stroke=RULE, width=1, radius=6))
     p.append(text(40, foot + 21, "Every arrow is also a timeline event: it appears on the Strip Board screen and in the hash-chained audit log.",
                   size=12, fill=INK2))
     p.append(text(40, foot + 39, "If the Guardian answers untrusted in step 2 or 3, nothing is dispatched and the reading is held at the gate with its reason (shown for a flood in scenario t13).",
                   size=12, fill=INK2))
-    return svg(1100, foot + 66, title, "".join(p))
+    p.append(text(40, foot + 57, "Run against the stand-in Guardian, which the Brain sends each reading to. With the Guardian team's Guardian the Twin also feeds it, and it audits valve, grid, signal and dispatch calls (Figure 9).",
+                  size=12, fill=INK2))
+    return svg(1100, foot + 84, title, "".join(p))
 
 
 # --------------------------------------------------------------------------- printing

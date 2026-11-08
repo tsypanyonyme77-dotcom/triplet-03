@@ -91,29 +91,37 @@ class Canvas:
 
 
 def context() -> str:
-    c = Canvas(1240, "The City Brain between the Twin and the Guardian, with partner agents above it and people and operators below it, and the protocol on every link.")
+    c = Canvas(1240, "The City Brain between the Twin and the Guardian. The Twin sends readings to the Brain and, with the Guardian team's Guardian, to the Guardian too. The Guardian sends verdicts to the Brain, audits the Brain's actuator calls on their way to the Twin, and contains devices.")
     top = c.box(400, 10, 440, "Other teams and their agents (Phase 2)", ["Call the Brain's tools over MCP, read its agent card, run the conformance kit against it."], "new")
-    a = c.box(414, 156, 204, "Ports and adapters", ["MCP client, REST client, renames and units from config."])
+    a = c.box(414, 156, 204, "Ports and adapters", ["Twin: MCP, HTTP or MQTT. Guardian: REST, or the v1 contract."])
     b = c.box(622, 156, 204, "Senses and trust", ["Contract, signature, replay, forward models, belief."], "new")
     d = c.box(414, 290, 204, "Decide", ["Reflex rules, OR-Tools engines, agent team, planning supervisor."], "new")
     e = c.box(622, 290, 204, "Remember and learn", ["City graph, Qdrant, episodes, sleep, bounded self-improvement."], "new")
     gate = c.box(414, 290 + max(d.h, e.h) + 10, 412, "Gate · the only way out", ["Every call checked and signed. A person approves valve and grid calls."], "gate")
     c.frame(400, 130, 440, gate.bottom + 14 - 130, "CITY BRAIN · THIS REPOSITORY")
-    twin = c.box(20, 190, 250, "Twin · city engine", ["The Twin team. Streams readings, runs actuator calls.", "MCP server. Today: a mock."], "partner")
-    guardian = c.box(970, 190, 250, "Guardian · trust", ["The Guardian team. Judges readings, quarantines devices.", "REST service. Today: a mock."], "partner")
+    twin = c.box(20, 190, 230, "Twin · city engine", ["The Twin team. Streams readings, runs actuator calls.", "MCP server. Today: a mock."], "partner", 190)
+    guardian = c.box(990, 190, 230, "Guardian · trust", ["The Guardian team. Judges every reading, audits actuator calls, quarantines devices.", "REST service. Today: a mock, and the team's own."], "partner", 190)
     ops = c.box(400, gate.bottom + 50, 440, "People and operators", ["The screen over SSE. An approver over REST with a scoped token. Grafana and Jaeger over OTLP and Prometheus."], "new")
     c.arrow(f"M{twin.right} 214 H400")
-    c.label(335, 180, "readings\nMCP list_readings", "middle")
+    c.label(325, 180, "readings\nMCP · HTTP · MQTT", "middle")
     c.arrow(f"M400 296 H{twin.right}", "ember")
-    c.label(335, 262, "signed calls\nMCP tools", "middle")
-    c.arrow("M840 214 H970")
-    c.label(905, 180, "reading to judge\nPOST /verdicts", "middle")
-    c.arrow("M970 296 H840")
-    c.label(905, 262, "TrustVerdict\nGET /quarantine", "middle")
+    c.label(325, 262, "signed calls\nMCP tools", "middle")
+    c.arrow(f"M840 214 H{guardian.x}")
+    c.label(915, 180, "ask for a verdict\nREST", "middle")
+    c.arrow(f"M{guardian.x} 296 H840")
+    c.label(915, 262, "signed verdict\n+ quarantine list", "middle")
+    c.arrow(f"M840 344 H{guardian.x}", "ember")
+    c.label(915, 312, "audited calls\nv1 only", "middle")
     c.arrow(f"M620 {top.bottom} V130")
     c.label(632, 100, "MCP · A2A card · REST", "start")
     c.arrow(f"M620 {gate.bottom + 14} V{ops.y}")
     c.label(632, gate.bottom + 38, "SSE · REST · OTLP · /metrics", "start")
+    y = ops.bottom + 40  # the two links that skip the Brain: the Guardian's own
+    c.arrow(f"M1070 {guardian.bottom} V{y} H170 V{twin.bottom}", "ember")
+    c.arrow(f"M70 {twin.bottom} V{y + 34} H1170 V{guardian.bottom}")
+    c.label(620, y - 8, "v1 only · audited calls forwarded to the Twin (POST /tools/{action}) and containment: isolate, quarantine", "middle")
+    c.label(620, y + 52, "v1 only · readings the Twin pushes to the Guardian (POST /v1/readings) or the Guardian pulls · the Guardian forwards none of them to the Brain", "middle")
+    c.low = max(c.low, y + 58)
     return c.svg()
 
 
@@ -127,9 +135,9 @@ def boundary() -> str:
     c.frame(458, top, 340, bottom - top, "THE BRAIN'S LOGIC")
     h = bottom - top
     twin = c.box(10, top, 190, "Twin", ["Any engine that speaks the Interface Card."], "partner", h)
-    ta = c.box(230, top, 190, "Twin adapters", ["One class each: MCP (default), HTTP, MQTT.", "Protocol, TLS and retries stay here."], "", h)
-    ga = c.box(836, top, 190, "Guardian adapter", ["REST, one class.", "A bad or late verdict becomes degraded mode, not a crash."], "", h)
-    guardian = c.box(1056, top, 174, "Guardian", ["Any service that issues a verdict."], "partner", h)
+    ta = c.box(230, top, 190, "Twin adapters", ["One class each: MCP (default), HTTP, MQTT.", "Protocol, TLS and retries stay here.", "With a v1 Guardian a gateway wraps it: audited actions go through the Guardian."], "", h)
+    ga = c.box(836, top, 190, "Guardian adapter", ["Two classes: REST (our contract) and v1 (the Guardian team's 1.0).", "A bad or late verdict becomes degraded mode, not a crash."], "", h)
+    guardian = c.box(1056, top, 174, "Guardian", ["Any service that issues a verdict. The team's one also audits actuator calls and quarantines."], "partner", h)
     for x, name in ((430, "TwinPort"), (808, "GuardianPort")):
         c.frame(x, top, 18, h)
         c.label(x + 9, top - 10, name, "middle")
@@ -154,8 +162,8 @@ def layers() -> str:
     c = Canvas(1240, "Six planes of the Convergence architecture from the interop edge to learning, with the shared spine and the platform underneath. New boxes are filled with the accent.")
     planes = [
         ("1 · INTEROP EDGE · SENSORY INPUT", [
-            ("Twin adapter", ["MCP client. Polls readings, calls actuator tools."]),
-            ("Guardian adapter", ["REST client. A verdict per reading, quarantine checks."]),
+            ("Twin adapter", ["MCP, HTTP or MQTT. Polls or subscribes to readings, calls actuator tools."]),
+            ("Guardian adapter", ["REST (ours) or v1 (the Guardian team's). A verdict per reading, quarantine checks, audited calls in v1."]),
             ("API and feed", ["REST, SSE with CloudEvents, schemas, OpenAPI."]),
             ("Brain MCP server", ["Read-only tools, resources, a prompt, scoped by token. No actuating tool."], "new"),
             ("Agent card and conformance kit", ["A2A card. One command checks any Twin or Guardian."], "new"),
@@ -247,6 +255,53 @@ def planner() -> str:
     c.arrow(f"M{app.cx} 100 V{app.y}")
     person = c.box(1020, 12, 200, "A person", ["POST /api/approvals with the approve scope, or the Approve button."], "new")
     c.arrow(f"M{rec.cx} {rec.bottom} V{store.y - 30} H{store.right + 20} V{store.cy} H{store.right}", "")
+    return c.svg()
+
+
+def guardian_wiring() -> str:
+    """The same three layers wired two ways that exist, and a third the Brain supports but no Guardian offers."""
+    c = Canvas(1240, "Three ways the Guardian can be wired. Panel A: our contract, where the Brain sends each reading to the Guardian and acts on the verdict. Panel B: the Guardian team's contract 1.0, where the Twin also sends readings to the Guardian, the Brain asks for verdicts by id, and valve, grid, signal and dispatch calls pass through the Guardian to the Twin. Panel C: inline, where the verdict rides with the reading; built in the Brain, offered by no Guardian.")
+
+    def panel(y0: int, label: str, v1: bool) -> int:
+        twin = c.box(20, y0 + 40, 220, "Twin", ["Streams signed readings, runs actuator calls.", "Today: the Brain's mock."], "partner", 112)
+        gua = c.box(1000, y0 + 40, 220, "Guardian", (["Our mock: scripted verdicts, a bad signature is always untrusted."] if not v1 else
+                    ["The Guardian team's: six trust layers, signed verdicts, audits every actuator call, checks its effect, quarantines."]), "partner", 112 if not v1 else 150)
+        brain = c.box(500, y0 + 215, 240, "City Brain", (["Perception, then the Guardian's verdict, then the gate. Adapter: guardian_rest.py."] if not v1 else
+                      ["Adapter: guardian_v1.py. GuardianV1Adapter asks; GuardianGateway routes the gate's calls."]), "", 132)
+        c.frame(10, y0, 1220, brain.bottom + 24 - y0, label)
+        b = brain.y
+        # the Twin side: readings in (outer is deeper and further left), calls out
+        c.arrow(f"M160 {twin.bottom} V{b + 26} H{brain.x}")
+        c.label(172, b + 20, "readings · MCP, HTTP or MQTT", "start")
+        c.arrow(f"M{brain.x} {b + 64} H100 V{twin.bottom}", "ember")
+        c.label(172, b + 58, "signed calls · " + ("broadcast, recall" if v1 else "all six actions"), "start")
+        # the Guardian side
+        c.arrow(f"M{brain.right} {b + 26} H1040 V{gua.bottom}")
+        c.label(750, b + 20, "POST /v1/verdicts/request by id" if v1 else "POST /verdicts with the reading", "start")
+        c.arrow(f"M1190 {gua.bottom} V{b + 100} H{brain.right}")
+        c.label(750, b + 94, "signed verdict" if v1 else "TrustVerdict", "start")
+        if v1:
+            c.arrow(f"M{brain.right} {b + 64} H1100 V{gua.bottom}", "ember")
+            c.label(750, b + 58, "actuator calls: valve, grid, signal, dispatch", "start")
+            c.arrow(f"M{twin.right} {twin.y + 30} H{gua.x}")
+            c.label(620, twin.y + 22, "POST /v1/readings: the Twin pushes (or the Guardian pulls)", "middle")
+            c.arrow(f"M{gua.x} {twin.y + 76} H{twin.right}", "ember")
+            c.label(620, twin.y + 68, "POST /tools/{action}: audited calls forwarded, and containment", "middle")
+        c.label(750, brain.bottom + 14, "the gate asks GET " + ("/v1/containment" if v1 else "/quarantine/{id}") + " before any call", "start")
+        return brain.bottom + 24
+
+    y = panel(8, "A · THE DEFAULT, OUR CONTRACT · guardian.adapter: rest · what the mock Guardian speaks", False) + 18
+    y = panel(y, "B · THE GUARDIAN TEAM'S GUARDIAN, CONTRACT 1.0 · guardian.adapter: v1 (gateway: true), twin.dialect: guardian-v1 · run against theirs piece by piece", True) + 18
+    c.frame(10, y, 1220, 176, "C · INLINE · guardian.mode: inline · built in the Brain (runtime._verdict), offered by no Guardian, no test")
+    tw = c.box(30, y + 36, 200, "Twin", ["Streams readings."], "partner", 96)
+    gu = c.box(520, y + 36, 200, "Guardian, inline", ["Judges each reading, attaches the verdict as reading.trust."], "partner", 96)
+    br = c.box(1010, y + 36, 200, "City Brain", ["Reads reading.trust and asks nobody. With no trust it asks as in A."], "", 96)
+    c.arrow(f"M{tw.right} {tw.cy} H{gu.x}")
+    c.label(375, tw.cy - 8, "readings", "middle")
+    c.arrow(f"M{gu.right} {gu.cy} H{br.x}")
+    c.label(865, gu.cy - 8, "reading + verdict", "middle")
+    c.label(30, y + 142, "Not used by the Brain in any panel: the Guardian's WS /v1/ws/verdicts, GET /v1/alerts and GET /v1/threat.\nThe Brain learns of a threat only from a verdict or a quarantine.", "start")
+    c.low = max(c.low, y + 182)
     return c.svg()
 
 

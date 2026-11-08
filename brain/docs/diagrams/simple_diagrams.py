@@ -211,7 +211,8 @@ def big_picture() -> D:
     d.line([(725, 300), (1050, 300), (1050, 390)], "live events", at=(890, 290))
     d.line([(620, 90), (620, 110)])
     d.text(636, 104, "ask through tools", "start")
-    d.low = 490
+    d.line([(60, 270), (60, 530), (1180, 530), (1180, 270)], "the Guardian team's Guardian also reads every reading straight from the Twin", dash=True, at=(620, 522))
+    d.low = 560
     return d
 
 
@@ -405,7 +406,7 @@ def connect() -> D:
     a3 = d.card(10, 320, "mqtt", "MQTT Twin", "through a broker", "twin", 200)
     p = d.card(320, 150, "tag", "Name mapping", "a Twin's own words to the contract's", "brain", 230)
     b = d.card(650, 150, "brain", "City Brain", "one interface, whatever the Twin", "brain", 210)
-    gu = d.card(1000, 0, "shield", "Guardian", "REST: a verdict per reading", "guardian", 210)
+    gu = d.card(1000, 0, "shield", "Guardian", "REST: our contract or the Guardian team's v1", "guardian", 210)
     oth = d.card(1000, 160, "modelcontextprotocol", "Other teams' agents", "call our 10 MCP tools", "store", 210)
     scr = d.card(1000, 320, "fastapi", "API and live feed", "REST and server-sent events", "person", 210)
     for x in (a1, a2, a3):

@@ -1,8 +1,9 @@
 """The City Brain's parts of the Phase 1 report, as one vector PDF and one self-contained HTML page.
 
-    uv run python docs/report/build.py        # docs/report/report-city-brain.pdf and docs/report/report-city-brain.html
+    uv run python docs/report/build.py        # docs/report/report-city-brain.pdf, report-part2-city-brain.pdf and report-city-brain.html
 
-Part 0 (the Brain in the triplet), Part 2 (the City Brain) and Part 4 (the Test Book), eleven A4 pages. Every figure is drawn here as SVG
+Part 0 (the Brain in the triplet, 4 pages), Part 2 (the City Brain, 5 pages in the book's six subheadings) and Part 4 (the Test Book, 1 page),
+ten A4 pages; Part 2 is also printed alone as report-part2-city-brain.pdf for the triplet's merged report. Every figure is drawn here as SVG
 with the repository's icon set and the technology logos in docs/diagrams/logos/ (each logo belongs to its owner; none implies endorsement).
 The numbers come from the repository: the Test Book, the frozen baseline, the suite, and real runs of t14 (timings), t13 and t15.
 """
@@ -21,10 +22,11 @@ HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[1]
 sys.path.insert(0, str(ROOT / "docs" / "diagrams"))
 import simple_diagrams  # noqa: E402,F401  (adds the extra icons to GLYPHS)
-from logo_architecture import GLYPHS, logo_uri  # noqa: E402
+from logo_architecture import GLYPHS, big_picture, defence, incident_flow, logo_uri, planner  # noqa: E402
 
 FONTS = ROOT / "src/brain/api/static/fonts"
 PDF, PAGE = HERE / "report-city-brain.pdf", HERE / "report-city-brain.html"
+PART2 = HERE / "report-part2-city-brain.pdf"  # Part 2 alone, five pages, for the triplet's merged report
 
 INK, INK2, MUTED, RULE, BOARD, STRIP = "#111417", "#3F464A", "#636B6F", "#AEB5AF", "#E6E9E4", "#FFFFFF"
 BLUE, GOOD, WARN, BAD = "#1B49CF", "#18794A", "#A85F00", "#C0311E"
@@ -128,13 +130,13 @@ def fig_architecture() -> str:
     # Guardian
     b.append(R(630, 130, 150, 262, STRIP, INK, 1.4, 9, "5 3"))
     b.append(BADGE("shield", 705, 164, 38, GOOD) + T(705, 200, "Guardian", 13, 700, INK, "middle") + T(705, 213, "trust and security", 9.5, 400, MUTED, "middle"))
-    b.append(LINES(705, 246, ["a verdict on", "every reading", "(trusted, suspicious,", "untrusted)", "", "a quarantine list", "of actuators"], 10, 14, INK2, "middle"))
+    b.append(LINES(705, 246, ["a verdict on", "every reading", "", "a quarantine list", "of actuators", "", "v1 only: audits", "valve, grid, signal", "and dispatch calls"], 10, 14, INK2, "middle"))
     # Brain frame
     b.append(R(190, 14, 420, 656, BOARD, INK, 2, 12))
     b.append(T(204, 34, "City Brain layer", 13, 700) + T(594, 34, "every arrow is an event on the timeline", 9, 400, MUTED, "end"))
     X1, X2, X3, W3, WF = 204, 332, 460, 126, 382
     y1, y2, y3, y4, yg, y6 = 46, 124, 232, 320, 436, 512
-    b.append(NODE(X1, y1, WF, 62, "Ports and adapters", ["MCP, HTTP or MQTT in; REST to the Guardian"], "plug", BLUE, ("modelcontextprotocol", "mqtt")))
+    b.append(NODE(X1, y1, WF, 62, "Ports and adapters", ["MCP, HTTP or MQTT in; REST (or v1) to the Guardian"], "plug", BLUE, ("modelcontextprotocol", "mqtt")))
     b.append(NODE(X1, y2, 120, 92, "Knowledge", ["39 procedures", "hybrid search"], "book", MUTED, ("qdrant",)))
     b.append(NODE(X2, y2, 120, 92, "City graph", ["zones, units,", "incidents"], "db", MUTED, ("neo4j", "networkx")))
     b.append(NODE(X3, y2, W3, 92, "Perception", ["signature, replay,", "demographics dropped"], "shield", GOOD))
@@ -175,7 +177,9 @@ def fig_architecture() -> str:
     b.append(ARROW([(120, ly), (150, ly)], WARN, dash="4 3") + T(156, ly + 4, "solver answers go into the team's brief", 9.5, 400, INK2))
     b.append(ARROW([(380, ly), (410, ly)], GOOD, dash="4 3") + T(416, ly + 4, "learning and trust", 9.5, 400, INK2))
     b.append(ARROW([(540, ly), (570, ly)], INK) + T(576, ly + 4, "data", 9.5, 400, INK2))
-    return SVG(780, 700, "".join(b), "Global architecture: Twin, City Brain and Guardian")
+    # v1 only: the Guardian team's Guardian is also fed by the Twin. The arrow runs above the Brain, so the figure is shifted down to make room.
+    link = ARROW([(75, 60), (75, 20), (705, 20), (705, 160)], INK, "v1 only: the Twin also pushes every reading to the Guardian (POST /v1/readings); the Guardian forwards none to the Brain", 390, 13, dash="4 3", size=8.6)
+    return SVG(780, 730, f"<g transform='translate(0,30)'>{''.join(b)}</g>" + link, "Global architecture: Twin, City Brain and Guardian")
 
 
 
@@ -187,7 +191,7 @@ def fig_interop() -> str:
     b.append(R(0, 10, 100, 152, STRIP, INK, 1.4, 9, "5 3") + BADGE("city", 50, 40, 34, MUTED) + T(50, 76, "Twin", 12.5, 700, INK, "middle") + LINES(50, 94, ["any engine that", "speaks the card"], 9, 12, MUTED, "middle"))
     b.append(R(680, 10, 100, 152, STRIP, INK, 1.4, 9, "5 3") + BADGE("shield", 730, 40, 34, GOOD) + T(730, 76, "Guardian", 12.5, 700, INK, "middle") + LINES(730, 94, ["any service that", "issues a verdict"], 9, 12, MUTED, "middle"))
     b.append(NODE(130, 10, 138, 152, "Twin adapters", ["one class each:", "MCP (default),", "HTTP, MQTT", "", "protocol, TLS and", "retries stay here"], "plug", BLUE, ("modelcontextprotocol", "mqtt")))
-    b.append(NODE(512, 10, 138, 152, "Guardian adapter", ["REST, one class", "", "a bad or late", "verdict becomes", "degraded mode,", "never a crash"], "plug", BLUE))
+    b.append(NODE(512, 10, 138, 152, "Guardian adapter", ["REST (ours) or v1", "(theirs), a class each", "", "a bad or late", "verdict becomes", "degraded mode,", "never a crash"], "plug", BLUE))
     b.append(R(286, 10, 208, 152, BOARD, INK, 2, 12) + T(298, 32, "Decision logic", 12, 700) + LINES(298, 48, ["perception, triage, workspace,", "teams, solvers, safety gate"], 9.3, 12, INK2))
     b.append(NODE(298, 78, 184, 76, "Checks on entry", ["schema, contract version,", "signature, replay, id pattern;", "a refusal has a code and a reason"], "shield", GOOD, accent=True))
     for x, name in ((268, "TwinPort"), (494, "GuardianPort")):
@@ -255,143 +259,6 @@ def fig_trace() -> str:
     return SVG(780, 548, "".join(b), "Crime and pursuit traced across the layers with measured times")
 
 
-# --------------------------------------------------------------------------------------------------- figure 3 loops
-
-
-def fig_loops() -> str:
-    b = []
-    bands = [
-        (0, "Inner loop: one reading", "milliseconds", BLUE, [("eye", "sense"), ("shield", "trust"), ("dial", "predict"), ("route", "triage"), ("bolt", "reflex"), ("lock", "gate"), ("unit", "act")]),
-        (118, "Task loop: one incident's team", "seconds, 30 s budget", INK, [("file", "brief + facts"), ("agents", "Analyst"), ("agents", "Chief"), ("check", "code verifies"), ("lock", "gate")]),
-        (236, "Meta loop: between runs", "minutes to days", GOOD, [("db", "episodes"), ("loop", "sleep"), ("stamp", "promote"), ("dial", "Academy tunes")]),
-    ]
-    for y, title, sub, tone, steps in bands:
-        b.append(R(0, y, 780, 100, WASH[tone], tone, 1.2, 10))
-        b.append(T(14, y + 20, title, 12.5, 700, tone) + T(766, y + 20, sub, 10, 400, MUTED, "end"))
-        n = len(steps)
-        for i, (ic, label) in enumerate(steps):
-            x = 70 + i * (640 / max(n - 1, 1)) if n > 1 else 390
-            b.append(BADGE(ic, x, y + 56, 40, tone) + T(x, y + 90, label, 10, 700, INK, "middle"))
-            if i < n - 1:
-                nx = 70 + (i + 1) * (640 / (n - 1))
-                b.append(ARROW([(x + 24, y + 56), (nx - 24, y + 56)], tone, width=1.5))
-    b.append(ARROW([(390, 100), (390, 118)], BLUE, "an incident needs a team", 396, 113, anchor="start"))
-    b.append(ARROW([(640, 218), (640, 236)], GOOD, "a closed incident becomes an episode", 634, 232, anchor="end"))
-    b.append(ARROW([(120, 336), (120, 346), (30, 346), (30, 70), (36, 70)], GOOD, dash="4 3"))
-    b.append(T(14, 366, "A promoted lesson comes back as a reflex in the inner loop (learning curve of t14: team runs 1 to 0, last action 94.7 ms to 35.5 ms).", 9.5, 400, INK2))
-    return SVG(780, 376, "".join(b), "Three loops: inner, task and meta")
-
-
-# --------------------------------------------------------------------------------------------------- figure 4 detection
-
-
-def fig_detection() -> str:
-    stages = [
-        ("shield", "Perception", GOOD, ["contract version,", "HMAC, replay,", "value ranges"], "refused with a code", "brain.reading.rejected"),
-        ("eye", "Guardian verdict", GOOD, ["trusted, suspicious,", "untrusted; a score", "built on untrusted", "evidence is damped"], "t13: a lying gauge is refused", "nothing is sent"),
-        ("dial", "Forward models", GOOD, ["each sensor's own normal", "coupled sensors,", "level forecast"], "a gauge jumps 70 spreads (forward-bench)", "the reflex is held"),
-        ("route", "Triage", INK, ["six packs' detectors", "crime triggers", "alarms no pack knows"], "a riot, a call 'other'", "a person is asked"),
-        ("eye", "Workspace", INK, ["salience: severity,", "trust, evidence, surprise,", "urgency; two seats"], "a rising river (unit test)", "takes the seat"),
-    ]
-    b = []
-    w = 148
-    for i, (ic, name, tone, rows, example, outcome) in enumerate(stages):
-        x = i * (w + 10)
-        b.append(R(x, 0, w, 238, STRIP, tone, 1.3, 9))
-        b.append(BADGE(ic, x + 28, 32, 38, tone) + T(x + 52, 36, name, 11.5, 700))
-        b.append(LINES(x + 12, 68, rows, 9.6, 12.5))
-        b.append(R(x + 8, 140, w - 16, 44, WASH[tone], tone, 0.8, 5))
-        b.append(T(x + 14, 156, "stops or flags", 8.6, 700, tone) + LINES(x + 14, 169, [example], 8.8, 0, INK))
-        b.append(R(x + 8, 192, w - 16, 36, WASH[BAD] if "held" in outcome or "nothing" in outcome or "asked" in outcome else WASH[GOOD], BAD if "held" in outcome or "nothing" in outcome or "asked" in outcome else GOOD, 0.8, 5))
-        b.append(T(x + 14, 208, "result", 8.6, 700, MUTED) + T(x + 14, 221, outcome, 9, 700, INK))
-        if i < 4:
-            b.append(ARROW([(x + w + 1, 119), (x + w + 9, 119)], INK))
-    b.append(T(0, 262, "A reading that survives every stage opens or joins an incident. The three flags on the right never act alone: each is a named event on the screen.", 10, 400, INK2))
-    return SVG(780, 272, "".join(b), "Incident detection: five stages and what each can stop")
-
-
-# --------------------------------------------------------------------------------------------------- figure 5 decision
-
-
-def fig_decision() -> str:
-    b = []
-    L = 138
-    b.append(NODE(0, 70, 120, 74, "Incident", ["opened by triage,", "lit by workspace"], "route", INK))
-    # reflex lane
-    b.append(R(L, 0, 780 - L, 70, WASH[BLUE], BLUE, 1.1, 9) + T(L + 12, 18, "Reflex tier  ·  about 4 ms, no model", 10.5, 700, BLUE))
-    for k, (ic, t) in enumerate((("bolt", "Rule matches"), ("unit", "Station choice"), ("file", "ProposedAction"))):
-        b.append(NODE(L + 12 + k * 206, 28, 190, 34, t, [], ic, BLUE))
-        if k < 2:
-            b.append(ARROW([(L + 12 + k * 206 + 190, 45), (L + 12 + (k + 1) * 206, 45)], BLUE))
-    # team lane
-    b.append(R(L, 80, 780 - L, 160, WASH[INK], INK, 1.1, 9) + T(L + 12, 98, "Team tier  ·  about 70 ms scripted, seconds with a model, 30 s budget", 10.5, 700, INK))
-    names = (("file", "Brief", "incident + facts"), ("agents", "Analyst", "read-only tools"), ("agents", "Tactician", "options"), ("agents", "Chief", "decides"), ("check", "Verify", "code checks"))
-    for k, (ic, t, sub) in enumerate(names):
-        x = L + 12 + k * 124
-        b.append(NODE(x, 108, 112, 54, t, [sub], ic, GOOD if t == "Verify" else INK))
-        if k < 4:
-            b.append(ARROW([(x + 112, 135), (x + 124, 135)], INK))
-    # solver band
-    b.append(R(L + 12, 172, 780 - L - 24, 58, WASH[WARN], WARN, 1, 7) + T(L + 22, 189, "Solvers, run in code before the Analyst; their answers are the brief's facts", 9.6, 700, WARN))
-    for k, (ic, t) in enumerate((("route", "dispatch"), ("scale", "perimeter"), ("bolt", "shed + cascade"), ("dial", "forecast"), ("signal", "corridor"))):
-        x = L + 34 + k * 118
-        b.append(ICON(ic, x, 212, 18, WARN, 2.4) + T(x + 14, 216, t, 9.2, 400, INK2))
-    b.append(ARROW([(L + 68, 172), (L + 68, 162)], WARN, dash="4 3"))
-    # gate
-    b.append(NODE(L, 262, 780 - L, 52, "Safety gate", ["checks, signs, sends; a refusal is an event with its reason"], "lock", BLUE, accent=True))
-    b.append(ARROW([(120, 107), (L, 107)], INK))
-    b.append(ARROW([(L + 12 + 3 * 206 - 6, 62), (770, 62), (770, 262)], BLUE, "reflex proposals", 764, 254, anchor="end"))
-    b.append(ARROW([(450, 240), (450, 262)], BLUE, "team proposals", 458, 256, anchor="start"))
-    b.append(T(0, 338, "Rules act first and the team follows with a fuller plan; both pass the same gate. If a model fails, a scripted stand-in answers the same role (brain.agent.fallback).", 9.8, 400, INK2))
-    return SVG(780, 348, "".join(b), "Decision pipeline: reflex tier, team tier, solvers and the gate")
-
-
-# --------------------------------------------------------------------------------------------------- figure 6 matrix
-
-
-def fig_matrix() -> str:
-    teams = [("shield", "Police", MUTED), ("flame", "Fire", BAD), ("cross", "Ambulance", BAD), ("signal", "Traffic", BLUE), ("waves", "Disaster", BLUE), ("bolt", "Utilities", WARN)]
-    tools = [
-        ("bolt", "Reflex rules", "13 rules in six packs", INK, ["R", "R", "R", "R", "R", "R"], ()),
-        ("book", "Playbook search", "39 procedures", MUTED, ["T", "T", "T", "T", "T", "T"], ("qdrant",)),
-        ("db", "City graph tools", "context, evidence", MUTED, ["T", "T", "T", "T", "T", "T"], ("neo4j",)),
-        ("route", "Dispatch solver", "min-cost flow", WARN, ["R", "F", "F", "", "", ""], ("ortools",)),
-        ("scale", "Perimeter solver", "CP-SAT + critic", WARN, ["F", "", "", "", "", ""], ("ortools",)),
-        ("bolt", "Shed and cascade", "CP-SAT", WARN, ["", "", "", "T", "T", "F"], ("ortools",)),
-        ("dial", "Level forecast", "Kalman", WARN, ["", "", "", "", "F", "T"], ()),
-        ("signal", "Corridor planner", "Dijkstra", WARN, ["", "S", "S", "F", "", ""], ()),
-    ]
-    b = []
-    x0, cw, rh = 200, 92, 44
-    for j, (ic, name, tone) in enumerate(teams):
-        x = x0 + j * cw + cw / 2
-        b.append(BADGE(ic, x, 24, 32, tone) + T(x, 54, name, 10, 700, INK, "middle"))
-    for i, (ic, name, sub, tone, cells, logos) in enumerate(tools):
-        y = 68 + i * rh
-        b.append(R(0, y, 780, rh - 4, WASH.get(tone, "#F7F8F6") if i % 2 == 0 else STRIP, "#DDE1DC", 0.8, 5))
-        b.append(ICON(ic, 20, y + 20, 20, tone, 2.4) + T(40, y + 18, name, 10.8, 700) + T(40, y + 31, sub, 9, 400, MUTED))
-        if logos:
-            b.append(LOGOS(logos, 138, y + 10, 14))
-        for j, c in enumerate(cells):
-            x = x0 + j * cw + cw / 2
-            cy = y + 19
-            if c == "F":
-                b.append(f"<circle cx='{x}' cy='{cy}' r='8' fill='{WARN}'/>")
-            elif c == "T":
-                b.append(f"<circle cx='{x}' cy='{cy}' r='7' fill='none' stroke='{INK2}' stroke-width='1.8'/>")
-            elif c == "R":
-                b.append(f"<rect x='{x - 7}' y='{cy - 7}' width='14' height='14' fill='{BLUE}'/>")
-            elif c == "S":
-                b.append(f"<path d='M{x - 8} {cy + 7}L{x} {cy - 8}L{x + 8} {cy + 7}z' fill='{GOOD}'/>")
-    ly = 68 + len(tools) * rh + 6
-    b.append(f"<circle cx='10' cy='{ly}' r='7' fill='{WARN}'/>" + T(24, ly + 4, "the answer is written into the team's brief", 9.6, 400, INK2))
-    b.append(f"<circle cx='290' cy='{ly}' r='6' fill='none' stroke='{INK2}' stroke-width='1.8'/>" + T(302, ly + 4, "a read-only tool the agent may call", 9.6, 400, INK2))
-    b.append(f"<rect x='513' y='{ly - 7}' width='14' height='14' fill='{BLUE}'/>" + T(533, ly + 4, "proposes through the gate", 9.6, 400, INK2))
-    b.append(f"<path d='M{660} {ly + 6}L{668} {ly - 7}L{676} {ly + 6}z' fill='{GOOD}'/>" + T(682, ly + 4, "triggers it", 9.6, 400, INK2))
-    b.append(T(0, ly + 26, "Beyond the table: the forecast also feeds the workspace (urgency) and the early flood alert; the dispatch solver also chooses every station when incidents compete.", 9.6, 400, INK2))
-    return SVG(780, ly + 40, "".join(b), "Which tool serves which team")
-
-
 # --------------------------------------------------------------------------------------------------- figure 7 gate
 
 
@@ -421,55 +288,6 @@ def fig_gate() -> str:
     return SVG(780, 332, "".join(b), "The eleven checks of the safety gate")
 
 
-# --------------------------------------------------------------------------------------------------- figure 8 flows
-
-
-def fig_flows() -> str:
-    cols = [
-        ("A fake flood (t13)", WARN, [
-            ("drop", "an honest gauge reads 0.3 m; a second says 1.8 m"),
-            ("shield", "the Guardian marks the second gauge untrusted"),
-            ("route", "the Brain opens a flood incident, evidence untrusted"),
-            ("lock", "the gate refuses the warning and the valve call"),
-            ("check", "the honest gauge clears it; nothing reaches the city"),
-            ("file", "the explanation names the check that held each call")]),
-        ("A flood, an attack, a layer down (t15)", BLUE, [
-            ("drop", "the water rises while a forged robbery arrives"),
-            ("alert", "the forged report is tracked; no police are sent"),
-            ("lock", "the valve is held: one trusted source, needs two"),
-            ("shield", "the Guardian stops answering after 120 verdicts"),
-            ("alert", "the Brain says so once and warns neighbouring zones"),
-            ("check", "low-impact alerts only until verdicts return")]),
-        ("The model stops answering", BAD, [
-            ("key", "Groq answers 401, a daily limit, or nothing"),
-            ("alert", "named: key rejected, quota spent, rate limit, network"),
-            ("agents", "the very next team call uses the scripted stand-in"),
-            ("monitor", "the chip reads 'model down: why'; M forces it by hand"),
-            ("clock", "after a cool-down one call tests the model again"),
-            ("check", "decisions are unchanged: code still disposes")]),
-    ]
-    b = []
-    for i, (title, tone, steps) in enumerate(cols):
-        x = i * 262
-        b.append(R(x, 0, 250, 372, WASH[tone], tone, 1.2, 10) + T(x + 12, 22, title, 11, 700, tone))
-        for k, (ic, text) in enumerate(steps):
-            y = 40 + k * 55
-            b.append(BADGE(ic, x + 28, y + 16, 30, tone))
-            words = text.split()
-            lines, cur = [], ""
-            for wd in words:
-                if len(cur) + len(wd) + 1 > 33:
-                    lines.append(cur)
-                    cur = wd
-                else:
-                    cur = (cur + " " + wd).strip()
-            lines.append(cur)
-            b.append(LINES(x + 52, y + 12, lines, 9.6, 12, INK))
-            if k < 5:
-                b.append(ARROW([(x + 28, y + 34), (x + 28, y + 50)], tone, width=1.3))
-    return SVG(780, 372, "".join(b), "Three flows in which several components interlock")
-
-
 # --------------------------------------------------------------------------------------------------- figure 9 stack
 
 
@@ -480,12 +298,12 @@ def fig_stack() -> str:
         ("langgraph", "LangGraph", "reflex, team, planner", "SQLite checkpoints"),
         ("langchain", "LangChain", "model agents", "tools, Groq"), ("groq", "Groq", "gpt-oss 120b / 20b", "agents"),
         ("ortools", "OR-Tools", "min-cost flow, CP-SAT", "solvers"), ("networkx", "NetworkX", "city graph", "Neo4j mirror"),
-        ("numpy", "NumPy", "forecast, robustness", "solvers"), ("neo4j", "Neo4j", "graph mirror (optional)", "full stack"),
+        ("numpy", "NumPy", "forecast, robustness", "solvers"), ("neo4j", "Neo4j", "city graph, on by default", "graph queries"),
         ("qdrant", "Qdrant", "knowledge vectors", "hybrid search"), ("sqlite", "SQLite", "approvals, checkpoints", "gate, planner"),
         ("modelcontextprotocol", "MCP", "the Twin, read-only tools", "partners"), ("mqtt", "MQTT", "a Twin transport", "adapters"),
         ("cloudevents", "CloudEvents", "every timeline event", "screen, log"), ("opentelemetry", "OpenTelemetry", "spans, Jaeger", "evidence"),
         ("docker", "Docker Compose", "the whole city, one command", "make full"), ("threedotjs", "three.js r160", "the canopy, vendored", "screen"),
-        ("pytest", "pytest", "1,064 tests", "every change"),
+        ("pytest", "pytest", "1,112 tests", "every change"),
     ]
     b = []
     cw, ch = 150, 78
@@ -502,7 +320,7 @@ def fig_stack() -> str:
 
 def fig_failures() -> str:
     cards = [
-        ("shield", GOOD, "Guardian silent", "degraded mode: only low-impact calls pass; a score built on unvouched evidence is damped", "t15"),
+        ("shield", GOOD, "Guardian silent", "no action on a reading it has not judged; a call still needs a trusted, unexpired verdict", "t15"),
         ("city", MUTED, "Twin goes away", "one degraded, state kept, nothing sent twice, one recovered", "unit test"),
         ("key", BAD, "Model outage", "named at the first failure; scripted team answers at once", "llm-check"),
         ("alert", WARN, "Unknown alarm", "no incident, a person is asked once", "unit test"),
@@ -611,17 +429,160 @@ def rule(name: str, tone: str, text: str) -> str:
     return f"<div class='rule'>{small_icon(name, tone)}<p>{text}</p></div>"
 
 
+LOGO_CSS = """
+.lg{--panel:#fff;--fg:#111417;--muted:#3F464A;--line:#AEB5AF;--steel:#1B49CF;--ember:#A85F00;--wash:#F2F4F1;--body:'Liberation Sans',Arial,Helvetica,sans-serif;--mono:'B612 Mono',monospace}
+.lg .card,.lg .card.new{fill:var(--panel);stroke:var(--line);stroke-width:1.4}.lg .card.partner{stroke-dasharray:6 4;stroke:var(--muted);fill:var(--wash)}
+.lg .card.gate{stroke:var(--ember);stroke-width:2.6;fill:#FBF1E2}.lg .tile{fill:#fff;stroke:#D5DCE1;stroke-width:1}
+.lg .glyph{fill:none;stroke:var(--steel);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}.lg .frame{fill:none;stroke:var(--line);stroke-width:1.2;stroke-dasharray:2 5}
+.lg .arrow{fill:none;stroke:var(--steel);stroke-width:1.8}.lg .arrow.ember{stroke:var(--ember)}.lg .headfill{fill:var(--steel)}.lg .headember{fill:var(--ember)}
+.lg .t{font:700 17px var(--body);fill:var(--fg)}.lg .s{font:400 14px var(--body);fill:var(--muted)}.lg .an{font:400 11px var(--mono);fill:var(--steel)}
+.lg.big .t{font-size:20px}.lg.big .s{font-size:16px}.lg.big .k{font-size:13.5px}.lg.small .s{font-size:13px}.lg .k{font:400 11.5px var(--mono);fill:var(--muted);letter-spacing:.04em}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:2mm;margin:2.5mm 0 1mm}
+.stats div{border:1px solid #AEB5AF;border-top:3px solid #1B49CF;padding:1.6mm 2mm}.stats b{display:block;font-size:13pt;line-height:1.1}.stats span{font-size:7.1pt;color:#636B6F;line-height:1.25;display:block}
+h1 small{font-size:10pt;color:#636B6F;font-weight:400;margin-left:2mm}
+"""
+
+
+def logo_fig(svg: str, height: int, size: str = "") -> str:
+    """One of docs/diagrams/logo_architecture.py's drawings, cut to its content (the drawings are 1240 wide with room to spare below)."""
+    import re
+    svg = re.sub(r'viewBox="[^"]*" width="\d+" height="\d+"', f'viewBox="0 0 1240 {height}"', svg, count=1)
+    return f"<div class='lg {size}'>{svg}</div>"
+
+
+def part2(n: int) -> list[str]:
+    """Part 2, five pages in the six subheadings the Phase 1 book asks of every layer. n is the first page number."""
+    p = []
+    p.append(page(n, "Part 2 · The City Brain · 2.1 Role and goals", f"""
+<h1>2. The City Brain <small>What should we do?</small></h1>
+<h2 style='margin-top:1mm'>2.1 Role and goals</h2>
+<p class='lede'>The Brain watches the Twin&rsquo;s live readings, detects real incidents (crimes, fires, accidents, jams, floods, overloads), asks the Guardian whether each reading can be believed, decides the response and acts through the Twin&rsquo;s actuators. It never acts on a reading the Guardian has not vouched for, and it never acts except through one checked door, the <b>safety gate</b>.</p>
+{logo_fig(big_picture(), 540, 'big')}
+<p class='cap'>Figure 2.1. The Brain between its partners, one protocol on each link. Dashed cards are the other teams&rsquo; layers; the amber card is the gate, the only path to the city.</p>
+<div class='cols'><div>
+{rule('shield', GOOD, '<b>Trust before action.</b> Every actuator call names a trusted Guardian verdict that covers its evidence (<code>trust_ref</code>).')}
+{rule('lock', BLUE, '<b>One way out.</b> Rules, agents and solvers only propose; the gate checks, signs and sends.')}
+</div><div>
+{rule('check', GOOD, '<b>Code disposes.</b> A model may reason, code verifies; a scripted team passes every scenario with no network.')}
+{rule('eye', INK, '<b>Nothing is silent.</b> A held action, a refused reading, an outage: each is a named event with its reason.')}
+</div></div>
+<div class='stats'>
+<div><b>5 / 5</b><span>Test Book scenarios T12&ndash;T16 pass, one chained log each</span></div>
+<div><b>3.5 ms</b><span>reflex answer after the evidence (t14)</span></div>
+<div><b>1,112</b><span>tests, named as sentences</span></div>
+<div><b>24 / 24</b><span>red-team attacks refused</span></div>
+<div><b>60 / 60</b><span>held-out variants decide as their base</span></div>
+<div><b>19</b><span>conformance checks a partner can run</span></div>
+</div>
+<h3>Six departments, one per kind of incident</h3>
+<table><tr><th>Department</th><th>Incidents</th><th>Acts through</th><th>Reasoning</th></tr>
+<tr><td>Police</td><td>crime</td><td><code>dispatch_unit</code> (pursuit, contain), <code>broadcast_alert</code>, <code>recall_unit</code></td><td>team: Analyst, Tactician, Chief</td></tr>
+<tr><td>Fire, Ambulance</td><td>fire, accident</td><td><code>dispatch_unit</code>, <code>broadcast_alert</code></td><td>desk: Analyst, Chief</td></tr>
+<tr><td>Traffic control</td><td>jam, ambulance route</td><td><code>set_signal_phase</code> (hold green)</td><td>desk</td></tr>
+<tr><td>Disaster response</td><td>flood</td><td><code>broadcast_alert</code>, <code>set_valve_state</code> (a person approves)</td><td>desk</td></tr>
+<tr><td>Utilities</td><td>overload, smog</td><td><code>broadcast_alert</code>, <code>set_grid_connection</code> (a person approves)</td><td>desk</td></tr></table>
+<p>A department is three files (a manifest of detectors and actuators, reflex rules, a playbook), so a new kind of incident is a new pack, not new code.</p>
+"""))
+    p.append(page(n + 1, "Part 2 · 2.2 Architecture · detection and decision", f"""
+<h2 style='margin-top:0'>2.2 Architecture</h2>
+<p class='lede'>One reading travels eighteen steps from the Twin to an action and an explanation. Each step is a small part with one job that hands its result to the next; each card names the technology that runs it and, in blue, the brain function it is modelled on (brain-inspired engineering, not a model of a brain).</p>
+{logo_fig(incident_flow(), 596)}
+<p class='cap'>Figure 2.2. From a reading to a decision. Amber arrows are the way out: reflex proposals reach the gate at once, the team&rsquo;s plan follows and meets the same gate. A plan the team makes the same way twice returns as a reflex after sleep.</p>
+<div class='cols'><div>
+<h3>Incident detection</h3>
+<p><b>Perception</b> checks the contract version, the HMAC signature, the sequence number (replay) and value ranges; a refusal has a code. <b>The Guardian&rsquo;s verdict</b> (2 s deadline) decides whether the reading may count. <b>Forward models</b> learn each sensor&rsquo;s own normal from trusted readings only: a reading many spreads away is a <i>surprise</i> and the reflex it would trigger is held until a second source agrees; a Kalman tracker forecasts when a river reaches the flood line. <b>Triage</b> runs the six departments&rsquo; detectors to open or join an incident, and the <b>workspace</b> gives two seats of attention by severity, trust, surprise and urgency.</p>
+<p>Instead of staying silent the Brain says <code>brain.human.needed</code> for an alarm no department knows, an incident with no procedure, or an incident that stalls.</p>
+</div><div>
+<h3>Decision method: rules, agents and solvers, joined</h3>
+<p><b>Rules</b> (13, in six packs) answer in milliseconds with no model. <b>Agent teams</b> weigh the case: for Police an Analyst, a Tactician and a Chief on LangGraph (Groq models with <code>--llm</code>, a scripted stand-in otherwise or when the model fails); the other departments use a two-role desk. <b>Solvers</b> compute what judgement should not guess (OR-Tools min-cost flow for dispatch, CP-SAT for a perimeter and for load shedding, Dijkstra for a green corridor, Kalman for the flood forecast). They run in code before the agents and their answers are written into the brief, so a model that never calls a tool still reads them.</p>
+<p>Code then verifies the agents&rsquo; plan (<code>verify_case</code>, <code>verify_plan</code>, <code>verify_desk</code>) before it reaches the gate.</p>
+</div></div>
+<h3>What can stop a reading on its way to an incident, and what is said</h3>
+<table><tr><th style='width:34%'>The reading</th><th style='width:36%'>Event on the timeline</th><th>Shown by</th></tr>
+<tr><td>has a bad signature, a replayed sequence number or a value out of range</td><td><code>brain.reading.rejected</code> with a stable code</td><td><code>brain redteam</code>, <code>brain conformance</code></td></tr>
+<tr><td>is judged untrusted by the Guardian</td><td><code>brain.action.blocked</code> (trust), nothing is sent</td><td>T13, T15</td></tr>
+<tr><td>jumps further than its own history explains</td><td><code>brain.percept.surprise</code>, the reflex is held</td><td><code>brain forward-bench</code></td></tr>
+</table>
+<p><b>Two speeds, one gate.</b> In T14 the reflex dispatches the first unit 3.5 ms after the evidence; the team&rsquo;s solver-checked perimeter follows about 70 ms later and passes the same eleven checks.</p>
+"""))
+    p.append(page(n + 2, "Part 2 · 2.2 Architecture · how it picks an actuator", f"""
+<h2 style='margin-top:0'>2.2 Architecture (continued): how the Brain picks an actuator</h2>
+<p class='lede'>Three steps: the incident type decides which department may act and with which actuator; a solver or the nearest free station picks the device; the gate decides whether the call may go. The Brain never calls the Twin from anywhere else.</p>
+{logo_fig(planner(), 566)}
+<p class='cap'>Figure 2.3. The planning graph for one incident (LangGraph): solve and deliberate in parallel, keep the better plan, pause for a person on a valve or the grid, checkpoint to SQLite so a run resumes and replays.</p>
+<div class='cols'><div>
+<h3>Which station or device</h3>
+<p>Nearest free station by hop distance, never a quarantined or reserved one (scenario T16: the Guardian quarantines a station, the gate refuses it with reason <code>quarantine</code> and another is sent). When two incidents want the same kind of unit, the dispatch solver solves them together and its choice is used only if it saves cost: for two collisions the far ambulance goes to the first so the near one is free for the second (2.8 against 4.2).</p>
+</div><div>
+<h3>Which cut, which signal</h3>
+<p>A cascade analysis weighs what each grid cut would darken (a hospital counts 10) and the shed solver picks the cheapest set that removes the excess. A corridor holds the signals on an ambulance&rsquo;s route green. A dispatched unit&rsquo;s <code>unit_status</code> readings close the incident; an arrest recalls every unit still out.</p>
+</div></div>
+{fig_gate()}
+<p class='cap'>Figure 2.4. The safety gate. Every proposal, from a rule, an agent or a solver, meets the same eleven checks in order; the first that fails stops the call and is logged with its reason. A repeated call returns <code>duplicate</code> from the Twin.</p>
+"""))
+    p.append(page(n + 3, "Part 2 · 2.3 Tech stack and why · 2.4 Interfaces in/out", f"""
+<h2 style='margin-top:0'>2.3 Tech stack and why</h2>
+<p>Standard, well-known parts, each with one job. The stack runs offline on one laptop: the embedding model is baked into the image, the screen loads nothing from the internet, and a model outage only changes who reasons.</p>
+{fig_stack()}
+<p class='cap'>Figure 2.5. The stack and what each part feeds. Logos identify the technologies; each belongs to its owner.</p>
+<table><tr><th style='width:24%'>Choice</th><th>Why</th></tr>
+<tr><td>Python 3.12, uv, Pydantic</td><td>One language for rules, agents and solvers; locked, reproducible builds; every message a typed model that validates itself.</td></tr>
+<tr><td>LangGraph + OR-Tools</td><td>Graphs that pause, resume and checkpoint for agents; proven solvers with a certificate for what must be exact.</td></tr>
+<tr><td>MCP, REST, SSE + CloudEvents</td><td>MCP gives the Twin&rsquo;s tools schemas and discovery; REST is one question, one answer for verdicts; SSE is one-way, replayable, and needs no client library.</td></tr>
+<tr><td>Neo4j + Qdrant</td><td>The city as a graph that answers &ldquo;why was this unit sent?&rdquo; in one query; hybrid search over 39 procedures. Decisions never wait on either.</td></tr></table>
+<h2>2.4 Interfaces in/out</h2>
+<table><tr><th style='width:16%'>Direction</th><th style='width:32%'>Message</th><th>Transport (default first) and contract</th></tr>
+<tr><td>In, from the Twin</td><td>signed sensor readings; the city layout</td><td>MCP <code>list_readings(cursor)</code> every 200 ms and <code>get_topology()</code>; also plain HTTP or MQTT</td></tr>
+<tr><td>In, from the Guardian</td><td>a signed trust verdict per reading; its containment list</td><td>with the Guardian team&rsquo;s contract 1.0: REST <code>POST /v1/verdicts/request</code> (by sensor and sequence number), HMAC checked; <code>GET /v1/containment</code>; <code>X-API-Key</code>. The Brain asks; it does not read the alert feed <code>WS /v1/ws/verdicts</code>. Our mock speaks a simpler REST contract (<code>POST /verdicts</code>)</td></tr>
+<tr><td>Out, to the Twin</td><td>signed calls: <code>dispatch_unit</code>, <code>broadcast_alert</code>, <code>recall_unit</code>, <code>set_signal_phase</code>, <code>set_valve_state</code>, <code>set_grid_connection</code></td><td>valve, grid, signal and dispatch go through the Guardian&rsquo;s audited <code>POST /v1/actuator-calls</code>; broadcast and recall, which its registry does not list, go to the Twin directly (MCP tool of the same name, or HTTP)</td></tr>
+<tr><td>Out, to anyone</td><td>timeline events; the why of a decision; read-only tools</td><td>SSE <code>GET /events</code> (CloudEvents 1.0, 55 types in AsyncAPI); <code>/api/decisions/{{id}}/explanation</code>; MCP at <code>/mcp</code></td></tr></table>
+<p>All of it is in the one-page Interface Card (<code>brain/INTERFACE.md</code>) with a JSON example of every message and JSON Schemas in <code>contracts/</code>. A new partner is an edit of <code>config/partners.yaml</code> (address, adapter, secret names, renames, units), never a code change: decision code reaches partners only through two ports, and <code>tests/test_layering.py</code> fails the build if it imports a protocol.</p>
+"""))
+    p.append(page(n + 4, "Part 2 · 2.5 Security measures · 2.6 Known limitations", f"""
+<h2 style='margin-top:0'>2.5 Security measures</h2>
+<p class='lede'>Every input is hostile until checked, every model answer is a suggestion, and the only way out is one signed call that a person approves when it is high-impact. Threats are mapped to MITRE ATT&amp;CK for ICS and to MITRE ATLAS for the AI parts (<code>docs/SECURITY-MITRE.md</code>).</p>
+{logo_fig(defence(), 152, 'small')}
+<p class='cap'>Figure 2.6. Six layers, each assuming the one outside it can fail.</p>
+<table style='font-size:7.4pt'><tr><th style='width:20%'>Boundary</th><th>Control</th></tr>
+<tr><td>Twin to Brain: readings</td><td>HMAC-SHA256 or Ed25519 over canonical JSON, key ids with expiry, a rising sequence number per sensor, schema and ranges; only allowlisted fields are kept, so demographic fields never reach a decision</td></tr>
+<tr><td>Guardian to Brain: verdicts</td><td>schema check; the gate asks for more independent trusted sources as impact rises; only the Guardian&rsquo;s token may retract a verdict; the 1.0 adapter checks the verdict&rsquo;s HMAC</td></tr>
+<tr><td>People, partners to the API</td><td>scoped bearer tokens off loopback (read, push, approve, admin), body and rate limits; a partner may push only <code>twin.*</code> or <code>guardian.*</code> events, a forged <code>brain.*</code> is refused</td></tr>
+<tr><td>Brain to the language model</td><td>ids limited to safe characters before any prompt; read-only tools, no actuating tool exists; models pick zone ids, never free text; code verifies; then the gate</td></tr>
+<tr><td>Brain to Twin: calls</td><td>eleven gate checks; each call signed with its time and a one-time nonce; a valve or grid call needs a signed approval bound to its exact parameters, used once</td></tr>
+<tr><td>Brain to its own disk</td><td>hash-chained log with a signed head; learning only from trusted readings; self-tuning limited to a listed set of numbers, each with a range</td></tr></table>
+<table style='font-size:7.4pt'><tr><th style='width:26%'>MITRE technique</th><th style='width:46%'>Attack run against the code</th><th>Result</th></tr>
+<tr><td>ICS T1692.002 forged reading</td><td>wrong key, no signature, a field edited after signing, a replayed sequence number, <code>alg: none</code></td><td>refused every time</td></tr>
+<tr><td>ICS T1692.001, T0849 forged call</td><td>an approval reused with changed parameters; the Twin pushing as the Guardian</td><td>refused</td></tr>
+<tr><td>Enterprise T1190, T1078</td><td>no token, a forged token, a read token doing admin work, 28 path spellings by 7 methods</td><td>none got through</td></tr>
+<tr><td>ATLAS AML.T0051, T0053</td><td>30 prompt-injection strings in sensor ids and values; a tool that tries to actuate</td><td>dropped before any prompt; no such tool can exist</td></tr></table>
+<p><b>Evidence.</b> <code>brain redteam</code>: 24 attacks, all refused (re-run for this report). A partner&rsquo;s bad message is answered with a stable code and a sentence (<code>signature_invalid</code>, <code>replay_or_out_of_order</code>, <code>value_invalid</code>&hellip;) and shown on the timeline. A silent Guardian gives no verdict, so nothing it has not judged is acted on (T15): the Guardian&rsquo;s fail-safe rule, enforced on the Brain&rsquo;s side too.</p>
+<h2>2.6 Known limitations</h2>
+<div class='cols'><div>
+{rule('plug', BAD, '<b>No joint run with the real Twin yet.</b> End to end only against mocks; against the live Guardian, the fake and real flood and T16 (<code>logs/t16-live-guardian-*.log</code>).')}
+{rule('shield', WARN, '<b>The mock Guardian is scripted.</b> T13 and T16 show what the Brain does <i>given</i> a verdict, not whether a real Guardian would give it.')}
+{rule('alert', WARN, '<b>Our mock&rsquo;s contract does not sign verdicts.</b> The Guardian team&rsquo;s 1.0 does, and the Brain checks it.')}
+{rule('dial', MUTED, '<b>Tuned on stand-ins.</b> Which sensors move together, and whether same-zone sensors are independent, wait for the real Twin&rsquo;s data (<code>docs/TWIN-HANDOVER.md</code>).')}
+</div><div>
+{rule('lock', WARN, '<b>TLS and the freshness limit are off by default.</b> Signatures still protect readings and calls; set <code>twin.max_age_s</code> on the live Twin.')}
+{rule('route', BAD, '<b>One dispatch per incident at the Guardian.</b> Its auditor refuses a second dispatch for one incident (<code>duplicate_dispatch</code>), so T14&rsquo;s perimeter units would be refused. To agree: a duplicate is the same incident <i>and</i> station.')}
+{rule('alert', WARN, '<b>Guardian alerts are not read.</b> An actuator it flags unreliable reaches the Brain through the containment list, which the gate obeys; <code>compromised_twin</code> does not.')}
+</div></div>
+"""))
+    return p
+
+
 def pages() -> list[str]:
     p = []
     p.append(page(1, "Part 0 · Triplet overview and integration", f"""
 <h1>The City Brain inside the triplet</h1>
 <p class='lede'>Three layers, one loop. The <b>Twin</b> is the simulated city, the <b>Guardian</b> says which readings can be believed, and the <b>City Brain</b> decides and acts. Figure 1 is the Brain's part of the global diagram: every box is a component that exists and runs, and the arrows are the ways they hand work to each other.</p>
 {fig_architecture()}
-<p class='cap'>Figure 1. Global architecture. Readings enter at the top and actions leave only through the gate. Dashed amber arrows show where a solver's answer enters a team's brief; dashed green arrows show the learning loop.</p>
+<p class='cap'>Figure 1. Global architecture. Readings enter at the top and actions leave only through the gate. The dotted line across the top is the Guardian team&rsquo;s design, where the Twin also feeds the Guardian. Dashed amber arrows show where a solver's answer enters a team's brief; dashed green arrows show the learning loop.</p>
 <table><tr><th>Link</th><th>How it talks</th><th>What keeps it safe</th></tr>
 <tr><td>Twin to Brain</td><td>MCP tool <code>list_readings</code> (also HTTP and MQTT); city layout from <code>get_topology</code></td><td>contract version, HMAC signature, sequence number, ranges</td></tr>
-<tr><td>Brain to Guardian</td><td>REST <code>POST /verdicts</code>, 2 s deadline; <code>GET /quarantine/{{id}}</code></td><td>silent Guardian means degraded mode: only low-impact actions pass</td></tr>
-<tr><td>Brain to Twin</td><td>signed actuator calls through the Twin's MCP tools; results come back as readings and <code>unit_status</code></td><td>the gate: 11 checks, trust reference, idempotency, human approval</td></tr>
+<tr><td>Brain to Guardian</td><td>REST, 2 s deadline. Our contract: <code>POST /verdicts</code> with the reading, <code>GET /quarantine/{{id}}</code>. The Guardian team&rsquo;s 1.0: <code>POST /v1/verdicts/request</code> by sensor and sequence number, <code>GET /v1/containment</code></td><td>silent Guardian means degraded mode: only low-impact actions pass</td></tr>
+<tr><td>Twin to Guardian</td><td>the Guardian team&rsquo;s contract only: the Twin pushes <code>POST /v1/readings</code> (or the Guardian pulls). The Brain is not on this path</td><td>HMAC on every reading; the Guardian checks sequence and timestamp</td></tr>
+<tr><td>Brain to Twin</td><td>signed actuator calls through the Twin's MCP tools; with the Guardian team&rsquo;s Guardian, valve, grid, signal and dispatch calls go through its <code>POST /v1/actuator-calls</code>, which audits them before forwarding; results come back as readings and <code>unit_status</code></td><td>the gate: 11 checks, trust reference, idempotency, human approval</td></tr>
 <tr><td>Any partner to the screen</td><td>CloudEvents over SSE; a partner may push <code>twin.*</code> or <code>guardian.*</code> events</td><td><code>brain.*</code> pushes are refused; scoped tokens off loopback</td></tr></table>
 """))
     p.append(page(2, "Part 0 · One scenario traced end to end", f"""
@@ -634,7 +595,7 @@ def pages() -> list[str]:
 <p><b>Trust first.</b> The camera reading is acted on only after the Guardian's verdict; the second reading (a citizen running away at 18 km/h) lifts the suspect's score to 0.82.</p>
 <p><b>Two speeds.</b> A rule dispatches the first unit at once; the Analyst, Tactician and Chief then place a perimeter, and code verifies it before anything is proposed.</p></div><div>
 <h3>What it would look like if it went wrong</h3>
-<p><b>A fake flood (t13):</b> the Guardian marks the reading untrusted and the gate refuses the warning and the valve call. <b>A layer down (t15):</b> the Guardian stops answering, the Brain says so once and carries on with low-impact alerts only.</p></div></div>
+<p><b>A fake flood (t13):</b> the Guardian marks the reading untrusted and the gate refuses the warning and the valve call. <b>A layer down (t15):</b> the Guardian stops answering; the Brain says so once and acts on no reading the Guardian has not judged (every call still needs a trusted verdict).</p></div></div>
 """))
     p.append(page(3, "Part 0 · Shared decisions", f"""
 <h1>How the layers were made to fit</h1>
@@ -647,7 +608,7 @@ def pages() -> list[str]:
 </div><div>
 {rule('route', WARN, '<b>Partners differ.</b> <code>brain onboard</code> proposes renames and units for a Twin that names things differently and never edits config.')}
 {rule('alert', BAD, '<b>Failure is a state.</b> A silent Guardian, a missing Twin, a spent model quota and an unknown alarm each have a named event and a defined behaviour.')}
-{rule('chart', INK, '<b>Evidence, not claims.</b> 1,064 tests, 4 Test Book scenarios, 50 held-out variants, a hash-chained log per run, and <code>brain rehearse</code> as the freeze check.')}
+{rule('chart', INK, '<b>Evidence, not claims.</b> 1,112 tests, 5 Test Book scenarios, 50 held-out variants, a hash-chained log per run, and <code>brain rehearse</code> as the freeze check.')}
 {rule('box', GOOD, '<b>One command.</b> <code>make full</code> builds one image and starts the Brain, both stand-ins, Neo4j and Qdrant.')}
 </div></div>
 <h2>The messages that cross the layers</h2>
@@ -674,154 +635,35 @@ def pages() -> list[str]:
 <tr><td><b>A complete Interface Card</b></td><td><code>INTERFACE.md</code>: what the Brain receives and sends, an example of each message, how to repoint it, how it authenticates. Long form: <code>docs/INTEGRATION-brain.md</code>.</td><td><code>tests/test_contracts.py</code> validates every example in <code>contracts/examples/</code> and verifies each signature.</td></tr>
 <tr><td><b>Settings in configuration</b></td><td><code>config/partners.yaml</code> holds each partner's adapter, address, secret variable name, renames and units. Secrets come from the environment; code defaults are loopback addresses.</td><td>A test requires the YAML to equal the defaults; <code>brain onboard</code> proposes edits for a renamed Twin.</td></tr>
 <tr><td><b>Standard protocols and formats</b></td><td>MCP, REST and MQTT; JSON Schema; HMAC-SHA256 or Ed25519 over canonical JSON; Server-Sent Events and CloudEvents 1.0 described by AsyncAPI; TLS; OpenTelemetry.</td><td><code>contracts/schemas/</code>; <code>docs/asyncapi.yaml</code> (55 event types).</td></tr>
-<tr><td><b>Validation and clear errors</b></td><td>Every reading is checked on entry; a refusal carries a code and a reason (below) and goes to the timeline. A bad verdict puts the Brain in degraded mode; a failing Twin tool is named in the error.</td><td><code>brain conformance</code> checks a real partner; <code>brain redteam</code>: 22 attacks, all refused.</td></tr></table>
+<tr><td><b>Validation and clear errors</b></td><td>Every reading is checked on entry; a refusal carries a code and a reason (below) and goes to the timeline. A bad verdict puts the Brain in degraded mode; a failing Twin tool is named in the error.</td><td><code>brain conformance</code> checks a real partner; <code>brain redteam</code>: 24 attacks, all refused.</td></tr></table>
 <h2>What a partner is told when it sends something unexpected</h2>
 <table style='font-size:7.3pt'><tr><th style='width:21%'>The partner sends</th><th style='width:22%'>Code</th><th>The Brain's answer, as the code returns it</th></tr>
 {rejection_rows()}</table>
 <p class='cap'>Table 2. Run through the Brain's own perception code when this report is built. Not shown yet: the Brain has run only against mocks of the Twin and the Guardian; the HTTP and MQTT adapters are agreed but not yet run against a partner.</p>
 """))
-    p.append(page(5, "Part 2 · The City Brain · overview", f"""
-<h1>2. The City Brain: one system, many parts that need each other</h1>
-<p class='lede'>The Brain is a decision layer made of parts that each do one small thing and hand their result to the next: a prediction that raises attention, attention that recruits a team, a team that is handed a solver's answer, a gate that checks the team. No part is useful alone, and no part may act alone. This part explains what the parts are and, above all, how they are connected.</p>
-{fig_loops()}
-<p class='cap'>Figure 3. Three loops at three speeds. The loops are linked: an incident starts a task loop; a closed incident feeds the meta loop; a promoted lesson returns as a reflex.</p>
-<h2>Four rules that make the parts safe to connect</h2>
-<div class='cols'><div>
-{rule('shield', GOOD, '<b>Trust before action.</b> Every call names a trusted Guardian verdict that covers its evidence.')}
-{rule('lock', BLUE, '<b>The gate is the only way out.</b> Rules, agents and solvers propose; only the gate signs.')}
-</div><div>
-{rule('check', GOOD, '<b>Code disposes.</b> A model reasons, code checks (<code>verify_case</code>, <code>verify_plan</code>, <code>verify_desk</code>); a scripted team passes every scenario with no network.')}
-{rule('eye', INK, '<b>Nothing is silent.</b> A held action, a doubted value, an unknown alarm, a model outage: each is a named event.')}
-</div></div>
-<h2>The six departments</h2>
-<table><tr><th>Team</th><th>Incident types</th><th>Acts through</th><th>Reasoning</th></tr>
-<tr><td>Police</td><td>crime</td><td>dispatch (pursuit, contain), alert, recall</td><td>Analyst, Tactician, Chief</td></tr>
-<tr><td>Fire</td><td>fire</td><td>dispatch fire unit, alert</td><td>desk: Analyst, Chief</td></tr>
-<tr><td>Ambulance and medical</td><td>accident</td><td>dispatch ambulance, alert</td><td>desk</td></tr>
-<tr><td>Traffic control</td><td>jam</td><td>hold a signal green</td><td>desk</td></tr>
-<tr><td>Disaster response</td><td>flood</td><td>alert, close a valve (a person approves)</td><td>desk</td></tr>
-<tr><td>Utilities</td><td>overload, smog</td><td>alert, cut a zone (a person approves)</td><td>desk</td></tr></table>
-<p>A department is three files (a manifest of detectors and actuators, reflex rules, a playbook), so a new kind of incident is a new pack, not new code. A desk can only advise neighbouring zones; it picks zone ids and never words.</p>
-"""))
-    p.append(page(6, "Part 2 · 2.1 Incident detection", f"""
-<h1>2.1 Incident detection: five stages, each able to stop or flag</h1>
-<p class='lede'>A reading becomes an incident only after it has been checked, believed, compared with what was expected, and matched to a department. At each stage something specific can go wrong, and the Brain says so instead of acting or staying silent.</p>
-{fig_detection()}
-<p class='cap'>Figure 4. The detection pipeline with one scenario for each thing a stage can stop. The scenarios are in the Test Book and reproduce from one command.</p>
-<div class='cols'><div>
-<h3>Prediction is part of detection</h3>
-<p>Each sensor learns its own normal (running mean and spread, taught only by trusted readings). A reading many spreads away is a <i>surprise</i>; the first is <i>doubted</i> and the reflex that would act on it is held until another reading agrees. Two sensors that should move together are watched through their <i>difference</i>, so a slow creep one of them makes is caught.</p>
-<p>The same machinery looks ahead: a level tracker forecasts when a river reaches the flood line, which triggers an early public alert and raises the incident's attention. That alert is not sent on a doubted or disputed gauge.</p>
-</div><div>
-<h3>Three things the Brain says instead of staying silent</h3>
-<p><b>Unknown alarm.</b> A trusted camera anomaly that is neither a crime nor a collision, or a call in the category &lsquo;other&rsquo;, opens no incident; <code>brain.human.needed</code> says a person may be needed.</p>
-<p><b>No procedure.</b> A desk whose playbook has nothing for the incident type first reads the department&rsquo;s other procedures; with none it sends nothing and asks for a person.</p>
-<p><b>Stalled incident.</b> An open incident with no new evidence for <code>triage.stall_s</code> asks for a person. The screen shows a red bar for each.</p>
-</div></div>
-<table><tr><th>What can stop a reading</th><th>Event</th><th>Shown by</th></tr>
-<tr><td>bad signature, replay, out-of-range value</td><td><code>brain.reading.rejected</code> with a stable code</td><td>Table 2, redteam</td></tr>
-<tr><td>untrusted evidence</td><td><code>brain.action.blocked</code> (trust)</td><td>t13, t15</td></tr>
-<tr><td>a jump the sensor&rsquo;s own history cannot explain</td><td><code>brain.percept.surprise</code> (doubted)</td><td>forward-bench</td></tr>
-<tr><td>a sensor goes silent</td><td>nothing opens; the other sources carry on</td><td>t15</td></tr></table>
-"""))
-    p.append(page(7, "Part 2 · 2.2 Decision method", f"""
-<h1>2.2 Decision method: rules, agents and solvers, joined</h1>
-<p class='lede'>The Brain does not use one method, it uses three and connects them. <b>Rules</b> answer at once. <b>Agent teams</b> (a model in each role, or a scripted stand-in) weigh the case. <b>Solvers</b> compute what judgement should not guess: which station, how few units, which cut, when the water arrives. The solvers run in code and their answers are written into the team&rsquo;s brief, so a model that never calls a tool still reads them.</p>
-{fig_decision()}
-<p class='cap'>Figure 5. The decision pipeline. The reflex tier and the team tier run side by side; both end at the same gate.</p>
-{fig_matrix()}
-<p class='cap'>Figure 6. Which tool serves which team. The solvers are on by default; each carries a certificate (status, objective, bound, hash of its inputs). A solver that fails leaves the old behaviour in place and says so.</p>
-"""))
-    p.append(page(8, "Part 2 · 2.3 How it picks an actuator", f"""
-<h1>2.3 How the Brain picks an actuator, and why a call can still be refused</h1>
-<p class='lede'>An actuator is chosen in three steps: the incident type decides which department may act and with what; the station or device is chosen (nearest, or the solver&rsquo;s choice when incidents compete); and the gate decides whether the call may go. The Brain never calls the Twin directly.</p>
-<div class='cols'><div>
-<h3>Which actuator</h3>
-<table><tr><th>Incident</th><th>Actuator</th></tr>
-<tr><td>crime</td><td><code>dispatch_unit</code> police (pursuit, contain), <code>broadcast_alert</code>, <code>recall_unit</code></td></tr>
-<tr><td>fire, accident</td><td><code>dispatch_unit</code> fire or ambulance</td></tr>
-<tr><td>jam, ambulance route</td><td><code>set_signal_phase</code> green</td></tr>
-<tr><td>flood</td><td><code>broadcast_alert</code>, <code>set_valve_state</code></td></tr>
-<tr><td>overload</td><td><code>broadcast_alert</code>, <code>set_grid_connection</code></td></tr></table></div><div>
-<h3>Which station or device</h3>
-<p>Nearest by hop distance, excluding quarantined and reserved stations. When two or more incidents want the same kind of unit, the dispatch solver solves them together and its choice is used <i>only if it saves cost</i>: for two collisions the far ambulance goes to the first so the close one is free for the second (cost 2.8 against 4.2, checked against brute force by <code>brain optimise-bench</code>). With one incident the solver is not consulted at all.</p>
-<p>A cascade analysis weighs what each cut would darken (a hospital counts 10), and the shed solver picks the cheapest set that removes the excess.</p></div></div>
-{fig_gate()}
-<p class='cap'>Figure 7. The gate. Every proposal from a rule, an agent or a solver meets the same eleven checks in order; a failed check is an event with its reason. A call the Twin never answered frees its key, so it can be retried; a Twin that did act answers <code>duplicate</code>.</p>
-<p>The result of each call returns as a timeline event; a dispatched unit&rsquo;s later <code>unit_status</code> readings close the incident, and an arrest or a stand-down recalls every unit still out.</p>
-"""))
-    p.append(page(9, "Part 2 · 2.4 Interconnection in action", f"""
-<h1>2.4 The interconnection in action</h1>
-<p class='lede'>The value of the design shows where several parts meet. Each column is a real scenario or a real failure, and each step is a different component handing its result to the next.</p>
-{fig_flows()}
-<p class='cap'>Figure 8. Three flows. Left: the solver, the corridor planner, the desk and the explanation all meet on one decision. Middle: a forecast, the gate, the triage and a desk meet on one river. Right: the model-health monitor, the teams and the screen meet on a failure.</p>
-<div class='cols'><div>
-<h3>Learning closes the loop</h3>
-<p>A closed incident is kept as an episode. <code>brain sleep</code> finds a plan the team made the same way more than once, rehearses it as a candidate reflex against the real team, and promotes it only if it passes every check. The promoted rule is a <i>cache of a verified deliberation</i>: it never reads whether a dispatch worked. The Academy tunes thirteen listed parameters one step at a time on synthetic streams and held-out seeds; the gate, contracts and suspect scoring are not on the list.</p></div><div>
-<h3>Explanation is part of the same wiring</h3>
-<p>Every decision, held action and incident can be explained: the events behind it, the knowledge it cited, the solver&rsquo;s certificate, and counterfactuals proved by changing one input on the real gate. A signed bundle fails if one fact changes. The log is hash-chained and a run replays from its input journal.</p></div></div>
-<table><tr><th>Evidence that the parts work together</th><th>Result</th></tr>
-<tr><td>Test suite (units, scenarios, API, security)</td><td>1,064 passed</td></tr>
-<tr><td>Test Book, every scenario, frozen decisions</td><td>4 scenarios, no differences from the frozen baseline</td></tr>
-<tr><td>Held-out variants (shifted, reseeded, decoyed)</td><td>50 of 50 decide as their base</td></tr>
-<tr><td>Red team (forged and replayed readings, wrong scopes, floods)</td><td>24 attacks, all refused</td></tr>
-<tr><td>Learning curve on t14</td><td>team runs 1 to 0; last action 94.7 ms to 35.5 ms; decisions identical</td></tr></table>
-"""))
-    p.append(page(10, "Part 2 · 2.5 Security and trust", f"""
-<h1>2.5 Security: what is trusted, what is not, and what happens when it is wrong</h1>
-<p class='lede'>Every input is hostile until it is checked, every model answer is a suggestion, and the only way out is one signed call that a person must approve when it is high-impact. The threats are mapped to MITRE ATT&amp;CK for ICS and Enterprise and to MITRE ATLAS for the AI parts. Each attack below was run against the code (<code>docs/SECURITY-MITRE.md</code>).</p>
-<h2>Six trust boundaries and what guards each</h2>
-<table style='font-size:7.3pt'><tr><th style='width:17%'>Boundary</th><th style='width:15%'>Trusted?</th><th>Control</th></tr>
-<tr><td>Twin to Brain: readings</td><td>No, until checked</td><td>HMAC-SHA256 or Ed25519 over canonical JSON, key ids with expiry, a rising sequence number per sensor, schema and ranges; only allowlisted fields are kept; an optional freshness limit (<code>twin.max_age_s</code>)</td></tr>
-<tr><td>Guardian to Brain: verdicts, retractions</td><td>Yes, highly</td><td>Schema check; the gate asks for independent trusted sources by impact level and a person for the highest; only the Guardian&rsquo;s own token may retract a verdict</td></tr>
-<tr><td>People and partners to the API</td><td>By scope</td><td>Scoped tokens off loopback (read, analyse, push, approve, admin), short-lived signed tokens that can be revoked, body and rate limits, a partner may push only into its own namespace and <code>brain.*</code> is refused</td></tr>
-<tr><td>Brain to the language model</td><td>Output is untrusted</td><td>Ids and fields are limited to safe characters before any prompt; read-only tools; models pick zones, never words; code verifies the answer; then the gate</td></tr>
-<tr><td>Brain to Twin: actuator calls</td><td>The Twin must verify</td><td>Eleven gate checks; each call is signed with its time and a one-time number; a valve or the grid needs a signed approval bound to the exact parameters, used once</td></tr>
-<tr><td>Brain to its own disk</td><td>Mostly</td><td>Hash-chained log with a signed head; learning only from trusted readings; self-tuning limited to a listed set of numbers, each with a range</td></tr></table>
-<h2>Attacks tried, and what happened</h2>
-<table style='font-size:7.3pt'><tr><th style='width:21%'>MITRE technique</th><th style='width:41%'>The attack</th><th>Result</th></tr>
-<tr><td>ICS T1692.002 forged reading</td><td>Wrong key, no signature, one field edited after signing, the same sequence number twice, an unknown key id, <code>alg: none</code></td><td>Refused every time (A1 to A4, A20 to A22)</td></tr>
-<tr><td>ICS T1692.002 delayed reading</td><td>A genuine signed reading held back and delivered late</td><td>Passes by default; refused as stale once <code>twin.max_age_s</code> is set (A24)</td></tr>
-<tr><td>ICS T1692.001, T0849 forged call, masquerading</td><td>An approval reused with changed parameters or signed with another secret; the Twin pushes as the Guardian or takes back its verdict</td><td>Refused (A13, A14, A17, A18, A23)</td></tr>
-<tr><td>Enterprise T1190, T1078</td><td>No token, a made-up or forged token, a read token doing admin work, 28 path spellings by 7 methods, file-path tricks</td><td>None got through (A8 to A12)</td></tr>
-<tr><td>ATLAS AML.T0051, T0053 injection, tool misuse</td><td>An instruction in a sensor id or a hidden value field (30 hostile strings); a tool that tries to actuate</td><td>Refused or dropped before any prompt; no actuator tool can exist (A5 to A7, A19)</td></tr>
-<tr><td>ATLAS AML.T0020 poisoning</td><td>Teaching the Brain something false through sleep or tuning</td><td>Sleep learns from trusted readings only and a retraction makes it forget; the folders are off unless set</td></tr>
-<tr><td>ICS T0830 in the middle</td><td>An answer to the Guardian URL that says <code>trusted</code> for anything</td><td><b>Gets through today:</b> a verdict is checked for shape, not signed</td></tr></table>
-<h2>What is not done</h2>
-<div class='cols'><div>
-{rule('alert', BAD, '<b>Verdicts are not signed.</b> Fix: the readings&rsquo; key ring, or mutual TLS (<code>guardian.tls</code>, built).')}
-{rule('lock', WARN, '<b>No TLS by default.</b> Signatures still protect readings and calls in transit.')}
-</div><div>
-{rule('eye', WARN, '<b>Freshness limit off.</b> Set it to a few times the live Twin&rsquo;s interval.')}
-{rule('plug', MUTED, '<b>Real partners not tried.</b> Their checks of time and one-time numbers are untested.')}
-</div></div>
-<p class='cap'>Evidence: <code>uv run brain redteam</code> (24 attacks, all refused), <code>brain security-check</code>, <code>scripts/security_poc.py</code> (13 attacks in process), <code>bandit</code> clean, <code>pip-audit</code>, a software bill of materials. Threat list: <code>docs/SECURITY.md</code>; technique by technique: <code>docs/SECURITY-MITRE.md</code>.</p>
-"""))
-    p.append(page(11, "Part 2 · 2.6 Tech stack  ·  Part 4 · Test Book", f"""
-<h1>2.6 Technology stack</h1>
-<p class='lede'>Standard, well-known parts, chosen so each one has one job and a named neighbour. The stack runs offline: the embedding model is baked into the image, the screen loads nothing from the internet, and a model outage only changes who reasons.</p>
-{fig_stack()}
-<p class='cap'>Figure 9. The stack and what each part feeds. Logos identify the technologies; each belongs to its owner and none implies endorsement.</p>
-<h1 style='margin-top:4mm'>4. Test Book (the Brain&rsquo;s scenarios)</h1>
-<p>Four scenarios, each one trigger (<code>uv run brain scenario dN</code>) and one log in <code>logs/</code>, with expectations in <code>scenarios/</code>. Together they cover the brief&rsquo;s four interaction rows. The generated list is <code>docs/TESTBOOK-brain.md</code>.</p>
-<table><tr><th>ID</th><th>Scenario</th><th>Layers</th><th>Expected output</th></tr>
-<tr><td>t12</td><td>A calm day</td><td>Twin, Brain</td><td>no incident, no actuator call: the Brain does not overreact</td></tr>
-<tr><td>t13</td><td>A fake flood</td><td>Twin, Guardian, Brain</td><td>the gauge is untrusted; the gate refuses the warning and the valve call; nothing reaches the city</td></tr>
-<tr><td>t14</td><td>A crime and a pursuit</td><td>Twin, Guardian, Brain</td><td>reflex dispatch, a team perimeter checked and verified, units recalled at the arrest</td></tr>
-<tr><td>t15</td><td>A flood, an attack and a layer down</td><td>all three</td><td>warning sent, valve held, forged report sends no police, one &lsquo;Guardian away&rsquo; and low-impact alerts only</td></tr></table>
+    p += part2(5)
+    p.append(page(10, "Part 4 · Test Book (the Brain&rsquo;s scenarios)", f"""
+<h1>4. Test Book (the Brain&rsquo;s scenarios)</h1>
+<p>Five scenarios, each one trigger (<code>scenarios/triggers/tN.sh</code> or <code>uv run brain scenario tN</code>) and one hash-chained log in <code>logs/</code>, with the expected outputs in the scenario file. Together they cover the brief&rsquo;s four interaction rows; the Guardian team&rsquo;s T1 to T11 are in the shared <code>TESTBOOK.md</code>. The generated list, in the book&rsquo;s fields, is <code>brain/docs/TESTBOOK-brain.md</code>.</p>
+<table><tr><th>ID</th><th>Scenario</th><th>Interaction</th><th>Expected output</th></tr>
+<tr><td>T12</td><td>A calm day</td><td>Twin &rarr; Brain</td><td>no incident, no actuator call: the Brain does not overreact</td></tr>
+<tr><td>T13</td><td>A fake flood</td><td>Twin &rarr; Guardian, Brain &rarr; Guardian</td><td>the gauge is untrusted; the gate refuses the warning and the valve call; nothing reaches the city</td></tr>
+<tr><td>T14</td><td>A crime and a pursuit</td><td>Twin &rarr; Brain, Brain &rarr; Guardian</td><td>reflex dispatch, a team perimeter checked and verified, units recalled at the arrest</td></tr>
+<tr><td>T15</td><td>A flood, an attack and a layer down</td><td>all three</td><td>warning sent, valve held, forged report sends no police; once the Guardian is silent, one &lsquo;Guardian away&rsquo; and no action on unjudged readings</td></tr>
+<tr><td>T16</td><td>A quarantined police station</td><td>Brain &rarr; Guardian</td><td>the gate refuses calls to the quarantined station with reason <code>quarantine</code>; a different station is used</td></tr></table>
 """))
     return p
 
 
-def document(embed_fonts: bool) -> str:
+def document(embed_fonts: bool, body: list[str] | None = None, title: str = "City Brain: report, Parts 0, 2 and 4") -> str:
     import re
     faces = ""
     for family, weight, file in (("B612", 400, "B612-Regular.woff2"), ("B612", 700, "B612-Bold.woff2"),
                                  ("B612 Mono", 400, "B612Mono-Regular.woff2"), ("B612 Mono", 700, "B612Mono-Bold.woff2")):
         src = "data:font/woff2;base64," + base64.b64encode((FONTS / file).read_bytes()).decode() if embed_fonts else (FONTS / file).as_uri()
         faces += f"@font-face{{font-family:'{family}';font-weight:{weight};src:url('{src}') format('woff2')}}"
-    body = "".join(pages())
-    return re.sub(r"\s+\n", "\n", f"<!doctype html><html lang='en'><head><meta charset='utf-8'><title>City Brain: report, Parts 0, 2 and 4</title><style>{faces}{CSS}</style></head><body>{body}</body></html>")
+    html_body = "".join(pages() if body is None else body)
+    return re.sub(r"\s+\n", "\n", f"<!doctype html><html lang='en'><head><meta charset='utf-8'><title>{title}</title><style>{faces}{CSS}{LOGO_CSS}</style></head><body>{html_body}</body></html>")
 
 
 def main() -> int:
@@ -831,11 +673,12 @@ def main() -> int:
         return 1
     PAGE.write_text(document(True), encoding="utf-8")
     with tempfile.TemporaryDirectory() as work:
-        src = Path(work) / "report.html"
-        src.write_text(document(False), encoding="utf-8")
-        subprocess.run([browser, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--allow-file-access-from-files",
-                        f"--user-data-dir={work}/profile", f"--print-to-pdf={PDF}", src.as_uri()], check=True, capture_output=True, timeout=180)
-    print(f"wrote {PDF.relative_to(ROOT)} and {PAGE.relative_to(ROOT)}")
+        for out, html_text in ((PDF, document(False)), (PART2, document(False, part2(1), "City Brain: report, Part 2"))):
+            src = Path(work) / "report.html"
+            src.write_text(html_text, encoding="utf-8")
+            subprocess.run([browser, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--allow-file-access-from-files",
+                            f"--user-data-dir={work}/profile", f"--print-to-pdf={out}", src.as_uri()], check=True, capture_output=True, timeout=180)
+    print(f"wrote {PDF.relative_to(ROOT)}, {PART2.relative_to(ROOT)} and {PAGE.relative_to(ROOT)}")
     return 0
 
 

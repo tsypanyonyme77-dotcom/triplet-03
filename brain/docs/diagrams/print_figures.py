@@ -69,15 +69,16 @@ image { filter: grayscale(1) contrast(1.1); }
 
 # (slug, number in the report or None, title, builder, one sentence for the caption)
 FIGURES = [
-    ("fig0-context", None, "The City Brain between its partners", screen.context, "The Brain between the Twin and the Guardian, with the protocol on every link."),
+    ("fig0-context", None, "The City Brain between its partners", screen.context, "The Brain between the Twin and the Guardian, with the protocol on every link. The two lines under the Brain exist only with the Guardian team's Guardian (Figure 9)."),
     ("fig1-layered-architecture", 1, "The layered architecture", screen.layers, "Six planes from the interoperability edge to learning, the shared spine and the platform. A grey box is new in the Convergence design."),
     ("fig2-planning-graph", 2, "The planning graph", screen.planner, "Solve and deliberate in parallel, reconcile, pause for a person, then the gate. Checkpoints sit under the graph."),
     ("fig3-memory-plane", 3, "The memory plane", memory, "Five stores, each answering a different question, none on the decision path's critical wait."),
     ("fig4-deployment-compose", 4, "Deployment with Docker Compose", screen.deployment, "The Brain, its stand-in partners, stores and observability in one Compose project."),
-    ("fig5-scenario-trace", 5, "One scenario traced end to end", arch.scenario, "Scenario t14 across the three layers, with times from its log. (A trace of t15 is not drawn.)"),
+    ("fig5-scenario-trace", 5, "One scenario traced end to end", arch.scenario, "Scenario t14 across the three layers, with times from its log, run against the stand-in Guardian (our contract; Figure 9, panel A). (A trace of t15 is not drawn.)"),
     ("fig6-improvement-loop", 6, "The improvement loop", screen.loop, "Observe, measure, propose, verify, promote, audit: bounded, reversible, never on the gate."),
     ("fig7-glass-brain", 7, "The glass brain from the side", side_view, "Each region where the screen draws it. The Brain is brain-inspired: it models functions, not a brain."),
     ("fig8-partner-boundary", 8, "Where logic ends and partners begin", screen.boundary, "Two ports, the adapters outside them, and the configuration file, Interface Card and conformance kit that make a new partner a small change."),
+    ("fig9-guardian-wiring", 9, "The Guardian wired three ways", screen.guardian_wiring, "A: our contract, the Brain sends each reading to the Guardian. B: the Guardian team's contract 1.0, the Twin also feeds the Guardian and the Guardian audits actuator calls. C: inline, built in the Brain, offered by no Guardian."),
 ]
 
 

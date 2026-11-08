@@ -43,7 +43,7 @@ A repeated dispatch returns `{"status": "duplicate", "unit_id": <the unit alread
 
 ## Pointing the Brain at a different partner
 
-Edit `config/partners.yaml`: no code changes. Partner addresses, adapters, signing-secret variable names, renames and units are all there. The environment variables `TWIN_URL` and `GUARDIAN_URL` (the triplet's root `.env`) override the two addresses; a bare `http://host:port` for an MCP Twin means `/mcp`.
+Edit `config/partners.yaml`: no code changes. Partner addresses, adapters, signing-secret variable names, renames and units are all there. The environment variables `TWIN_URL` and `GUARDIAN_URL` override the two addresses; a bare `http://host:port` for an MCP Twin means `/mcp`. The Guardian team's Guardian (contract 1.0): `guardian.adapter: v1`, `docs/GUARDIAN-COMPAT.md`.
 
 ```yaml
 twin:     {adapter: mcp,  url: http://twin-host:8000/mcp, hmac_secret_env: TWIN_HMAC_SECRET}

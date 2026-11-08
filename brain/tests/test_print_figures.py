@@ -23,7 +23,7 @@ def figures(tmp_path_factory):
 def test_every_figure_the_report_needs_is_written_as_its_own_svg_file(figures):
     module, out, rows = figures
 
-    assert [r["number"] for r in rows if r["number"]] == [1, 2, 3, 4, 5, 6, 7, 8]
+    assert [r["number"] for r in rows if r["number"]] == [1, 2, 3, 4, 5, 6, 7, 8, 9]
     assert all((out / f"{r['slug']}.svg").exists() for r in rows)
 
 

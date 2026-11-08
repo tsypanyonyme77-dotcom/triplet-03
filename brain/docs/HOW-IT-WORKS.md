@@ -55,12 +55,50 @@ Three loops run at different speeds (the vocabulary of agentic-systems writing):
 | **Task** | one incident's team deliberation: brief, tools, answer, verify, propose, with a 30 s budget as its termination gate | seconds |
 | **Meta** | `brain sleep` (learn reflexes from stored episodes) and `brain academy` (tune 13 parameters inside a fence) | between runs |
 
+### Where the Guardian sits
+
+The Guardian does **not** sit between the Twin and the Brain, and it forwards no readings: the Brain always reads the Twin directly (`adapters/twin_*.py`) and asks the Guardian about each reading. What differs is the Guardian. Two wirings are built (`adapters/guardian_rest.py`, `adapters/guardian_v1.py`, chosen by `guardian.adapter`); the figure with every link is [Figure 9](diagrams/print/fig9-guardian-wiring.svg).
+
+```mermaid
+flowchart LR
+  subgraph A["A · our contract (adapter: rest), what the mock Guardian speaks"]
+    direction LR
+    TA[Twin] -- readings --> BA[Brain]
+    BA -- "POST /verdicts with the reading" --> GA[Guardian]
+    GA -- TrustVerdict --> BA
+    BA -- "GET /quarantine/id" --> GA
+    BA -. "all six actuator calls" .-> TA
+  end
+  subgraph B["B · the Guardian team's contract 1.0 (adapter: v1)"]
+    direction LR
+    TB[Twin] -- readings --> BB[Brain]
+    TB -- "POST /v1/readings (push) or pulled" --> GB[Guardian]
+    BB -- "POST /v1/verdicts/request by sensor + sequence" --> GB
+    GB -- "signed verdict (HMAC checked)" --> BB
+    BB -- "GET /v1/containment" --> GB
+    BB -. "POST /v1/actuator-calls: valve, grid, signal, dispatch" .-> GB
+    GB -. "audited, forwarded POST /tools/action, effect verified" .-> TB
+    BB -. "broadcast_alert, recall_unit direct" .-> TB
+    GB -. "isolate, quarantine" .-> TB
+  end
+```
+
+| | A: `rest` (default) | B: `v1` |
+| --- | --- | --- |
+| Who gives the Guardian the reading | the Brain, in the request | the Twin (push) or the Guardian (pull); the Brain sends only `sensor_id` and `sequence_no` |
+| Verdict | `TrustVerdict`, not signed | signed with `GUARDIAN_HMAC_KEY`; an `unknown` answer is asked again until the 2 s deadline |
+| Quarantine | `GET /quarantine/{id}` | `GET /v1/containment` |
+| Actuator calls | the gate calls the Twin | valve, grid, signal and dispatch go through the Guardian (`GuardianGateway`, `guardian.gateway: true`), which checks the trust reference, applies its safety rules and verifies the effect on an independent sensor; broadcast and recall, which it does not know, go to the Twin |
+| Names translated | none | `adapters/guardian_v1.py`: `set_grid_connection` ↔ `set_grid_state`, `set_signal_phase` ↔ `set_signal`, status `suspect` ↔ `suspicious` |
+
+A third mode, `guardian.mode: inline`, is built in the Brain (`runtime._verdict` reads `reading.trust` and asks nobody) for a Guardian that annotates readings itself. No Guardian offers it and no test covers it. The Guardian's own alert feed (`WS /v1/ws/verdicts`, `GET /v1/alerts`, `GET /v1/threat`) is **not read** by the Brain: it learns of a threat only from a verdict or a quarantine. What was run against the team's Guardian, and what is still open: [GUARDIAN-COMPAT.md](GUARDIAN-COMPAT.md).
+
 ## 3. The path of one reading
 
 `BrainService._handle` (`runtime.py`) runs this for every reading, in order:
 
 1. **Perception** (`perception/`). Checks the contract version, the HMAC signature, the sequence number (a replay or out-of-order reading is refused) and the value ranges; drops every field outside an allowlist (demographic fields never enter); applies renames and units from config only after the signature check. A bad reading becomes `brain.reading.rejected` with a stable code (`signature_invalid`, `replay_or_out_of_order`, `value_invalid`…).
-2. **Guardian verdict** (`adapters/guardian_rest.py`). `POST /verdicts` with a 2 s deadline. If the Guardian is silent the Brain enters degraded mode (`brain.guardian.unavailable`): only low-impact actions can pass, and a score built on unvouched evidence is damped to near zero.
+2. **Guardian verdict** (`adapters/guardian_rest.py`, or `guardian_v1.py` for the Guardian team's). `POST /verdicts` with the reading (v1: `POST /v1/verdicts/request` by sensor and sequence number) with a 2 s deadline. If the Guardian is silent the Brain enters degraded mode (`brain.guardian.unavailable`): only low-impact actions can pass, and a score built on unvouched evidence is damped to near zero.
 3. **Store** (`citygraph/`). The reading and its verdict become nodes in the city graph (in memory, and mirrored to Neo4j by default; the knowledge vectors are in Qdrant).
 4. **Forward models and the level forecast** (`mind/forward.py`, `mind/neighbours.py`, `engines/kalman.py`). Each sensor learns its own normal. A reading far outside it is a *surprise*; the first one is *doubted* and the reflex that would act on it is held. A level tracker also forecasts when a water level crosses the flood line.
 5. **Early alert** (`runtime._prewarn`). If a trusted forecast says the line is within 10 minutes (and no forward model doubts the reading and no coupled sensor disagrees), one low-impact alert goes to the zone through the gate, before the line is crossed.
@@ -78,7 +116,7 @@ Three loops run at different speeds (the vocabulary of agentic-systems writing):
 | Part | Job | Where |
 | --- | --- | --- |
 | Contracts | the message models, signing (HMAC with key ids and rotation), JSON Schemas, examples | `contracts/`, `contracts/examples/` |
-| Adapters | the Twin over MCP, HTTP or MQTT; the Guardian over REST; TLS and mutual TLS | `adapters/`, `ports.py` |
+| Adapters | the Twin over MCP, HTTP or MQTT; the Guardian over REST (ours) or its v1 contract, which also routes four kinds of actuator call through the Guardian (`GuardianGateway`); TLS and mutual TLS | `adapters/`, `ports.py` |
 | Security | scoped tokens off loopback, signed human approvals, forged `brain.*` pushes refused, 24 attacks tried by `brain redteam` | `security.py`, `approval.py`, `redteam.py` |
 | Onboarding | proposes renames and profiles for a Twin that names things differently, never edits config | `onboard.py` |
 
