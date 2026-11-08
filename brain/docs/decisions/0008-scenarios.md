@@ -20,26 +20,26 @@ Scenarios are ours; there is no mandatory list and no minimum. Each uses the sam
 
 ## Decision
 
-A Test Book of four scenarios, each proving one claim in about two minutes and explainable in one sentence. The 42 earlier scenarios could not be explained to a jury in a live slot, so they were deleted rather than hidden.
+A Test Book of five scenarios (four on 7 Nov, `t16` added on 8 Nov), each proving one claim in about two minutes and explainable in one sentence. The 42 earlier scenarios could not be explained to a jury in a live slot, so they were deleted rather than hidden.
 
 | ID | Name | Claim it proves |
 | --- | --- | --- |
-| `d1` | A calm day | The Brain does not overreact |
-| `d2` | A fake flood | A lying sensor cannot make the Brain act: the gate refuses the warning and the valve call, with the reason |
-| `d3` | A crime and a pursuit | A real incident is handled by the police team, and only through the gate |
-| `d4` | A flood, an attack and a layer down | The city keeps working when something goes wrong: the harbour is warned, the valve is held, no police are sent, and the Guardian going silent is said once |
+| `t12` | A calm day | The Brain does not overreact |
+| `t13` | A fake flood | A lying sensor cannot make the Brain act: the gate refuses the warning and the valve call, with the reason |
+| `t14` | A crime and a pursuit | A real incident is handled by the police team, and only through the gate |
+| `t15` | A flood, an attack and a layer down | The city keeps working when something goes wrong: the harbour is warned, the valve is held, no police are sent, and the Guardian going silent is said once |
 | `t16` (new) | A quarantined police station | The Guardian's quarantine reaches the gate: calls to the quarantined station are refused with reason `quarantine` and another station is used |
 
-Each has a trigger (`scenarios/triggers/dN.sh`), declared expectations in its JSON, a canonical log in `logs/canonical/`, a recorded decision list in `docs/baseline/2026-11-07-demo-frozen.json`, and held-out variants from seeds never used for tuning (50 of 50 decide as their base).
+Each has a trigger (`scenarios/triggers/tN.sh`), declared expectations in its JSON, a canonical log in `logs/canonical/`, a recorded decision list in `docs/baseline/2026-11-07-demo-frozen.json`, and held-out variants from seeds never used for tuning (60 of 60 decide as their base).
 
 ## Coverage against the Phase 1 interaction list
 
 | Interaction | Covered by |
 | --- | --- |
-| Twin to Brain | `d1`, `d3` |
-| Twin to Guardian | `d2` (a reading the Guardian does not trust) |
-| Brain to Guardian | `d2`, `d3`, `t16` (every call carries a trusted verdict, or is held) |
-| All three, with a layer down | `d4` |
+| Twin to Brain | `t12`, `t14` |
+| Twin to Guardian | `t13` (a reading the Guardian does not trust) |
+| Brain to Guardian | `t13`, `t14`, `t16` (every call carries a trusted verdict, or is held) |
+| All three, with a layer down | `t15` |
 
 A test (`tests/test_phase1_requirements.py`) fails if a scenario lacks its fields, its trigger or its canonical log.
 
@@ -51,7 +51,7 @@ The tests that pinned the deleted stories went with them. Early flood alerts, co
 
 - All five pass in process and over the network mocks; their logs have intact hash chains.
 - The frozen baseline `2026-11-07-demo-frozen.json` must not change; `brain baseline --check` enforces it.
-- **None has run against the real Twin or Guardian.**
+- **Against the Guardian team's live Guardian**: `t13`'s story (a fake flood), a real flood and `t16` (8 Nov). **None has run against the Twin team's real Twin**, and no run joins all three teams' layers (final report, 0.3 and 2.6).
 
 ## If it fails
 
@@ -67,6 +67,6 @@ How a scenario is triggered on the real Twin (our mock has an admin tool that th
 
 ## One-line answers for the jury
 
-- *Do your scenarios cover every interaction?* Yes: four, one per row of the interaction list, and a test fails if one loses its fields.
-- *How do I know the tests are not rigged?* Variants from seeds never used in design must decide as their base; 50 of 50 do.
-- *What ran against the real partners?* Say it plainly: today, nothing.
+- *Do your scenarios cover every interaction?* Yes: five, at least one per row of the interaction list, and a test fails if one loses its fields.
+- *How do I know the tests are not rigged?* Variants from seeds never used in design must decide as their base; 60 of 60 do.
+- *What ran against the real partners?* Say it plainly: against the Guardian team's Guardian, the fake flood, a real flood and `t16`; against the Twin team's Twin, nothing yet.

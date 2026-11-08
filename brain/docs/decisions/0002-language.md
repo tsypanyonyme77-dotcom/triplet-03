@@ -24,7 +24,7 @@ Python 3.12 managed by `uv` with a lock file, type hints throughout, pydantic mo
 
 ## Evidence
 
-- Decisions are fast enough: in process on this laptop, scenario `d3` shows (measured on the earlier `b2`, the same crime story) the first action 35 to 58 ms after the incident opens and the last at 117 to 470 ms (baseline file and a run on 4 Nov), against a 15 s mock pursuit.
+- Decisions are fast enough: in process on this laptop, scenario `t14` shows (measured on the earlier `b2`, the same crime story) the first action 35 to 58 ms after the incident opens and the last at 117 to 470 ms (baseline file and a run on 4 Nov), against a 15 s mock pursuit.
 - 11,612 lines of Python in `src/brain`, 531 in `mocks`, 7,897 in tests (580 test functions, 707 test cases), 2,618 lines of screen code.
 - `uv.lock` pins every dependency; `uv sync` reproduces the environment.
 - No compiled extension is built by us. OR-Tools and numpy ship wheels.

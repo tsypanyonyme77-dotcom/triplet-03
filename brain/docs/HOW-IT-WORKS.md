@@ -211,7 +211,7 @@ A call the Twin never answered frees its idempotency key (`gate.retry_unreached`
 
 ## 6. Worked flows
 
-Event names and values below come from real runs (`uv run brain scenario dN --inproc --speed 0`; the logs are in `logs/canonical/`).
+Event names and values below come from real runs (`uv run brain scenario tN --inproc --speed 0`; the logs are in `logs/canonical/`).
 
 ### 6.1 One reading becomes an action: a crime and a pursuit (`t14`)
 

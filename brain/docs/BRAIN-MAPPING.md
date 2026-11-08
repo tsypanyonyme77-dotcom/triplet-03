@@ -144,7 +144,7 @@ Senses (perception and the Guardian's verdict) feed the forward models, which fe
 
 **What inspired it.** The hippocampus stores an index of an episode's cortical pattern, so a partial cue can bring it back (Teyler and Rudy 2007). An episodic log replayed in quiet time is the basis of consolidation (Mattar and Daw 2018).
 
-**How it is built.** Episodes (`mind/episodes.py`): each closed incident's readings as typed values, people renamed `p-1`, `p-2`, the verdicts and each tier's decision; no identity, no unit id, and never whether a dispatch worked. The knowledge base: 68 items (31 procedures, 13 rules, 6 actuators, 18 interface chunks), hybrid search filtered before the cut. The city graph in memory, mirrored to Neo4j. Similar past stories without outcome or identity.
+**How it is built.** Episodes (`mind/episodes.py`): each closed incident's readings as typed values, people renamed `p-1`, `p-2`, the verdicts and each tier's decision; no identity, no unit id, and never whether a dispatch worked. The knowledge base: 39 procedures, 13 rules, 6 actuators and the interface chunks, hybrid search filtered before the cut. The city graph in memory, mirrored to Neo4j. Similar past stories without outcome or identity.
 
 **Numbers.** Retrieval recall@3 0.956 with the real embedder on 45 questions; GraphRAG a measured null result, off. Episodes kept only when `brain.episodes_dir` is set.
 
@@ -184,7 +184,7 @@ Senses (perception and the Guardian's verdict) feed the forward models, which fe
 
 **Architecture.** Outside the Brain, reached through `TwinPort`.
 
-**Where the analogy stops.** The Brain has never talked to the real Twin yet.
+**Where the analogy stops.** The Brain has not yet talked to the Twin team's real Twin (it has run against the Guardian team's Guardian).
 
 ## Where the agents are
 

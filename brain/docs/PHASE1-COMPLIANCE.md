@@ -36,7 +36,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 
 ## Report, Part 2: The City Brain
 
-`docs/report/report-city-brain.pdf`, in the six shared subheadings: role and goals, architecture, tech stack and why, interfaces in/out, security measures, known limitations. Depth behind each: `HOW-IT-WORKS.md`, `decisions/`, `INTEGRATION-brain.md`, `SECURITY.md`.
+The final report is the triplet's [`../../docs/report.pdf`](../../docs/report.pdf) (20 pages); Part 2 (pages 9 to 13) is ours, in the six shared subheadings: role and goals, architecture, tech stack and why, interfaces in/out, security measures, known limitations. Its source is `docs/report/report-part2-city-brain.pdf` (`docs/report/build.py`). Depth behind each: `HOW-IT-WORKS.md`, `decisions/`, `INTEGRATION-brain.md`, `SECURITY.md`.
 
 ## Scoring, and where each line is carried
 
@@ -49,4 +49,4 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 | Documentation and code quality | 5 | Interface Card, README, Test Book, tests named as sentences, lint |
 | Demonstration and presence | 5 | The timeline screen and the 3D view |
 
-**Known limit:** the Brain has run end to end against its mocks only; nothing in this folder proves a joint run with the real Twin or Guardian.
+**Known limit:** the Brain has run end to end against its mocks, and against the Guardian team's live Guardian for the fake flood, a real flood and T16 (8 Nov). It has not run with the Twin team's real Twin, and no run yet joins all three teams' layers. The full list, as in the report's 2.6: [README, Known limitations](../README.md#known-limitations).

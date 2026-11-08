@@ -27,7 +27,7 @@ The ports let us connect to whatever the partners can build. This is the answer 
 | --- | --- | --- | --- |
 | Twin: MCP server | `McpTwinAdapter` | **built, tested on mocks** | none |
 | Twin: REST (poll readings, POST actions) | `HttpTwinAdapter` | **built, tested on mocks** | none |
-| Twin: MQTT readings, any actions | `MqttTwinAdapter` | **built, 5 Nov**: parity test `tests/test_twin_mqtt.py` (the `d3` city over a broker decides as `d3`); run once against a real broker (amqtt through `aiomqtt`): messages sent 1, 3, 2, 4 arrive 1, 2, 3, 4 | none; a Mosquitto service is in the Compose `data` profile |
+| Twin: MQTT readings, any actions | `MqttTwinAdapter` | **built, 5 Nov**: parity test `tests/test_twin_mqtt.py` (the `t14` city over a broker decides as `t14`); run once against a real broker (amqtt through `aiomqtt`): messages sent 1, 3, 2, 4 arrive 1, 2, 3, 4 | none; a Mosquitto service is in the Compose `data` profile |
 | Twin: WebSocket stream | `WebSocketTwin` | could (`websockets` is installed) | 0.5 day |
 | Twin: gRPC streams | `GrpcTwin` | on demand, needs their `.proto` | 1 day and a toolchain |
 | Twin: no live stream, recorded files | `JournalTwin` (replays signed readings from a file) | planned in plan 0 | 0.25 day, reused from `brain replay` |
@@ -40,9 +40,10 @@ Every adapter is tested through the conformance kit (plan 1), which checks the p
 
 ## Evidence
 
-- The Brain has run end to end against the mock Twin over MCP and the mock Guardian over REST, in process and over the network (`brain scenario d3`, the four demo scenarios, `brain rehearse`).
-- Spoofed, replayed and untrusted readings are refused (`d2`, `brain redteam`).
-- **The Brain has never talked to the real Twin or Guardian.** The links are agreed with the partners and proven against our mocks of them.
+- The Brain has run end to end against the mock Twin over MCP and the mock Guardian over REST, in process and over the network (`brain scenario t14`, the five Test Book scenarios, `brain rehearse`).
+- Spoofed, replayed and untrusted readings are refused (`t13`, `brain redteam`).
+- **Against the Guardian team's live Guardian** (contract 1.0, `guardian.adapter: v1`) the Brain has run the fake flood, a real flood and `t16` (8 Nov, `docs/GUARDIAN-COMPAT.md`).
+- **The Brain has not yet talked to the Twin team's real Twin**, and no run joins all three teams' layers (final report, 0.3 and 2.6). The Twin links are agreed with the partner and proven against our mocks of it.
 
 ## Cost to build
 

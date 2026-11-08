@@ -11,7 +11,7 @@ The Phase 1 text leaves eight things free: architecture, programming languages, 
 | [0005](0005-databases.md) | Memory graph, Neo4j, Qdrant, SQLite, a hash-chained log | this team | memory, Neo4j, log, SQLite and Qdrant built |
 | [0006](0006-ai-ml-methods.md) | Rules, statistics, optimisation, retrieval, checked agents, bounded learning | this team | all built |
 | [0007](0007-user-interface.md) | One static page served by the Brain, SSE, one vendored library | this team, for a screen the **triplet** needs (R3) | built |
-| [0008](0008-scenarios.md) | A Test Book per triplet: `d1` to `d4` | **the triplet** | built; agreed |
+| [0008](0008-scenarios.md) | A Test Book per triplet: `t12` to `t16` | **the triplet** | built; agreed |
 
 Companions: `../HOW-IT-WORKS.md` (how the parts fit), `../SECURITY.md` (security in depth).
 

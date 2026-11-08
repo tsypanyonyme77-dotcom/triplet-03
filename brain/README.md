@@ -4,6 +4,8 @@ The City Brain: it detects real incidents (accidents, fires, jams, floods, crime
 
 Python 3.12 with uv, FastAPI, LangGraph, MCP. It is **brain-inspired**: attention, prediction error, sleep and habit are modelled as engineering, nothing more.
 
+**Where it stands (final Phase 1 report, 8 Nov 2026).** The triplet's report is [`../docs/report.pdf`](../docs/report.pdf); this layer is Part 2 (pages 9 to 13), and Parts 0 and 4 are shared with the Twin and Guardian teams. All five Brain scenarios (T12 to T16) pass with their logs in `logs/`; 1,114 tests; 60 of 60 held-out variants decide as their base scenario; `brain redteam` refuses 24 of 24 attacks. Against the Guardian team's live Guardian the Brain has run the fake flood, a real flood and T16; it has not yet run with the Twin team's real Twin, and no run yet joins all three teams' layers ([Known limitations](#known-limitations)).
+
 **Contents:** [Architecture](#architecture) · [Run this layer alone](#run-this-layer-alone-r1) · [How we test with mocks](#how-we-test-with-mocks) · [Scenarios and logs](#scenarios-and-logs-r2) · [Phase 1 map: requirement to source](#phase-1-map-requirement-to-source) · [Configuration](#configuration) · [Layout](#layout)
 
 ## Architecture
@@ -116,9 +118,9 @@ A scenario file ([`scenarios/t12.json` to `t16.json`](scenarios/)) holds the who
 | Does the adapter bridge the Guardian team's real contract 1.0? | their payloads from their Interface Card, over `httpx.MockTransport` | `tests/test_guardian_v1.py`, `tests/test_perception_guardian_v1.py` |
 | Everything at once | scenarios, baselines, variants, interop, red team in one table | `make check` (about 30 s) or `uv run brain bench` |
 
-The test suite (`uv run pytest tests -q`, 120 files, named as sentences) runs with no server; the tests that need Neo4j, Qdrant or a broker skip, and `make test-all` starts all three in Docker and runs them with none skipped.
+The test suite (`uv run pytest tests -q`, 1,114 tests in 120 files, named as sentences) runs with no server; the tests that need Neo4j, Qdrant or a broker skip, and `make test-all` starts all three in Docker and runs them with none skipped.
 
-**What the mocks do not prove.** The Brain has run end to end against its own mocks and against the Guardian team's contract as a recorded adapter test. Nothing here proves a joint run with the real Twin. The Guardian mock is scripted, not a trust engine, so t13 and t16 show how the Brain behaves *given* a verdict, not whether a real Guardian would produce it.
+**What the mocks do not prove.** The Brain has run end to end against its own mocks, and against the Guardian team's live Guardian for the fake flood, a real flood and T16 (8 Nov, [`docs/GUARDIAN-COMPAT.md`](docs/GUARDIAN-COMPAT.md)). Nothing here proves a joint run with the Twin team's real Twin. The Guardian mock is scripted, not a trust engine, so t13 and t16 show how the Brain behaves *given* a verdict, not whether a real Guardian would produce it.
 
 ## Scenarios and logs (R2)
 
@@ -231,7 +233,7 @@ The Guardian team's own scenarios (T1 to T11) are in the shared root [`TESTBOOK.
 
 ### Report and scoring
 
-The report part is [`docs/report/report-city-brain.pdf`](docs/report/report-city-brain.pdf), in the six shared subheadings (rebuild: `docs/report/build.py`).
+The final report is the triplet's [`../docs/report.pdf`](../docs/report.pdf) (20 pages): Part 0 overview and integration and Part 4 Test Book with the other two teams, Part 2 The City Brain (pages 9 to 13) by us, in the six shared subheadings. Our source for Part 2 is [`docs/report/report-part2-city-brain.pdf`](docs/report/report-part2-city-brain.pdf) (rebuild: `docs/report/build.py`); the root `docs/build_report.py` joins the parts.
 
 | Scoring line | Points | Where it is carried |
 | --- | --- | --- |
@@ -242,7 +244,19 @@ The report part is [`docs/report/report-city-brain.pdf`](docs/report/report-city
 | Documentation and code quality | 5 | this README, the Interface Card, the Test Book, tests named as sentences, lint |
 | Demonstration and presence | 5 | the timeline screen and the 3D view (`api/static/`) |
 
-**Known limit:** the Brain has run end to end against its mocks only; nothing in this folder proves a joint run with the real Twin or Guardian.
+### Known limitations
+
+As stated in the report (2.6 and 0.3), each with the next step:
+
+| Limitation | Next |
+| --- | --- |
+| **No joint run with the real Twin yet**, and no run joins all three teams' layers. Against the live Guardian we ran the fake and real flood and T16. | run T12 to T16 against the Twin team's Twin |
+| **The mock Guardian is scripted.** T13 and T16 show what the Brain does with a given verdict, not whether a real Guardian would issue it. | rerun both with `docker-compose.guardian.yml` |
+| **Tuned on stand-ins.** Which sensors move together, and whether sensors in one zone are independent, waits for the real Twin's data. | record a normal day from it ([`docs/TWIN-HANDOVER.md`](docs/TWIN-HANDOVER.md)) |
+| **TLS and the freshness limit are off by default.** Signatures still protect readings and calls. | set `guardian.tls` and `twin.max_age_s` on the live stack |
+| **Guardian alerts are not read.** An actuator the Guardian flags as unreliable appears in its containment list, which the gate obeys; a `compromised_twin` alert does not reach the Brain. | read `WS /v1/ws/verdicts` in the adapter |
+
+Before a three-layer run the teams still have to align how the Brain gets readings (the Twin notifies, the Brain reads the Twin directly), the path for actuator calls, the actuator list and the transport (the integration status table in Part 0.3).
 
 ## Configuration
 

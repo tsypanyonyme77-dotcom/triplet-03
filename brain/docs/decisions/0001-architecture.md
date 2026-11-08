@@ -23,8 +23,8 @@ Three ports (`TwinPort`, `GuardianPort`, `TimelineSink` in `src/brain/ports.py`)
 
 - `src/brain/ports.py` is 45 lines; `adapters/` holds two implementations (MCP for the Twin, REST for the Guardian); `mocks/` holds stand-ins of both partners (531 lines), so the Brain runs alone (R1).
 - `call_actuator` has exactly one call site, in the gate (`grep -rn call_actuator src`), and an invariant test will pin it (plan 6 task 2).
-- The seven temporal promises TS-01 to TS-07 (for example trust before action, nothing after an incident closes) hold on all 30 scenarios (`brain verify-log --scenarios`).
-- 270 of 270 held-out variants decide as their base scenario (`brain variants --seeds 1000-1004`).
+- The seven temporal promises TS-01 to TS-07 (for example trust before action, nothing after an incident closes) hold on all five scenarios (`brain verify-log --scenarios`).
+- 60 of 60 held-out variants decide as their base scenario (`brain variants --seeds 1000-1004`).
 - `brain ablate` switches each region off in turn to show what it is worth.
 - Size: 11,612 lines in `src/brain`, 7,897 lines of tests.
 
@@ -48,4 +48,4 @@ The conformance kit (plan 1), the "only the gate calls the Twin" invariant test 
 
 - *Why not microservices?* Parts that share state do not need a network between them. We do separate what a partner can change: its two ports.
 - *Where is the safety decision?* In one file, by code, never in a model.
-- *Can you run it without partners?* Yes: `uv run brain scenario d3 --inproc --speed 0`.
+- *Can you run it without partners?* Yes: `uv run brain scenario t14 --inproc --speed 0`.

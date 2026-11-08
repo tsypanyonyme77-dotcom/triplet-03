@@ -145,7 +145,7 @@ Profiles and aliases are applied only after the signature and replay checks pass
 
 ### Checking a layer: `brain conformance` and `brain redteam`
 
-`uv run brain conformance [--twin URL] [--guardian URL] [--brain URL]` runs the contract checks on any layer (no arguments: the shipped mocks and this Brain, in process); `--probe-actuators` also calls the Twin's actuators with signed test calls. A report is in `docs/conformance/`. `uv run brain redteam` runs 22 attacks (forged and replayed readings, hostile ids, wrong scopes, oversize bodies, floods, a reused approval, an agent tool that actuates) and exits 1 if any gets through.
+`uv run brain conformance [--twin URL] [--guardian URL] [--brain URL]` runs the contract checks on any layer (no arguments: the shipped mocks and this Brain, in process); `--probe-actuators` also calls the Twin's actuators with signed test calls. A report is in `docs/conformance/`. `uv run brain redteam` runs 24 attacks (forged and replayed readings, hostile ids, wrong scopes, oversize bodies, floods, a reused approval, an agent tool that actuates) and exits 1 if any gets through.
 
 ## Retractions and what the Brain learns
 
