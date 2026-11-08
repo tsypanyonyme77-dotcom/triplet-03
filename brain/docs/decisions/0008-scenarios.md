@@ -1,6 +1,6 @@
 # 0008 Scenarios (the Test Book)
 
-Status: four scenarios (`d1` to `d4`), all pass. Replaces the 42-scenario Test Book (`b1` to `b42`) of 4 to 6 Nov, deleted on 7 Nov 2026 and recoverable from git history. **Decides: the triplet** (one Test Book per triplet; each layer is judged by how its own layer behaves).
+Status: five scenarios, all pass. Written up as `d1` to `d4` on 7 Nov; since renumbered `t12` to `t15` in the shared Test Book, with `t16` (a quarantined police station) added on 8 Nov (see the table below, and `TESTBOOK-brain.md`). Replaces the 42-scenario Test Book (`b1` to `b42`) of 4 to 6 Nov, deleted on 7 Nov 2026 and recoverable from git history. **Decides: the triplet** (one Test Book per triplet; each layer is judged by how its own layer behaves).
 
 ## Question
 
@@ -28,6 +28,7 @@ A Test Book of four scenarios, each proving one claim in about two minutes and e
 | `d2` | A fake flood | A lying sensor cannot make the Brain act: the gate refuses the warning and the valve call, with the reason |
 | `d3` | A crime and a pursuit | A real incident is handled by the police team, and only through the gate |
 | `d4` | A flood, an attack and a layer down | The city keeps working when something goes wrong: the harbour is warned, the valve is held, no police are sent, and the Guardian going silent is said once |
+| `t16` (new) | A quarantined police station | The Guardian's quarantine reaches the gate: calls to the quarantined station are refused with reason `quarantine` and another station is used |
 
 Each has a trigger (`scenarios/triggers/dN.sh`), declared expectations in its JSON, a canonical log in `logs/canonical/`, a recorded decision list in `docs/baseline/2026-11-07-demo-frozen.json`, and held-out variants from seeds never used for tuning (50 of 50 decide as their base).
 
@@ -37,7 +38,7 @@ Each has a trigger (`scenarios/triggers/dN.sh`), declared expectations in its JS
 | --- | --- |
 | Twin to Brain | `d1`, `d3` |
 | Twin to Guardian | `d2` (a reading the Guardian does not trust) |
-| Brain to Guardian | `d2`, `d3` (every call carries a trusted verdict, or is held) |
+| Brain to Guardian | `d2`, `d3`, `t16` (every call carries a trusted verdict, or is held) |
 | All three, with a layer down | `d4` |
 
 A test (`tests/test_phase1_requirements.py`) fails if a scenario lacks its fields, its trigger or its canonical log.
@@ -48,7 +49,7 @@ The tests that pinned the deleted stories went with them. Early flood alerts, co
 
 ## Evidence
 
-- All four pass in process and over the network mocks; their logs have intact hash chains.
+- All five pass in process and over the network mocks; their logs have intact hash chains.
 - The frozen baseline `2026-11-07-demo-frozen.json` must not change; `brain baseline --check` enforces it.
 - **None has run against the real Twin or Guardian.**
 

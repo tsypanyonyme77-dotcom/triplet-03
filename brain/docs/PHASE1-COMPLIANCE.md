@@ -1,6 +1,6 @@
 # Phase 1 requirements: where the City Brain meets them
 
-Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the repository structure, the report and the scoring). `tests/test_phase1_requirements.py` keeps R1 and R2 true.
+Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the repository structure, the report and the scoring). `tests/test_phase1_requirements.py` keeps R1 and R2 true. The same map file by file, with the test behind each line, the jury's criteria, the Test Book interactions and the demo-day rules, is in the [README](../README.md#phase-1-map-requirement-to-source).
 
 ## R1: the layer runs on its own
 
@@ -15,7 +15,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 
 | Part | Met by |
 | --- | --- |
-| One command per scenario | `scenarios/triggers/t12.sh` to `t15.sh` (`uv run brain scenario <id>`); on the screen, number keys `1` to `4` or `POST /api/scenarios/{id}/run` |
+| One command per scenario | `scenarios/triggers/t12.sh` to `t16.sh` (`uv run brain scenario <id>`); on the screen, number keys `1` to `5` or `POST /api/scenarios/{id}/run` |
 | A log per run, in the repository | `logs/<id>-<time>.jsonl`, hash-chained, with its input journal; `logs/` is not git-ignored |
 | Checkable after the event | `logs/canonical/`: one verified log per scenario, replayable with `brain replay`; `brain verify-log` checks the temporal promises (trust before action, nothing after close) |
 
@@ -32,7 +32,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 | `brain/src/` | `src/brain/` |
 | `brain/mocks/`: twin + guardian | `mocks/twin/`, `mocks/guardian/` |
 | `brain/tests/` | `tests/` |
-| Root `INTEGRATION.md`, `TESTBOOK.md`, `docker-compose.yml`, `scenarios/`, `logs/`, `docs/` | Shared by the triplet. Our input: `docs/TESTBOOK-brain.md` (the Test Book fields for `t12` to `t15`), `docker-compose.yml` here (written to be included by the root file), our scenario triggers and logs, `docs/report/` |
+| Root `INTEGRATION.md`, `TESTBOOK.md`, `docker-compose.yml`, `scenarios/`, `logs/`, `docs/` | Shared by the triplet. Our input: `docs/TESTBOOK-brain.md` (the Test Book fields for `t12` to `t16`), `docker-compose.yml` here (written to be included by the root file), our scenario triggers and logs, `docs/report/` |
 
 ## Report, Part 2: The City Brain
 
@@ -42,7 +42,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 
 | Line | Points | Here |
 | --- | --- | --- |
-| Individual prototype functionality | 10 | The pipeline, the five scenarios, the decision engines |
+| Individual prototype functionality | 10 | The pipeline, the five scenarios (`t12` to `t16`), the decision engines |
 | Technical implementation and features | 5 | `decisions/`, `HOW-IT-WORKS.md`, `baseline/` |
 | Interoperability and connectivity between the 3 teams | 15 | Adapters behind two small ports (MCP, REST, MQTT), the conformance kit (`brain conformance`), `brain onboard`, the shared decisions in `decisions/` |
 | Security and trust mechanisms | 10 | The Safety gate, HMAC signing and replay checks, scoped tokens, signed human approval, `brain redteam` (24 attacks), `SECURITY.md` |
