@@ -3,6 +3,13 @@ from __future__ import annotations
 
 from typing import Any, Protocol
 
+STATION_ACTUATOR_PREFIX = "dispatch-"
+
+
+def station_actuator_id(station_id: str) -> str:
+    """How a station is addressed as a facility (dispatch, quarantine): `police_station` -> `dispatch-police-station`."""
+    return STATION_ACTUATOR_PREFIX + station_id.replace("_", "-")
+
 
 class CitySource(Protocol):
     dt: float

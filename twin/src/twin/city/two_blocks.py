@@ -25,10 +25,13 @@ from __future__ import annotations
 
 from typing import Any
 
+from twin.city.base import station_actuator_id
+
+# `exit`: a road leaves the map from this zone (the streets ring the two blocks)
 ZONES = {
-    "zone-01": {"name": "block A", "bounds_m": {"x_min": 0.0, "x_max": 80.0, "y_min": 0.0, "y_max": 80.0}},
-    "zone-02": {"name": "block B", "bounds_m": {"x_min": 80.0, "x_max": 160.0, "y_min": 0.0, "y_max": 80.0}},
-    "zone-03": {"name": "streets", "bounds_m": {"x_min": -20.0, "x_max": 180.0, "y_min": -20.0, "y_max": 100.0}},
+    "zone-01": {"name": "block A", "exit": False, "bounds_m": {"x_min": 0.0, "x_max": 80.0, "y_min": 0.0, "y_max": 80.0}},
+    "zone-02": {"name": "block B", "exit": False, "bounds_m": {"x_min": 80.0, "x_max": 160.0, "y_min": 0.0, "y_max": 80.0}},
+    "zone-03": {"name": "streets", "exit": True, "bounds_m": {"x_min": -20.0, "x_max": 180.0, "y_min": -20.0, "y_max": 100.0}},
 }
 ADJACENT = {"zone-01": ["zone-02", "zone-03"], "zone-02": ["zone-01", "zone-03"], "zone-03": ["zone-01", "zone-02"]}
 STATION_DEPARTMENT = {"hospital": "medical", "police_station": "police", "fire_station": "fire"}
@@ -225,8 +228,10 @@ class TwoBlocksCity:
     def device_ids(self) -> set[str]:
         zones = {f"ecall-{z}" for z in ZONES} | {f"aq-{z}" for z in ZONES}
         water = {f"wl-{z.id}" for z in self.sim.flood_zones} | {f"rain-{z.id}" for z in self.sim.flood_zones}
+        stations = {station_actuator_id(st.id) for st in self.sim.stations}   # a quarantined station sends no unit
+        units = {f"unit-{u}" for u in self.sim.units}
         return (zones | water | {cam.id for cam in self.sim.cameras} | {f"{cam.id}-cctv" for cam in self.sim.cameras}
-                | {f"fire-{b}" for b in self.sim.buildings})
+                | {f"fire-{b}" for b in self.sim.buildings} | stations | units)
 
     # ---- readings ---------------------------------------------------------------------
 
