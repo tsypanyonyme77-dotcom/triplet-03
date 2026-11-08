@@ -69,6 +69,19 @@ async def test_auditor_policies(city: Harness) -> None:
     dup = await a.handle(call("dispatch-central", "dispatch_unit", {"unit_type": "police"}, ref,
                               incident_id="inc-1"), "brain")
     assert "duplicate_dispatch" in dup.reasons
+    # T14's pattern (the Brain's GuardianV1Adapter shape): a pursuit, then a perimeter for the same incident. Each unit
+    # goes to another zone or in another mode, so none is a duplicate; sending the pursuit again still is.
+    pursuit = {"unit_type": "police", "mode": "pursuit", "target_id": "cit-88213", "station_id": "police-dispatch-05"}
+    contain = {"unit_type": "police", "mode": "contain", "station_id": "police-dispatch-05"}
+    shapes = [(pursuit, "zone-07"), (contain, "zone-07"), (contain, "zone-08")]
+    for i, (params, zone) in enumerate(shapes):
+        d = await a.handle(ActuatorCall(call_id=f"t14-{i}", actuator_id="dispatch-central", action="dispatch_unit",
+                                        params=params, zone_id=zone, trust_ref=ref, incident_id="inc-t14"), "brain")
+        assert d.decision == "forwarded", d.reasons
+    repeat = ActuatorCall(call_id="t14-again", actuator_id="dispatch-central", action="dispatch_unit",
+                          params=pursuit, zone_id="zone-07", trust_ref=ref, incident_id="inc-t14")
+    again = await a.handle(repeat, "brain")
+    assert "duplicate_dispatch" in again.reasons
     no_incident = await a.handle(call("dispatch-central", "dispatch_unit", {}, ref), "brain")
     assert "incident_id_missing" in no_incident.reasons
     sea = g.pipeline.request_verdict("aq-sea-01").verdict_id

@@ -31,6 +31,15 @@ class CallAuditor:
         self.calls: deque[tuple[datetime, str, str]] = deque(maxlen=10_000)  # ts, caller, actuator
         self.dispatched: set[str] = set(state.db.get_kv("dispatched_incidents", []))
 
+    @staticmethod
+    def _dispatch_key(call: ActuatorCall) -> str:
+        """Two dispatches are the same when incident, station, unit type, mode, zone and target all match.
+        A repeated call is refused; a perimeter's further units (other zones, mode contain) are not."""
+        p = call.params
+        parts = (call.incident_id, p.get("station_id") or call.actuator_id, p.get("unit_type"),
+                 p.get("mode"), call.zone_id or p.get("zone_id"), p.get("target_id"))
+        return "|".join(str(v or "") for v in parts)
+
     def _authorise(self, call: ActuatorCall, zone: str | None) -> list[str]:
         if not call.trust_ref:
             return ["trust_ref_missing"]
@@ -58,7 +67,7 @@ class CallAuditor:
         if call.action == "dispatch_unit" and self.p.safety.no_duplicate_dispatch:
             if not call.incident_id:
                 out.append("incident_id_missing")
-            elif call.incident_id in self.dispatched:
+            elif self._dispatch_key(call) in self.dispatched:
                 out.append("duplicate_dispatch")
         cap = self.semantic.action_capability(call, zone)
         if cap:
@@ -109,7 +118,7 @@ class CallAuditor:
                 warnings.append("twin_rejected")
             else:
                 if call.action == "dispatch_unit" and call.incident_id:
-                    self.dispatched.add(call.incident_id)
+                    self.dispatched.add(self._dispatch_key(call))
                     self.state.db.put_kv("dispatched_incidents", sorted(self.dispatched))
                 warnings += await self.verifier.expect(call, reply)
         decision = Decision(call_id=call.call_id, decision="blocked" if reply is None else "forwarded",
