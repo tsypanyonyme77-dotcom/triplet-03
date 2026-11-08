@@ -7,7 +7,7 @@ Port `8001`.
 
 ## Readings (what the Twin sends)
 
-One canonical reading per sensor per tick (every `TWIN_EMIT_INTERVAL_S`, default 1 s), shown to each partner in its dialect.
+One canonical reading per sensor at that sensor's interval (`TWIN_READING_INTERVALS`: cameras, air and rain 10 s, water, CCTV alarms and fire sensors 5 s, as the Guardian's registry expects; calls and unit status as they happen), shown to each partner in its dialect.
 The sensor id and `sequence_no` are the same in both dialects, because the City Brain asks the Guardian for its verdict by that pair.
 `sequence_no` rises strictly per sensor.
 

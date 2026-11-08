@@ -4,6 +4,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass
 
+from twin.reading_cadence import DEFAULT_INTERVALS, parse_intervals
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -34,6 +36,7 @@ class Settings:
     # Emission
     emit_enabled: bool = True
     emit_interval_s: float = 1.0
+    reading_intervals: tuple[tuple[str, float], ...] = ()   # (type, seconds): how often a sensor reports; empty = every tick
     # The city (twin.world.scenarios.CityParams checks the ranges)
     scenario: str = "city"
     seed: int | None = None
@@ -61,6 +64,7 @@ class Settings:
         ingest_path = "/v1/readings" if dialect == "guardian-v1" else "/ingest"
         hosts = os.environ.get("TWIN_MCP_ALLOWED_HOSTS")
         events_url = os.environ.get("BRAIN_EVENTS_URL")
+        intervals = os.environ.get("TWIN_READING_INTERVALS")
         return cls(
             guardian_url=guardian,
             brain_url=brain,
@@ -82,6 +86,7 @@ class Settings:
             mcp_allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()) if hosts is not None else cls.mcp_allowed_hosts,
             operator_key=os.environ.get("TWIN_OPERATOR_KEY", ""),
             emit_interval_s=float(os.environ.get("TWIN_EMIT_INTERVAL_S", cls.emit_interval_s)),
+            reading_intervals=tuple((parse_intervals(intervals) if intervals is not None else DEFAULT_INTERVALS).items()),
             scenario=os.environ.get("TWIN_SCENARIO", cls.scenario),
             seed=int(seed) if seed else None,
             cars=int(os.environ.get("TWIN_CARS", cls.cars)),

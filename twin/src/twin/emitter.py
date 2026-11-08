@@ -17,6 +17,7 @@ from twin.events import EventLog
 from twin.partners.brain_timeline import BrainTimeline
 from twin.partners.guardian_push import GuardianPush
 from twin.partners.reading_log import ReadingLog
+from twin.reading_cadence import ReadingCadence
 
 
 class Emitter:
@@ -29,6 +30,7 @@ class Emitter:
         it is signed (unit_status as the partner that sent the unit knows it). `timeline`: our events on the
         City Brain's screen."""
         self.timeline = timeline
+        self.cadence = ReadingCadence(dict(settings.reading_intervals), settings.emit_interval_s)
         self.settings = settings
         self.step_city = step_city  # False in live mode: the LiveRunner advances the city
         self.city = city
@@ -53,9 +55,10 @@ class Emitter:
 
     def build_readings(self) -> list[dict[str, Any]]:
         readings = []
+        self.cadence.next_tick()
         for spec in self.city.sensor_readings():
             sensor_id = spec["sensor_id"]
-            if self.devices.blocks(sensor_id):
+            if self.devices.blocks(sensor_id) or not self.cadence.due(spec):
                 continue
             spec = self.view(spec)
             self._seq[sensor_id] = self._seq.get(sensor_id, 0) + 1
