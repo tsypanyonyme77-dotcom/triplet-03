@@ -16,6 +16,12 @@ def load_mock(layer: str, name: str):
     return module
 
 
+@pytest.fixture(autouse=True)
+def _chain_logs_in_a_temporary_folder(tmp_path_factory, monkeypatch):
+    """Incident chain logs from tests never land in the triplet's logs/ folder, which holds scenario runs (R2)."""
+    monkeypatch.setenv("TWIN_CHAIN_LOG_DIR", str(tmp_path_factory.mktemp("chain-logs")))
+
+
 @pytest.fixture
 def guardian_mock():
     return load_mock("guardian", "mock_guardian")

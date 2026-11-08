@@ -44,6 +44,15 @@ def test_dispatch_unit_is_idempotent_and_validated():
     assert client.post("/actuators/call", json=_call("police", incident, trust_ref=None), headers=h).status_code == 403
 
 
+def test_a_chain_log_goes_to_the_folder_it_is_given_not_the_triplet_logs(tmp_path, monkeypatch):
+    monkeypatch.setenv("TWIN_CHAIN_LOG_DIR", str(tmp_path))
+    before = set((ROOT / "logs").glob("*")) if (ROOT / "logs").exists() else set()
+    result = _chain().ChainRun("ped-hit", record=False).finish(0.0)
+    assert result["log"].parent == tmp_path and result["log"].exists()
+    after = set((ROOT / "logs").glob("*")) if (ROOT / "logs").exists() else set()
+    assert after == before    # the triplet's logs/ holds scenario runs (R2), not test output
+
+
 def test_manual_mode_lists_the_incident_and_nothing_moves_without_an_actuator_call():
     result = _chain().run("ped-hit", 200.0, record=False)
     assert result["missing"] == []
