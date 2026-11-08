@@ -37,19 +37,24 @@ HMAC over the envelope without `hmac`, same rule and key. `sequence_reset: true`
 | Sensor (`type`) | Id | `value` (City Brain dialect) | Guardian dialect |
 |---|---|---|---|
 | `emergency_call` | `ecall-<zone>` | `call_id, category, caller_id, caller_confidence, incident_id, location, reporter_kind` | `emergency_call {call_id, incident_type, caller_id}`; `police` is `crime`, `other` is not sent |
-| `traffic_camera` | `cam-n2`, `cam-n5` | `congestion_score, vehicle_count, avg_speed_kmh, smoke_detected` | `traffic_camera` without `smoke_detected` |
+| `traffic_camera` | `cam-n2`, `cam-n5`; a pole camera in each block, `cam-zone-01`, `cam-zone-02` | `congestion_score, vehicle_count, avg_speed_kmh, smoke_detected` | `traffic_camera` without `smoke_detected` |
 | `cctv_anomaly` | `<camera>-cctv` | `anomaly_type (collision, stopped_vehicle), confidence, anomaly_id, incident_id, location` | `cctv_anomaly {anomaly_type, confidence}`, if extended |
 | `building_fire` | `fire-<building>` | `smoke_detected, temp_c, co2_ppm, building_id, incident_id, location`, while a building smokes | `building_fire {building_id, smoke_detected, temp_c, co2_ppm}`, if extended |
 | `air_quality` | `aq-<zone>` | `aqi, pm25_ugm3, pm10_ugm3, smoke_detected` | `air_quality {aqi, smoke}` |
 | `rainfall` | `rain-dip-<u>-<v>` | `mm_per_hr, location` | `rain_gauge {rainfall_mm_h}` |
-| `water_level` | `wl-dip-<u>-<v>` | `level_m, flow_rate_m3s, pump_id, pump_on, location` | `water_level {level_m}` and `flow_meter {flow_rate_m3s}` as `flow-dip-<u>-<v>` |
+| `water_level` | `wl-dip-<u>-<v>` | `level_m` (the drain shaft), `road_depth_m`, `flow_rate_m3s, pump_id, pump_on, location` | `water_level {level_m}` and `flow_meter {flow_rate_m3s}` as `flow-dip-<u>-<v>` |
 | `unit_status` | `unit-<unit>` | `unit_id, incident_id, state (en_route, on_scene, returning), unit_type, station_id`, on each change | `unit_status {unit_id, incident_id, state}`, if extended |
 
 Every value also has `sim_time_s`. `location` is metres on the map (x east, y north). `incident_id` in a call or alarm is the Twin's call-centre incident.
 
+Readings are what a sensor would report, not the engine's truth (`src/twin/sensor_model.py`; `TWIN_REALISTIC_SENSORS=0` turns it off).
+Rain, air and cameras are means over a window, values wobble slightly, and `level_m` is a damped gauge in the drain shaft: the shaft fills first (0.8 m by the time 0.2 m stands on the road), then the road's water adds to it, so a flooded street peaks near 1.1 m and a dry one reads 0.
+A cloud covers the whole map, so every gauge reads the same rain, while only a street with a blocked drain floods. Smoke drifts over the whole map, so air quality flags it in every zone.
+The call centre forwards at most 2 calls per incident and 5 per zone each minute; the rest repeat what it already reported.
+
 ## Layout
 
-`get_topology()` (MCP) or `GET /topology`: zones (`zone-01` block A, `zone-02` block B, `zone-03` streets) with `adjacency` and `exits`, `facilities` and `sensors`.
+`get_topology()` (MCP) or `GET /topology`: zones (`zone-01` block A, `zone-02` block B, `zone-03` streets, and `zone-dip-<u>-<v>`, the water level and pump of each street's drain, so that a dry street cannot close a flood on another) with `adjacency` and `exits`, `facilities` and `sensors`.
 Each station is a facility a dispatch is addressed to: `dispatch-hospital` (ambulance), `dispatch-police-station`, `dispatch-fire-station`, one unit each; the drainage pumps are facilities of `drainage-pumps-01`.
 
 ## Actuator calls (what the Twin receives)
@@ -78,8 +83,8 @@ Answer, always HTTP 200: `{"status":"ok","current_state":{...the actuator's resu
 
 ## Pointing it at a different partner (configuration only)
 
-`GUARDIAN_URL` and `BRAIN_URL` are the partners' base addresses; `GUARDIAN_DIALECT` is `guardian-v1` (the real Guardian, default) or `twin` (our mock).
-`GUARDIAN_EXTENDED_TYPES` (comma-separated) names our types the Guardian has registered. `GUARDIAN_INGEST_URL` overrides where readings go; `BRAIN_NOTIFY_URL` pings our mock City Brain after each batch (the real one polls).
+`GUARDIAN_URL` and `BRAIN_URL` are the partners' base addresses.
+`GUARDIAN_EXTENDED_TYPES` (comma-separated) names our types the Guardian has registered. `GUARDIAN_INGEST_URL` overrides where readings go.
 `BRAIN_EVENTS_URL` is where our events go for the City Brain's timeline (default `{BRAIN_URL}/api/events`, empty for off), as CloudEvents of type `twin.<kind>`, without ground truth; `TWIN_PUSH_TOKEN` is the bearer token if it asks for one.
 `TWIN_MCP_ALLOWED_HOSTS` lists the Host headers `/mcp` accepts (default `127.0.0.1:*`, `localhost:*`, `twin:*`, `twin`).
 All in the environment: `twin/.env.example` alone with mocks, the root `.env.example` in the triplet.
@@ -95,9 +100,13 @@ Shared secrets from the environment, never code. No TLS yet.
 Our own door `POST /actuators/call` (every action, including the Guardian-only ones, catalog at `GET /actuators` with JSON Schemas) and the operator's demo controls (`X-Operator-Key`): scenarios (`POST /scenarios/{id}/run`), the fire and flood simulators (`POST /simulators/ignite_fire`, `/simulators/flood_street`), the live viewer and timeline.
 Read endpoints: `GET /health`, `/zones`, `/sensors`, `/units`, `/responses`, `/quarantine`, `/flood`, `/events` (no ground truth).
 
+## Mocks
+
+`mocks/guardian` and `mocks/brain` are stand-ins speaking the partners' real contracts, so `twin/` alone exercises what the real layers use: `POST /v1/readings`, `POST /v1/verdicts/request`, `POST /tools/{action}`, `GET /readings`. The mock City Brain sends its actions to `POST /actuators/call`, since its console works with the Twin's incident ids.
+
 ## Known limits
 
 The city is two blocks with one unit per station; no valves, grid switches or power meters yet.
 The Twin cannot yet emit falsified readings, replays, silence or call floods, which the Guardian's scenarios need.
-Some honest readings jump faster than the Guardian's rate-of-change limits (a downpour, smoke from a fire, camera congestion) and clean air never wobbles, so they can be judged suspect or untrusted.
+The City Brain has no action for the drainage pump, so a flood drains only if someone starts it (`set_pump_state`).
 Read endpoints have no authentication.

@@ -7,7 +7,8 @@ Sensors report what they see as signed readings, and actuators change the city.
 ```
 twin/
   INTERFACE.md     what the Twin sends and receives (R1)
-  src/twin/        the service: main.py (API), emitter, actuators, devices, timeline, scenario_runs, testbook
+  src/twin/        the service: main.py (API), actuation, actuators, emitter, sensor_model, reading_cadence, devices, timeline, scenario_runs, testbook
+  src/twin/partners/  the adapters to the City Brain's and the Guardian's contracts
   src/twin/city/   the seam between the API and the simulation (CitySource)
   src/twin/engine/ the simulation: cars, pedestrians, accidents, witnesses, emergency units
   src/twin/world/  the two-block map, the scenarios, the recorder
@@ -91,7 +92,7 @@ cd mocks/ui && npm ci && npm test            # the consoles (from twin/)
 ## Development without Docker
 
 ```
-cd twin && GUARDIAN_URL=http://127.0.0.1:8003 GUARDIAN_DIALECT=twin BRAIN_URL=http://127.0.0.1:8002 LOG_DIR=../logs uv run uvicorn twin.main:app --port 8001
+cd twin && GUARDIAN_URL=http://127.0.0.1:8003 BRAIN_URL=http://127.0.0.1:8002 LOG_DIR=../logs uv run uvicorn twin.main:app --port 8001
 cd twin/src/viewer && npm run dev            # http://localhost:5173, proxies /twin to port 8001
 ```
 
