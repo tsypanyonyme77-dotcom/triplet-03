@@ -1,0 +1,39 @@
+# Guardian service + partner wiring. Partner addresses live here (or in .env), never in code.
+contract_version: "1.0"
+service:
+  name: guardian
+  version: "0.1.0"
+  host: 0.0.0.0
+  port: 8100
+twin:
+  transport: rest            # rest | mcp | mqtt
+  mode: push                 # push (Twin POSTs /v1/readings) | pull (Guardian polls / subscribes)
+  base_url: http://localhost:8101   # override with TWIN_BASE_URL
+  timeout_s: 3.0
+  poll_interval_s: 2.0
+  health_interval_s: 5.0
+  mcp:
+    url: http://localhost:8101/mcp
+    readings_tool: get_readings
+  mqtt:
+    host: localhost
+    port: 1883
+    readings_topic: city/readings/#
+    tools_topic: city/tools
+brain:
+  base_url: http://localhost:8102   # informational: the Brain calls us, we never call it
+verdict:
+  ttl_s: 30
+  lru_size: 5000
+storage:
+  db_path: ./data/guardian.db       # override with GUARDIAN_DB_PATH
+  history_size: 500
+audit:
+  log_dir: ./logs                   # override with LOG_DIR (e.g. the triplet root logs/)
+  file_prefix: t5-guardian
+background:
+  tick_s: 1.0
+ml:
+  enabled: false
+  min_train: 200
+  contamination: 0.02

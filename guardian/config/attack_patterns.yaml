@@ -1,0 +1,65 @@
+# Threat correlation signatures. Generic rule: count signals of the listed types in window_s,
+# grouped by zone | device | source (optionally distinct devices). threshold reached -> incident.
+patterns:
+  replay:
+    signals: [replay]
+    group_by: source
+    threshold: 1
+    window_s: 60
+    raises_to: elevated
+    response: block_and_flag_source
+  spoofing:
+    signals: [spoofing]
+    group_by: device
+    threshold: 1
+    window_s: 60
+    raises_to: elevated
+    response: isolate_and_rollback
+  coordinated_spoofing:
+    signals: [reading_failed]
+    group_by: zone
+    distinct: device
+    threshold: 3
+    window_s: 20
+    raises_to: under_attack
+    response: zone_high_distrust
+  flood_dos:
+    signals: [call_flood, rate_exceeded]
+    group_by: zone
+    threshold: 1
+    window_s: 60
+    raises_to: elevated
+    response: rate_limit_and_throttle
+  tampering:
+    signals: [hmac_invalid, schema_invalid]
+    group_by: source
+    threshold: 3
+    window_s: 60
+    raises_to: elevated
+    response: reject_and_alert_key_compromise
+  command_injection:
+    signals: [command_injection]
+    group_by: source
+    threshold: 3
+    window_s: 120
+    raises_to: null
+    response: block_and_quarantine_caller
+  slow_drift:
+    signals: [slow_drift]
+    group_by: device
+    threshold: 1
+    window_s: 600
+    raises_to: null
+    response: alert_and_freeze_baseline
+  compromised_twin:
+    kind: compromised_twin
+    window_s: 120
+    min_zones: 3
+    fraction: 0.5
+    response: brain_safe_mode
+  attack_during_incident:
+    kind: attack_during_incident
+    window_s: 300
+    response: keep_acting_on_trusted_data
+threat_levels:
+  quiet_period_s: 120

@@ -1,0 +1,35 @@
+# L5 corroboration: which independent sensors corroborate which, and zone adjacency.
+corroboration_window_s: 120
+min_sources: 2          # distinct trusted independent sensors needed for a verdict
+adjacency:
+  zone-07: [zone-08, zone-12]
+  zone-08: [zone-07, zone-03]
+  zone-03: [zone-08]
+  zone-12: [zone-07]
+# rules[<sensor_type>] or rules["emergency_call:<incident_type>"] -> list of sources.
+# A source sensor "agrees" when it is in the same event state (thresholds.events) as the target.
+# presence_only sources vote only when present (a second caller); absence is not disagreement.
+rules:
+  water_level:
+    - {key: rainfall, sensor_type: rain_gauge}
+    - {key: flow, sensor_type: flow_meter}
+    - {key: upstream_level, sensor_type: water_level}
+  rain_gauge:
+    - {key: neighbour_rainfall, sensor_type: rain_gauge}
+  flow_meter:
+    - {key: rainfall, sensor_type: rain_gauge}
+    - {key: upstream_flow, sensor_type: flow_meter}
+  air_quality:
+    - {key: neighbour_aqi, sensor_type: air_quality}
+  traffic_camera:
+    - {key: neighbour_congestion, sensor_type: traffic_camera}
+  power_meter:
+    - {key: grid_frequency, sensor_type: grid_meter}
+    - {key: neighbour_load, sensor_type: power_meter}
+  "emergency_call:fire":
+    - {key: smoke, sensor_type: air_quality}
+    - {key: second_caller, sensor_type: emergency_call, presence_only: true}
+  "emergency_call:flood":
+    - {key: water_level, sensor_type: water_level}
+    - {key: rainfall, sensor_type: rain_gauge}
+    - {key: second_caller, sensor_type: emergency_call, presence_only: true}

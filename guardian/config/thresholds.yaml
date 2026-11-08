@@ -1,0 +1,74 @@
+# Detection thresholds. Starting values; tuned during integration.
+max_clock_skew_s: 30
+flatline_n: 50
+flatline_decimals: 6
+zscore:
+  limit: 4.0
+  alpha: 0.1           # EWMA smoothing
+  min_history: 20
+baseline:              # hour-of-day profile (patterns/baseline.py)
+  min_samples: 200     # per sensor/field/hour before the bucket is used
+  sigma: 4.0
+  drift_window: 60     # readings
+  drift_sigma: 1.0     # mean |z| over the window that counts as drift
+  drift_fraction: 0.9  # share of deviations with the same sign
+call_flood:
+  max_calls_per_zone: 5
+  window_s: 60
+rate:
+  max_msgs_per_s: 5    # per sensor; above this -> rate_exceeded
+unit_mismatch_factor: 100
+
+# Range, sign and rate-of-change limits per field (L3a, L4).
+# noise_floor: minimum std used by the z-score so a very quiet sensor does not alarm on noise.
+fields:
+  traffic_camera:
+    vehicle_count: {min: 0, max: 500, max_rate_per_s: 5, noise_floor: 2}
+    avg_speed_kmh: {min: 0, max: 200, max_rate_per_s: 3, noise_floor: 2}
+    congestion_score: {min: 0, max: 1, max_rate_per_s: 0.03, noise_floor: 0.03}
+  water_level:
+    level_m: {min: 0, max: 10, max_rate_per_s: 0.01, noise_floor: 0.01}
+  power_meter:
+    load_kw: {min: 0, max: 100000, max_rate_per_s: 50, noise_floor: 5}
+    capacity_kw: {min: 0, max: 100000}
+  air_quality:
+    aqi: {min: 0, max: 500, max_rate_per_s: 5, noise_floor: 3}
+  rain_gauge:
+    rainfall_mm_h: {min: 0, max: 300, max_rate_per_s: 2, noise_floor: 0.5}
+  flow_meter:
+    flow_rate_m3s: {min: 0, max: 1000, max_rate_per_s: 0.2, noise_floor: 0.05}
+  grid_meter:
+    frequency_hz: {min: 45, max: 55, max_rate_per_s: 0.5, noise_floor: 0.02}
+    voltage_v: {min: 0, max: 1000, max_rate_per_s: 20, noise_floor: 2}
+
+# Internal consistency: left <= right on the same reading.
+consistency:
+  power_meter: [{left: load_kw, op: "<=", right: capacity_kw}]
+
+# A reading is "notable" (L5 runs) when any condition holds. Also used to decide whether a
+# corroboration source is "in event state". Ops: > >= < <= == != in dev jump_pct
+events:
+  water_level: [{field: level_m, op: ">", value: 1.2}]
+  rain_gauge: [{field: rainfall_mm_h, op: ">", value: 5}]
+  flow_meter: [{field: flow_rate_m3s, op: ">", value: 2.5}]
+  air_quality:
+    - {field: aqi, op: ">", value: 200}
+    - {field: smoke, op: "==", value: true}
+  traffic_camera: [{field: congestion_score, op: ">", value: 0.8}]
+  power_meter: [{field: load_kw, op: jump_pct, value: 30}]
+  grid_meter: [{field: frequency_hz, op: dev, center: 50, value: 0.5}]
+  emergency_call: [{field: incident_type, op: in, value: [fire, flood]}]
+
+scoring:
+  cutoffs: {trusted: 0.8, suspect: 0.4}
+  weights:
+    plausibility_fail: -0.5
+    semantic_suspect: -0.3
+    dynamics_fail: -0.3
+    corroboration_fail: -0.5
+    corroboration_pass: 0.2
+    liveness_fail: -0.3
+    pattern_fail: -0.2
+  tightened:            # zone threat level elevated or under_attack
+    trusted_min_score: 0.9
+    min_corroborating_sources: 2

@@ -1,0 +1,22 @@
+{
+  "event_id": "evt-5d2e7a90b1c3",
+  "ts": "2026-11-02T14:03:23Z",
+  "type": "verdict",
+  "scenario_id": "T1",
+  "sensor_id": "wl-port-03",
+  "actuator_id": null,
+  "zone_id": "zone-07",
+  "summary": "untrusted wl-port-03#4821 score=0.2 [rate_of_change, no_rainfall_corroboration]",
+  "data": {
+    "kind": "verdict",
+    "verdict_id": "verdict-88213",
+    "status": "untrusted",
+    "trust_score": 0.2,
+    "reasons": [
+      "rate_of_change",
+      "no_rainfall_corroboration"
+    ],
+    "action_taken": "isolate_sensor",
+    "threat_level": "normal"
+  }
+}

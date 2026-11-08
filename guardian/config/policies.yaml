@@ -1,0 +1,46 @@
+# Actuator registry, expected effects, safety invariants, rate limits and containment caps.
+actuators:
+  valve-port-12: {type: valve, zone_id: zone-07, verify_sensors: [fm-port-01]}
+  valve-res-02: {type: valve, zone_id: zone-08, verify_sensors: [fm-res-01]}
+  grid-port: {type: grid_switch, zone_id: zone-07, verify_sensors: [pm-port-01]}
+  grid-hosp: {type: grid_switch, zone_id: zone-03, verify_sensors: [pm-hosp-01]}
+  sig-port-01: {type: traffic_signal, zone_id: zone-07, verify_sensors: [tc-port-01]}
+  dispatch-central: {type: dispatcher, zone_id: null, verify_sensors: []}
+
+# Expected effect per action/param value ("any" matches every value). Predicates:
+# drop_pct >= N, rise_pct >= N, value <= N, value >= N, present. No eval.
+expectations:
+  set_valve_state:
+    closed: {verify_with: [flow_rate_m3s], expect: "drop_pct >= 80", within_s: 30, on_fail: actuator_failure}
+  set_grid_state:
+    disconnected: {verify_with: [load_kw], expect: "value <= 5", within_s: 20, on_fail: actuator_failure}
+  set_signal:
+    green: {verify_with: [avg_speed_kmh], expect: "rise_pct >= 10", within_s: 60, on_fail: actuator_failure, check_reverts_at: true}
+  dispatch_unit:
+    any: {verify_with: [twin_reply.unit_id, twin_reply.eta_s], expect: "present", within_s: 5, on_fail: actuator_failure}
+  quarantine_device:
+    any: {verify_with: [no_new_readings_used], expect: "present", within_s: 10, on_fail: containment_failure}
+
+verification:
+  partial_min_progress: 0.2   # some movement toward the target -> partial_effect instead of no_effect
+  late_window_s: 180          # keep watching after the deadline to report late_effect
+  unauthorised_drop_pct: 80   # a verify sensor drops this much with no call -> unauthorised_effect
+  unauthorised_window_s: 120  # a call within this window explains the change
+  revert_tolerance_s: 5
+
+safety:
+  no_grid_disconnect_in_hospital_zone: true
+  no_duplicate_dispatch: true
+rate_limits:
+  per_caller_per_min: 30
+  per_actuator_per_min: 6
+odd_hours:
+  hours: [1, 2, 3, 4]
+  actions: [set_grid_state, set_valve_state]
+containment_actions: [quarantine_device, isolate_sensor, clear_quarantine]
+
+containment:
+  max_isolations_per_zone: 3
+  release_after_good_readings: 10
+  cooldown_s: 60
+  backoff_factor: 2          # each re-isolation multiplies the cooldown (anti-flapping)

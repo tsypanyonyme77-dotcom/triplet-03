@@ -1,0 +1,13 @@
+{
+  "contract_version": "1.0",
+  "sensor_id": "wl-port-03",
+  "sensor_type": "water_level",
+  "zone_id": "zone-07",
+  "timestamp": "2026-11-02T14:03:18Z",
+  "sequence_no": 4821,
+  "value": {
+    "level_m": 1.8
+  },
+  "sequence_reset": false,
+  "hmac": "30d230a2d99a160d20260477e151fa91c58e98d6d76875d0d7fffcdc1195911a"
+}

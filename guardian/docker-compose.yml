@@ -1,0 +1,45 @@
+# Guardian alone with its mocks (R1). Keys come from .env (make env creates it and logs/ data/).
+# Containers run as your user so logs/ and data/ stay writable on the host.
+services:
+  guardian:
+    build: .
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file: .env
+    environment:
+      TWIN_BASE_URL: http://twin_mock:8101
+      LOG_DIR: /app/logs
+      GUARDIAN_DB_PATH: /app/data/guardian.db
+    ports: ["8100:8100"]
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+
+  twin_mock:
+    build: .
+    command: ["python", "-m", "mocks.twin_mock", "serve"]
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file: .env
+    environment:
+      GUARDIAN_URL: http://guardian:8100
+      TWIN_MODE: push
+      TWIN_SPEED: "${TWIN_SPEED:-1}"
+    ports: ["8101:8101"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health', timeout=2)"]
+      interval: 10s
+    depends_on:
+      guardian: {condition: service_healthy}
+
+  brain_mock:
+    build: .
+    command: ["python", "-m", "mocks.brain_mock"]
+    user: "${UID:-1000}:${GID:-1000}"
+    env_file: .env
+    environment:
+      GUARDIAN_URL: http://guardian:8100
+    ports: ["8102:8102"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8102/health', timeout=2)"]
+      interval: 10s
+    depends_on:
+      guardian: {condition: service_healthy}

@@ -1,0 +1,56 @@
+{
+  "verdict_id": "verdict-88213",
+  "reading_ref": {
+    "sensor_id": "wl-port-03",
+    "sequence_no": 4821
+  },
+  "status": "untrusted",
+  "trust_score": 0.2,
+  "reasons": [
+    "rate_of_change",
+    "no_rainfall_corroboration",
+    "no_flow_corroboration"
+  ],
+  "layer_results": [
+    {
+      "layer": "L1_authenticity",
+      "passed": true,
+      "severity": "info",
+      "reason_code": null,
+      "detail": "schema, contract_version and HMAC valid"
+    },
+    {
+      "layer": "L2_freshness",
+      "passed": true,
+      "severity": "info",
+      "reason_code": null,
+      "detail": "sequence and timestamp fresh"
+    },
+    {
+      "layer": "L4_dynamics",
+      "passed": false,
+      "severity": "medium",
+      "reason_code": "rate_of_change",
+      "detail": "level_m changed 0.4→1.8 in 5s (0.28/s > 0.01/s)"
+    },
+    {
+      "layer": "L5_corroboration",
+      "passed": false,
+      "severity": "strong",
+      "reason_code": "no_rainfall_corroboration",
+      "detail": "0 agree / 6 disagree of 6 independent sources"
+    },
+    {
+      "layer": "L5_corroboration",
+      "passed": false,
+      "severity": "strong",
+      "reason_code": "no_flow_corroboration",
+      "detail": "0 agree / 6 disagree of 6 independent sources"
+    }
+  ],
+  "action_taken": "isolate_sensor",
+  "threat_level": "normal",
+  "ts": "2026-11-02T14:03:23Z",
+  "expires_at": "2026-11-02T14:03:53Z",
+  "signature": "9caf08567015b18641dc36bc203fec522295438361ee75175a662bb191b0e81f"
+}

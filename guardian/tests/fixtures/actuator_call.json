@@ -1,0 +1,13 @@
+{
+  "call_id": "call-551",
+  "actuator_id": "valve-port-12",
+  "action": "set_valve_state",
+  "params": {
+    "state": "closed"
+  },
+  "zone_id": "zone-07",
+  "requesting_layer": "brain",
+  "trust_ref": "verdict-88190",
+  "justification": "flood risk zone-07",
+  "incident_id": "inc-77"
+}

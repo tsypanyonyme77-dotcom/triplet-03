@@ -1,0 +1,45 @@
+# Static city knowledge for L3b semantic plausibility. A documented assumption until the
+# Twin team exposes a zone-metadata endpoint (open item 5).
+timezone_offset_h: 1      # local time = UTC + offset (Tunisia)
+quiet_hours: [1, 2, 3, 4] # local hours where rush-hour congestion is implausible
+zones:
+  zone-07:
+    type: port
+    has_water_body: true
+    max_water_level_m: 3.0
+    has_buildings: true
+    road_access: true
+    fire_possible: true
+    hospital: false
+    switchable_grid: true
+    max_vehicles: 300
+  zone-08:
+    type: residential
+    has_water_body: true      # canal
+    max_water_level_m: 2.5
+    has_buildings: true
+    road_access: true
+    fire_possible: true
+    hospital: false
+    switchable_grid: true
+    max_vehicles: 200
+  zone-03:
+    type: hospital_district
+    has_water_body: false
+    max_water_level_m: 0.0
+    has_buildings: true
+    road_access: true
+    fire_possible: true
+    hospital: true
+    switchable_grid: true
+    max_vehicles: 200
+  zone-12:
+    type: open_sea
+    has_water_body: true
+    max_water_level_m: 10.0
+    has_buildings: false
+    road_access: false
+    fire_possible: false
+    hospital: false
+    switchable_grid: false
+    max_vehicles: 0

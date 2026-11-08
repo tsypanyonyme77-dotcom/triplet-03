@@ -1,0 +1,50 @@
+# Per sensor type: value fields (type + unit), expected reporting interval and which checks apply.
+# expected_interval_s: null means event-driven (no liveness heartbeat).
+sensor_types:
+  traffic_camera:
+    expected_interval_s: 10
+    fields:
+      vehicle_count: {type: int, unit: vehicles}
+      avg_speed_kmh: {type: float, unit: km/h}
+      congestion_score: {type: float, unit: ratio}
+    checks: [range, semantic, dynamics, corroboration, liveness]
+  water_level:
+    expected_interval_s: 5
+    fields:
+      level_m: {type: float, unit: m}
+    checks: [range, semantic, dynamics, corroboration, liveness]
+  power_meter:
+    expected_interval_s: 10
+    fields:
+      load_kw: {type: float, unit: kW}
+      capacity_kw: {type: float, unit: kW}
+    checks: [range, semantic, dynamics, corroboration, liveness]
+  air_quality:
+    expected_interval_s: 10
+    fields:
+      aqi: {type: float, unit: AQI}
+      smoke: {type: bool}
+    checks: [range, semantic, dynamics, corroboration, liveness]
+  emergency_call:
+    expected_interval_s: null
+    fields:
+      call_id: {type: str}
+      incident_type: {type: str, enum: [fire, flood, accident, medical, crime]}
+      caller_id: {type: str}
+    checks: [semantic, corroboration, call_rate]
+  rain_gauge:
+    expected_interval_s: 10
+    fields:
+      rainfall_mm_h: {type: float, unit: mm/h}
+    checks: [range, dynamics, corroboration, liveness]
+  flow_meter:
+    expected_interval_s: 5
+    fields:
+      flow_rate_m3s: {type: float, unit: m3/s}
+    checks: [range, dynamics, corroboration, liveness]
+  grid_meter:
+    expected_interval_s: 10
+    fields:
+      frequency_hz: {type: float, unit: Hz}
+      voltage_v: {type: float, unit: V}
+    checks: [range, dynamics, liveness]

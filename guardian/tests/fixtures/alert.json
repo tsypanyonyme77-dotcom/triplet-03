@@ -1,0 +1,22 @@
+{
+  "alert_id": "alert-3f9a1c",
+  "type": "coordinated_spoofing",
+  "zone_id": "zone-08",
+  "evidence": [
+    {
+      "signal": "reading_failed",
+      "ts": "2026-11-02T14:05:02Z",
+      "zone_id": "zone-08",
+      "device_id": "wl-res-01",
+      "source": "wl-res-01",
+      "verdict_id": "verdict-9a01",
+      "reasons": [
+        "rate_of_change",
+        "no_rainfall_corroboration"
+      ]
+    }
+  ],
+  "suggested_response": "zone under attack: act only on readings corroborated by 2+ sources",
+  "threat_level": "under_attack",
+  "ts": "2026-11-02T14:03:23Z"
+}
