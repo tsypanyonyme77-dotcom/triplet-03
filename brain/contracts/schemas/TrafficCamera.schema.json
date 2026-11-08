@@ -1,0 +1,33 @@
+{
+  "description": "Data Dictionary section 2: congestion and, when the camera sees it, smoke.",
+  "properties": {
+    "congestion_score": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Congestion Score",
+      "type": "number"
+    },
+    "vehicle_count": {
+      "minimum": 0,
+      "title": "Vehicle Count",
+      "type": "integer"
+    },
+    "avg_speed_kmh": {
+      "minimum": 0.0,
+      "title": "Avg Speed Kmh",
+      "type": "number"
+    },
+    "smoke_detected": {
+      "default": false,
+      "title": "Smoke Detected",
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "congestion_score",
+    "vehicle_count",
+    "avg_speed_kmh"
+  ],
+  "title": "TrafficCamera",
+  "type": "object"
+}

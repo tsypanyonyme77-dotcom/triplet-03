@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "signal-05-01",
+  "action": "set_signal_phase",
+  "params": {
+    "intersection_id": "sig-05-01",
+    "phase": "green",
+    "duration_s": 120
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Jam reported in zone-05 (tcam-05-01#12). Rule MOB-001.",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "e448527ec68a18ce16b067e7e3ea8e9c8f9cd47baa22a764886fc5ee61ec6bcf"
+  }
+}

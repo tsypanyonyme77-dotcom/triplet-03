@@ -1,0 +1,79 @@
+# Reflex rules: the tier that answers in milliseconds and needs no LLM.
+# `scope` says what a rule reacts to (see `Rule` in departments/__init__.py). `when` keys are
+# dotted paths into that context; a value is either an exact match or a comparison such as
+# ">=0.8". `$path` in params is substituted from the same context.
+rules:
+  - id: POL-001
+    name: police.pursuit.direct
+    description: One person stands out as the suspect of a crime incident. Send a police unit after them.
+    when:
+      incident.type: crime
+      assessment.level: suspect
+    do:
+      - action: dispatch_unit
+        params:
+          unit_type: police
+          zone_id: $assessment.last_zone_id
+          incident_id: $incident.incident_id
+          mode: pursuit
+          target_id: $assessment.entity_id
+
+  - id: POL-002
+    name: police.respond.scene
+    scope: scene
+    description: >
+      A crime is corroborated but flight singles no one out, because more than one person
+      left the scene fast. Send one police unit to the scene and name no target.
+    when:
+      incident.type: crime
+      scene.fled: ">=2"
+      scene.singled_out: 0
+    do:
+      - action: dispatch_unit
+        params:
+          unit_type: police
+          zone_id: $incident.zone_id
+          incident_id: $incident.incident_id
+          mode: respond
+
+  - id: POL-003
+    name: police.standdown.closed
+    scope: closed
+    description: The incident is closed. Recall every unit that is still out for it.
+    when:
+      incident.type: crime
+      incident.status: closed
+    do:
+      - action: recall_unit
+        params:
+          unit_id: $unit.unit_id
+          incident_id: $incident.incident_id
+
+  - id: POL-004
+    name: police.standdown.outrun
+    scope: departed
+    description: >
+      A trusted sighting places the suspect outside the zones the perimeter was built to hold.
+      Recall the perimeter units so the department can plan again from where the suspect is.
+    when:
+      incident.type: crime
+      unit.mode: contain
+    do:
+      - action: recall_unit
+        params:
+          unit_id: $unit.unit_id
+          incident_id: $incident.incident_id
+
+  - id: POL-005
+    name: police.standdown.preempted
+    scope: preempted
+    description: >
+      A named suspect elsewhere has no unit and the stations are empty. Recall one perimeter unit from an incident whose
+      own pursuit unit is still out, so it can be sent after the suspect who has none.
+    when:
+      unit.mode: contain
+    do:
+      - action: recall_unit
+        params:
+          unit_id: $unit.unit_id
+          incident_id: $incident.incident_id

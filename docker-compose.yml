@@ -7,6 +7,8 @@ x-partners: &partners
   TWIN_TOKEN: ${TWIN_TOKEN:-change-me}
   BRAIN_TOKEN: ${BRAIN_TOKEN:-change-me}
   GUARDIAN_TOKEN: ${GUARDIAN_TOKEN:-change-me}
+  TWIN_HMAC_SECRET: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}
+  BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-dev-only-brain-secret}
 
 services:
   twin:
@@ -18,8 +20,53 @@ services:
     environment: *partners
     ports: ["8003:8003"]
     depends_on: [twin]
+  # The City Brain listens on BRAIN_URL's port (8002), reads TWIN_URL and GUARDIAN_URL (a bare http://host:port for the Twin means its MCP endpoint, /mcp),
+  # writes its city graph to Neo4j and keeps its knowledge vectors in Qdrant (both below). Without them it runs from memory and says so.
   brain:
     build: ./brain
-    environment: *partners
-    ports: ["8002:8002"]
-    depends_on: [twin, guardian]
+    command: ["serve", "--host", "0.0.0.0", "--port", "8002", "--config", "deploy/compose/partners.compose.yaml"]
+    environment:
+      <<: *partners
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-citybrain-local-pw}
+    ports: ["127.0.0.1:8002:8002"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    volumes: [brain-state:/app/state, brain-logs:/app/logs]
+    depends_on:
+      twin: {condition: service_started}
+      guardian: {condition: service_started}
+      neo4j: {condition: service_healthy}
+      qdrant: {condition: service_healthy}
+
+  # The Brain's two stores: Neo4j keeps the City Graph (explore it at http://127.0.0.1:7474), Qdrant the knowledge vectors.
+  neo4j:
+    image: neo4j:5.26-community
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-citybrain-local-pw}
+      NEO4J_dbms_usage__report_enabled: "false"
+    ports:
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+    volumes: [neo4j-data:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:7474 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    volumes: [qdrant-data:/qdrant/storage]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  brain-state:
+  brain-logs:
+  neo4j-data:
+  qdrant-data:

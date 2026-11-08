@@ -1,0 +1,14 @@
+{
+  "verdict_id": "verdict-000001",
+  "reading_ref": {
+    "sensor_id": "cam-07-02",
+    "sequence_no": 1
+  },
+  "status": "trusted",
+  "confidence": 0.97,
+  "reasons": [
+    "scripted:trusted"
+  ],
+  "issued_at": "2026-10-12T19:41:56.056053+00:00",
+  "expires_at": "2026-10-12T19:43:56.056053+00:00"
+}

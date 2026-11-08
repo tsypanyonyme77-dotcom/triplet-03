@@ -1,0 +1,76 @@
+{
+  "id": "d2",
+  "name": "A fake flood",
+  "claim": "Proves: a lying sensor cannot make the Brain act.",
+  "layers": [
+    "Twin",
+    "Guardian",
+    "City Brain"
+  ],
+  "description": "The harbour gauge reads a steady 0.3 m. Then a second, compromised gauge reports 1.8 m, which would be a flood. Its readings are signed but the Guardian marks them untrusted.",
+  "expected_brain": "Notices the doubtful reading and opens a flood incident, but the Safety gate refuses both the warning and the valve call: no trusted Guardian verdict stands behind them. The honest gauge then clears the incident. Nothing reaches the city.",
+  "how_to_verify": "Visible on the timeline screen; log logs/d2-*.jsonl; `uv run brain scenario d2`.",
+  "topology": "topology/small-city.json",
+  "guardian": {
+    "default": "trusted",
+    "overrides": {
+      "wl-01-02": "untrusted"
+    }
+  },
+  "streams": [
+    {
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "from_ms": 0,
+      "to_ms": 6000,
+      "every_ms": 1000,
+      "base": {
+        "level_m": 0.3
+      },
+      "noise": {
+        "level_m": 0.01
+      },
+      "clamp": {
+        "level_m": [
+          0.25,
+          0.35
+        ]
+      },
+      "seed": 2
+    }
+  ],
+  "events": [
+    {
+      "at_ms": 2500,
+      "sensor_id": "wl-01-02",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "value": {
+        "level_m": 1.8
+      }
+    }
+  ],
+  "expect": {
+    "dispatched": [],
+    "blocked": [
+      "trust_ref",
+      "trust_ref"
+    ],
+    "event_counts": {
+      "brain.incident.opened": 1,
+      "brain.incident.closed": 1
+    },
+    "events_in_order": [
+      [
+        "brain.incident.opened",
+        "brain.action.blocked",
+        "brain.incident.closed"
+      ]
+    ],
+    "forbidden_events": [
+      "brain.reading.rejected"
+    ]
+  },
+  "short": "Fake flood"
+}

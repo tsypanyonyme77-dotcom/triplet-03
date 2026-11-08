@@ -1,0 +1,20 @@
+{
+  "additionalProperties": false,
+  "description": "Extension: stand a dispatched unit down and return it to its station.",
+  "properties": {
+    "unit_id": {
+      "title": "Unit Id",
+      "type": "string"
+    },
+    "incident_id": {
+      "title": "Incident Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "unit_id",
+    "incident_id"
+  ],
+  "title": "RecallUnitParams",
+  "type": "object"
+}

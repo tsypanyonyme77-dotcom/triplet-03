@@ -1,0 +1,8 @@
+# Which facility depends on which other thing (an assumption until the Twin team confirms it: INTERFACE.md, "When the Twin changes").
+# Every facility already depends on the grid of its own zone; list only what reaches further.
+depends_on:
+  sig-05-01: [grid-04]      # the junction signal is fed from the zone-04 breaker
+
+# Zones that share one feeder and its capacity: an overload on one can be relieved by disconnecting another. Assumed, like the above.
+feeders:
+  feeder-1: {capacity_kw: 900, zones: [zone-03, zone-04, zone-06]}

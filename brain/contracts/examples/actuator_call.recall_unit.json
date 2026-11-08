@@ -1,0 +1,16 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "police-dispatch-05",
+  "action": "recall_unit",
+  "params": {
+    "unit_id": "unit-p-01",
+    "incident_id": "inc-0001"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Incident inc-0001 closed (apprehended, unit-feed-police#7). Standing down unit-p-01 (respond, zone-07). Rule POL-003.",
+  "trust_ref": "verdict-000019",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "8568ad3d661aa49c6c6ffa1fa3a96fed6e5f526caf6246b6a29afcdd4dc42da1"
+  }
+}

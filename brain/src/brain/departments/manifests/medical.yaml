@@ -1,0 +1,29 @@
+# Medical: an accident gets the nearest ambulance. Its desk advises neighbouring zones.
+code: MEDICAL
+name: Ambulance and medical
+version: "1"
+description: Accidents and medical emergencies. Sends the nearest ambulance.
+subscribes: ["emergency_call:medical", cctv_anomaly]
+incident_types: [accident]
+actuators: ["dispatch_unit:ambulance", broadcast_alert]
+needs: [dispatch_unit]          # without these the pack bids low
+reflex_rules: medical.yaml
+agents:
+  analyst:
+    model: strong
+    tools: [graph.context, kb.graph_search, solver.plan_allocation]
+  chief:
+    model: fast
+    tools: []
+severity: {accident: 0.7}
+bids:
+  - {incident: accident, unit: ambulance}
+detectors:
+  - reading: emergency_call
+    incident: accident
+    when: [{field: category, op: "==", value: medical}]
+  - reading: cctv_anomaly
+    incident: accident
+    when:
+      - {field: anomaly_type, op: in, value: [collision, accident]}
+      - {field: confidence, op: ">=", value: 0.5}

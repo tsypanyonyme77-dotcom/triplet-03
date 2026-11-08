@@ -1,0 +1,58 @@
+# Fire playbook. Each item is one retrievable, citable unit; the ids keep the FEM prefix they had when fire and ambulance were one pack.
+department: FIRE
+items:
+  - id: FEM-PB-001
+    title: Send the nearest fire unit to a reported fire
+    text: >
+      When a fire incident is open and two independent trusted sources agree, a smoke-detecting
+      traffic camera and an emergency call for example, dispatch the nearest fire unit with mode
+      respond. A fire unit is a medium-impact call, so the gate will not send it on one source alone.
+    applies_to: [fire]
+    uses: [dispatch_unit]
+    requires: [FEM-PB-005]
+    precedes: [FEM-PB-004]
+    conflicts_with: [FEM-PB-006]
+
+  - id: FEM-PB-003
+    title: Send both unit types when a fire has casualties
+    text: >
+      If a fire and a medical call arrive for the same zone, send the fire unit first and an ambulance
+      second. Never hold the fire unit back to wait for the medical call to be confirmed.
+    applies_to: [fire, accident]
+    uses: [dispatch_unit]
+    requires: [FEM-PB-001]
+
+  - id: FEM-PB-004
+    title: Warn the people in the zone of a fire
+    text: >
+      Broadcast one short alert to the zone where the fire is, asking people to keep clear of the
+      area and let the units through. Do not name a cause and do not alert zones the fire has not touched.
+    applies_to: [fire]
+    uses: [broadcast_alert]
+
+  - id: FEM-PB-005
+    title: Keep one unit of each type in reserve
+    text: >
+      Never commit the last fire unit or the last ambulance in the city to one incident. A second
+      incident must still be answerable. If only one unit is left, send it only when lives are at risk.
+    applies_to: [fire]
+    uses: [dispatch_unit]
+
+  - id: FEM-PB-006
+    title: Smoke on one camera is a reason to watch, not yet to dispatch
+    text: >
+      A single traffic camera reporting smoke is one source. Open the incident and watch the zone, but do
+      not send a unit until a second independent source agrees. Say in the record why no unit went.
+    applies_to: [fire]
+    uses: []
+    escalates_to: [FEM-PB-001]
+    conflicts_with: [FEM-PB-001]
+
+  - id: FEM-PB-007
+    title: Bring the units home when the incident closes
+    text: >
+      When an incident closes, recall every unit still out for it so that it returns to its station and
+      the reserve is restored. Recalling a unit only withdraws it, so it stays allowed after the close.
+    applies_to: [fire]
+    uses: [recall_unit]
+    requires: [FEM-PB-001]

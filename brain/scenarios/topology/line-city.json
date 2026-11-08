@@ -1,0 +1,164 @@
+{
+ "zones": [
+  {
+   "id": "zone-01",
+   "name": "Block 1",
+   "x": 0,
+   "y": 0
+  },
+  {
+   "id": "zone-02",
+   "name": "Block 2",
+   "x": 1,
+   "y": 0
+  },
+  {
+   "id": "zone-03",
+   "name": "Block 3",
+   "x": 2,
+   "y": 0
+  },
+  {
+   "id": "zone-04",
+   "name": "Block 4",
+   "x": 3,
+   "y": 0
+  },
+  {
+   "id": "zone-05",
+   "name": "Block 5",
+   "x": 4,
+   "y": 0
+  },
+  {
+   "id": "zone-06",
+   "name": "Block 6",
+   "x": 5,
+   "y": 0
+  },
+  {
+   "id": "zone-07",
+   "name": "Block 7",
+   "x": 6,
+   "y": 0
+  }
+ ],
+ "adjacency": [
+  [
+   "zone-01",
+   "zone-02"
+  ],
+  [
+   "zone-02",
+   "zone-03"
+  ],
+  [
+   "zone-03",
+   "zone-04"
+  ],
+  [
+   "zone-04",
+   "zone-05"
+  ],
+  [
+   "zone-05",
+   "zone-06"
+  ],
+  [
+   "zone-06",
+   "zone-07"
+  ]
+ ],
+ "exits": [
+  "zone-01",
+  "zone-07"
+ ],
+ "facilities": [
+  {
+   "id": "hosp-02",
+   "type": "hospital",
+   "zone_id": "zone-02",
+   "actuator_id": "ambulance-dispatch-02",
+   "units": 1
+  },
+  {
+   "id": "hosp-06",
+   "type": "hospital",
+   "zone_id": "zone-06",
+   "actuator_id": "ambulance-dispatch-06",
+   "units": 1
+  }
+ ],
+ "sensors": [
+  {
+   "id": "call-feed-01",
+   "type": "emergency_call",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "cam-01-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "call-feed-02",
+   "type": "emergency_call",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "cam-02-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "call-feed-03",
+   "type": "emergency_call",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "cam-03-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "call-feed-04",
+   "type": "emergency_call",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "cam-04-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "call-feed-05",
+   "type": "emergency_call",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "cam-05-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "call-feed-06",
+   "type": "emergency_call",
+   "zone_id": "zone-06"
+  },
+  {
+   "id": "cam-06-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-06"
+  },
+  {
+   "id": "call-feed-07",
+   "type": "emergency_call",
+   "zone_id": "zone-07"
+  },
+  {
+   "id": "cam-07-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-07"
+  }
+ ]
+}

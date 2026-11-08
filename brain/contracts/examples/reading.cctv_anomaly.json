@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "cam-07-02",
+  "type": "cctv_anomaly",
+  "zone_id": "zone-07",
+  "timestamp": "2026-10-12T19:41:57.054Z",
+  "sequence_no": 1,
+  "value": {
+    "anomaly_type": "robbery",
+    "confidence": 0.93
+  },
+  "department_code": "POLICE",
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "9b377f14e363ad9cb73fefeb5d32bdf622d0c3711d5149a75441eedacb4fa518"
+  }
+}

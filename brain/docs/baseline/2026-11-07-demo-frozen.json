@@ -1,0 +1,220 @@
+{
+  "d1": {
+    "blocked": [],
+    "compiled_plans": 0,
+    "decisions": [],
+    "deliberations": 0,
+    "event_counts": {
+      "brain.reading.received": 6,
+      "brain.scenario.finished": 1,
+      "brain.scenario.started": 1,
+      "brain.started": 1,
+      "brain.verdict.received": 6
+    },
+    "events": 15,
+    "first_action_ms": null,
+    "funnel": {
+      "actions": 0,
+      "ignited": 0,
+      "model_calls": 0,
+      "readings": 6,
+      "salient": 0
+    },
+    "last_action_ms": null,
+    "passed": true,
+    "readings": 6,
+    "scenario_id": "d1"
+  },
+  "d2": {
+    "blocked": [
+      "trust_ref",
+      "trust_ref"
+    ],
+    "compiled_plans": 0,
+    "decisions": [],
+    "deliberations": 0,
+    "event_counts": {
+      "brain.action.blocked": 2,
+      "brain.incident.closed": 1,
+      "brain.incident.opened": 1,
+      "brain.reading.received": 7,
+      "brain.scenario.finished": 1,
+      "brain.scenario.started": 1,
+      "brain.started": 1,
+      "brain.verdict.received": 7
+    },
+    "events": 21,
+    "first_action_ms": null,
+    "funnel": {
+      "actions": 0,
+      "ignited": 0,
+      "model_calls": 0,
+      "readings": 7,
+      "salient": 0
+    },
+    "last_action_ms": null,
+    "passed": true,
+    "readings": 7,
+    "scenario_id": "d2"
+  },
+  "d3": {
+    "blocked": [],
+    "compiled_plans": 0,
+    "decisions": [
+      {
+        "action": "broadcast_alert",
+        "actuator_id": "broadcast-alert-zone-07",
+        "params": {
+          "channel": "app",
+          "message": "Police activity in Downtown. Please avoid the area.",
+          "zone_id": "zone-07"
+        }
+      },
+      {
+        "action": "dispatch_unit",
+        "actuator_id": "police-dispatch-05",
+        "params": {
+          "incident_id": "inc-0001",
+          "mode": "contain",
+          "target_id": "cit-88213",
+          "unit_type": "police",
+          "zone_id": "zone-04"
+        }
+      },
+      {
+        "action": "dispatch_unit",
+        "actuator_id": "police-dispatch-05",
+        "params": {
+          "incident_id": "inc-0001",
+          "mode": "pursuit",
+          "target_id": "cit-88213",
+          "unit_type": "police",
+          "zone_id": "zone-07"
+        }
+      },
+      {
+        "action": "dispatch_unit",
+        "actuator_id": "police-dispatch-09",
+        "params": {
+          "incident_id": "inc-0001",
+          "mode": "contain",
+          "target_id": "cit-88213",
+          "unit_type": "police",
+          "zone_id": "zone-08"
+        }
+      },
+      {
+        "action": "recall_unit",
+        "actuator_id": "police-dispatch-05",
+        "params": {
+          "incident_id": "inc-0001",
+          "unit_id": "unit-p-02"
+        }
+      },
+      {
+        "action": "recall_unit",
+        "actuator_id": "police-dispatch-09",
+        "params": {
+          "incident_id": "inc-0001",
+          "unit_id": "unit-p-03"
+        }
+      }
+    ],
+    "deliberations": 1,
+    "event_counts": {
+      "brain.action.requested": 6,
+      "brain.action.result": 6,
+      "brain.case.reviewed": 1,
+      "brain.decision.made": 6,
+      "brain.deliberation.finished": 1,
+      "brain.deliberation.started": 1,
+      "brain.incident.closed": 1,
+      "brain.incident.opened": 1,
+      "brain.options.prepared": 1,
+      "brain.pack.bid": 1,
+      "brain.perimeter.checked": 1,
+      "brain.plan.verified": 1,
+      "brain.reading.received": 18,
+      "brain.scenario.finished": 1,
+      "brain.scenario.started": 1,
+      "brain.started": 1,
+      "brain.suspect.assessed": 1,
+      "brain.suspect.tracked": 1,
+      "brain.unit.status": 9,
+      "brain.units.released": 1,
+      "brain.verdict.received": 18,
+      "brain.workspace.ignited": 1,
+      "brain.workspace.released": 1
+    },
+    "events": 80,
+    "first_action_ms": 15.0,
+    "funnel": {
+      "actions": 6,
+      "ignited": 1,
+      "model_calls": 1,
+      "readings": 18,
+      "salient": 1
+    },
+    "last_action_ms": 108.6,
+    "passed": true,
+    "readings": 18,
+    "scenario_id": "d3"
+  },
+  "d4": {
+    "blocked": [
+      "evidence"
+    ],
+    "compiled_plans": 0,
+    "decisions": [
+      {
+        "action": "broadcast_alert",
+        "actuator_id": "broadcast-alert-zone-01",
+        "params": {
+          "channel": "app",
+          "message": "Flooding reported. Avoid low-lying roads.",
+          "zone_id": "zone-01"
+        }
+      },
+      {
+        "action": "broadcast_alert",
+        "actuator_id": "broadcast-alert-zone-01",
+        "params": {
+          "channel": "app",
+          "message": "Water is rising near Harbor and may reach the flood line in about 1 minute. Keep clear of low-lying roads and be ready to move.",
+          "zone_id": "zone-01"
+        }
+      }
+    ],
+    "deliberations": 0,
+    "event_counts": {
+      "brain.action.blocked": 1,
+      "brain.action.requested": 2,
+      "brain.action.result": 2,
+      "brain.decision.made": 2,
+      "brain.forecast.warned": 1,
+      "brain.guardian.unavailable": 1,
+      "brain.incident.opened": 2,
+      "brain.math.estimated": 3,
+      "brain.pack.bid": 1,
+      "brain.reading.received": 169,
+      "brain.scenario.finished": 1,
+      "brain.scenario.started": 1,
+      "brain.started": 1,
+      "brain.verdict.received": 169,
+      "brain.workspace.ignited": 1
+    },
+    "events": 357,
+    "first_action_ms": 25.9,
+    "funnel": {
+      "actions": 2,
+      "ignited": 1,
+      "model_calls": 0,
+      "readings": 169,
+      "salient": 1
+    },
+    "last_action_ms": 45.4,
+    "passed": true,
+    "readings": 169,
+    "scenario_id": "d4"
+  }
+}

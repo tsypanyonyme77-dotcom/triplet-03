@@ -1,0 +1,32 @@
+{
+  "additionalProperties": false,
+  "description": "Data Dictionary section 5 (extended actuators).",
+  "properties": {
+    "message": {
+      "maxLength": 280,
+      "minLength": 1,
+      "title": "Message",
+      "type": "string"
+    },
+    "channel": {
+      "enum": [
+        "sms",
+        "siren",
+        "app"
+      ],
+      "title": "Channel",
+      "type": "string"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    }
+  },
+  "required": [
+    "message",
+    "channel",
+    "zone_id"
+  ],
+  "title": "BroadcastAlertParams",
+  "type": "object"
+}

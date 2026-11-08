@@ -1,0 +1,86 @@
+{
+  "$defs": {
+    "ReadingRef": {
+      "properties": {
+        "sensor_id": {
+          "title": "Sensor Id",
+          "type": "string"
+        },
+        "sequence_no": {
+          "title": "Sequence No",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sensor_id",
+        "sequence_no"
+      ],
+      "title": "ReadingRef",
+      "type": "object"
+    },
+    "VerdictStatus": {
+      "enum": [
+        "trusted",
+        "suspicious",
+        "untrusted",
+        "unavailable"
+      ],
+      "title": "VerdictStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Guardian's answer to \"is this reading telling the truth?\" (agreed format).",
+  "properties": {
+    "verdict_id": {
+      "title": "Verdict Id",
+      "type": "string"
+    },
+    "reading_ref": {
+      "$ref": "#/$defs/ReadingRef"
+    },
+    "status": {
+      "$ref": "#/$defs/VerdictStatus"
+    },
+    "confidence": {
+      "default": 1.0,
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "reasons": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Reasons",
+      "type": "array"
+    },
+    "issued_at": {
+      "format": "date-time",
+      "title": "Issued At",
+      "type": "string"
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Expires At"
+    }
+  },
+  "required": [
+    "verdict_id",
+    "reading_ref",
+    "status",
+    "issued_at"
+  ],
+  "title": "TrustVerdict",
+  "type": "object"
+}

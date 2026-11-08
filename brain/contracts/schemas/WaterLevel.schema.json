@@ -1,0 +1,26 @@
+{
+  "properties": {
+    "level_m": {
+      "minimum": 0.0,
+      "title": "Level M",
+      "type": "number"
+    },
+    "flow_rate_m3s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Flow Rate M3S"
+    }
+  },
+  "required": [
+    "level_m"
+  ],
+  "title": "WaterLevel",
+  "type": "object"
+}

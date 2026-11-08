@@ -1,0 +1,121 @@
+# Thresholds and weights. The Academy will tune these; the gate section stays human-owned.
+scoring:
+  bias: -3.0
+  weights: {copresence: 2.0, flight: 2.5, repeat: 1.5, direct: 4.0}
+  trust_weights: {trusted: 1.0, suspicious: 0.3, untrusted: 0.0, unavailable: 0.0}
+  poi_threshold: 0.5
+  suspect_threshold: 0.8
+  copresence_window_s: {before: 120.0, after: 60.0}
+  flight_window_s: 300.0
+  flight_speed_kmh: 12.0
+  flight_activities: [running, fleeing]
+  flight_radius_hops: 2
+  settle_s: 10.0          # how long people not yet seen since the crime hold back naming one person
+triage:
+  crime_anomaly_types: [robbery, assault, burglary, theft, vandalism, shooting]
+  min_confidence: 0.5
+  incident_merge_window_s: 300.0
+  condition_merge_window_s: 600.0
+  stall_s: 0.0           # an open incident with no new evidence for this long says a person may be needed (0 off)
+gate:
+  impact:
+    dispatch_unit: medium
+    recall_unit: low
+    set_signal_phase: low
+    broadcast_alert: low
+    set_valve_state: high
+    set_grid_connection: high
+  min_trusted_sources: {low: 1, medium: 2, high: 2}
+  min_gap_s: {}   # e.g. {set_signal_phase: 60}: seconds between two calls of one action to one actuator
+  independence: sensor   # sensor, or cause (two sensors of one type in one zone are one witness)
+  max_actions_per_incident: 6
+  max_actions_per_minute: 20
+  retry_unreached: true   # a call the Twin never answered frees its idempotency key, so it may be tried again
+  standdown_actions: [recall_unit]   # only withdraw: allowed after close, outside the budget
+tactics:
+  reserve_units: 1
+  max_perimeter_units: 3
+  preempt_perimeter: false   # recall a perimeter unit to send after a named suspect when the stations are empty
+  alert_anomaly_types: [robbery, assault, shooting]
+  alert_channel: app
+  alert_message: "Police activity in {zone}. Please avoid the area."
+workspace:
+  enabled: true
+  slots: 2
+  slots_for: team  # all, or team: only the types in team_types take a slot
+  team_types: [crime]
+  ignite_at: 0.5          # salience needed to take a free slot
+  aging_per_s: 0.0        # salience an incident deferred for a while gains per second of waiting; 0 is off
+  aging_cap: 0.3
+  margin: 0.1             # how much better a newcomer must be to displace a lit incident
+  release_below: 0.3      # a lit incident that fades under this gives its slot up
+  recruit_at: 0.5         # a pack bidding at least this joins the response to an ignited incident
+  bids: true              # packs bid when an incident ignites (switched off, only the explanation is lost)
+  severity: {crime: 0.7, fire: 0.9, flood: 0.8, accident: 0.7, jam: 0.3, overload: 0.8, smog: 0.4}
+  weights: {severity: 3.0, trust: 3.0, corroboration: 2.0, novelty: 1.0, clustering: 1.0}   # freshness and trust multiply the result instead
+  freshness_halflife_s: 120.0
+  trust_full_at: 0.9
+  corroboration_by: sensor
+  cluster_radius_hops: 2
+  surprise_boost: 0.25    # added at full surprise; trust and freshness damp it like the rest
+  urgency_boost: 0.2      # added at full urgency: a flood still rising (from the level forecast) is worth more attention than one that has levelled off; 0 off
+  urgency_full_rate_m_per_min: 0.5   # a rise of this much a minute or more is full urgency
+forward:
+  enabled: true
+  alpha: 0.2              # weight of the newest ordinary reading in the running mean and variance
+  warmup: 5               # readings a sensor must have sent before it can surprise anyone
+  z_threshold: 4.0        # spreads from the expected value
+  adopt_after: 3          # surprises in a row, one direction, that make a new normal
+  min_spread: {congestion_score: 0.05, avg_speed_kmh: 4.0, vehicle_count: 5.0, level_m: 0.03, flow_rate_m3s: 0.2, load_kw: 10.0, voltage_v: 5.0, aqi: 5.0, pm25_ugm3: 3.0, pm10_ugm3: 5.0}
+  relative_spread: 0.02
+  freeze_spread: false
+  history: 200
+  calibration: fixed
+  calibration_window: 500
+  calibration_min: 100
+  max_z: 5.0
+  recover: true
+  coupled: []   # e.g. [[wl-01-01, wl-02-01]]: sensors that should move together; one that drifts alone is disputed
+  coupled_alpha: 0.005
+  coupled_window_s: 30.0
+  effects: {}   # e.g. set_valve_state: {sensor_type: water_level, changes: {level_m: -1}, delay_s: 0, window_s: 120}
+learning:
+  use_learned: true       # load the rules `brain sleep` promoted (from brain.learned_dir in partners.yaml)
+  min_support: 2          # episodes that must agree before a plan is a lesson
+  max_learned_rules: 10
+  fade_after_sleeps: 0          # sleeps without the pattern before a learned rule fades; 0 is never
+  retire_on_contradiction: true
+
+optimiser:
+  dispatch: "on"         # off | on: one min-cost flow over every open incident that wants the same units (certificate on the timeline)
+  time_limit_ms: 200
+  unmet_penalty: 1000    # the cost of an incident no unit can reach, in severity-weighted hops
+  shed: "on"             # off | on: on an overload, disconnect the zones that remove the excess at the least impact (CP-SAT)
+  shed_target_ratio: 0.85  # shed down to this share of the feeder's capacity
+  perimeter: "on"        # off | on: check each verified perimeter against the fewest units that would do, and say how likely it holds
+  perimeter_sigma: 0.3   # spread of travel times in that estimate
+  perimeter_slack: 1     # a plan that uses more than this many units above the fewest that would hold goes back to the team once
+
+math:
+  kalman: "on"                  # off | on: track water level and rate, and say when it will cross the line, with an interval
+  kalman_threshold_m: 1.0       # the flood line the time is measured to (the water pack's own detector threshold)
+  kalman_measurement_var: 0.0004  # (0.02 m) squared: the noise of a level reading
+  kalman_horizon_s: 3600.0      # only a crossing inside this horizon is reported
+  prewarn_s: 600.0              # a trusted forecast of a crossing this close sends one low-impact alert before the line is crossed (0 off)
+
+orchestration:
+  planner: "on"                  # off | on: the planning supervisor (LangGraph, checkpointed); today it opens the emergency corridor
+  corridor_units: [ambulance, fire]   # a dispatch of these unit types holds the signals green along the unit's way
+  checkpoint_db: ":memory:"            # a file path such as state/plan.sqlite keeps the checkpoints across a restart
+  max_checkpoints: 2000
+
+desks:                           # what the department desks may tell the public: fixed wording, never written by a model
+  prewarning: "Water is rising near {zone} and may reach the flood line in about {when}. Keep clear of low-lying roads and be ready to move."
+  escalate_to_person: true       # no procedure for an incident type: use the department's others, or say a person is needed
+  messages:
+    fire: "A fire has been reported near {zone}. Avoid the area and follow the instructions of the emergency services."
+    accident: "A serious accident has been reported near {zone}. Avoid the area; emergency services are on their way."
+    flood: "Flooding has been reported near {zone}. Stay away from the water and move to higher ground if you are close."
+    jam: "Heavy traffic near {zone}. Consider another route."
+    overload: "Power demand is very high near {zone}. Please use less if you can."
+    smog: "Air quality is poor near {zone}. Limit time outdoors."

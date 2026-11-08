@@ -1,0 +1,199 @@
+{
+  "id": "d3",
+  "name": "A crime and a pursuit",
+  "layers": [
+    "Twin",
+    "Guardian",
+    "City Brain"
+  ],
+  "description": "A robbery is caught on camera in Downtown. One citizen who was at the scene runs toward the Station; a commuter keeps walking and a jogger runs on the other side of the city. All readings are trusted.",
+  "expected_brain": "Opens a crime incident, identifies cit-88213 as the suspect (and nobody else), and dispatches one police unit in pursuit at once with a trust_ref. The department team then adds a tight perimeter (one unit each in Market and Station, keeping one in reserve) and a public alert for Downtown, citing the playbook. The incident closes when the pursuit unit reports the arrest, and the Brain recalls the two perimeter units.",
+  "topology": "topology/small-city.json",
+  "guardian": {
+    "default": "trusted",
+    "overrides": {}
+  },
+  "events": [
+    {
+      "at_ms": 0,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-10021",
+        "activity": "walking",
+        "speed_kmh": 4.5,
+        "heading_zone_id": "zone-04",
+        "age": 41,
+        "wealth": "medium"
+      }
+    },
+    {
+      "at_ms": 200,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "loitering",
+        "speed_kmh": 0.8,
+        "age": 27,
+        "wealth": "low"
+      }
+    },
+    {
+      "at_ms": 400,
+      "sensor_id": "cit-feed-03",
+      "type": "citizen_activity",
+      "zone_id": "zone-03",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-30577",
+        "activity": "running",
+        "speed_kmh": 11.0,
+        "heading_zone_id": "zone-06"
+      }
+    },
+    {
+      "at_ms": 1000,
+      "sensor_id": "cam-07-02",
+      "type": "cctv_anomaly",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "anomaly_type": "robbery",
+        "confidence": 0.93
+      }
+    },
+    {
+      "at_ms": 1200,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-10021",
+        "activity": "walking",
+        "speed_kmh": 4.2,
+        "heading_zone_id": "zone-04"
+      }
+    },
+    {
+      "at_ms": 1500,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 17.5,
+        "heading_zone_id": "zone-08"
+      }
+    },
+    {
+      "at_ms": 2500,
+      "sensor_id": "cit-feed-08",
+      "type": "citizen_activity",
+      "zone_id": "zone-08",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 19.0,
+        "heading_zone_id": "zone-09"
+      }
+    },
+    {
+      "at_ms": 3000,
+      "sensor_id": "cit-feed-03",
+      "type": "citizen_activity",
+      "zone_id": "zone-03",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-30577",
+        "activity": "running",
+        "speed_kmh": 11.5,
+        "heading_zone_id": "zone-06"
+      }
+    },
+    {
+      "at_ms": 3500,
+      "sensor_id": "cit-feed-08",
+      "type": "citizen_activity",
+      "zone_id": "zone-08",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 18.2,
+        "heading_zone_id": "zone-09"
+      }
+    }
+  ],
+  "expect": {
+    "dispatched": [
+      {
+        "unit_type": "police",
+        "mode": "pursuit",
+        "target_id": "cit-88213"
+      }
+    ],
+    "events_in_order": [
+      [
+        "brain.incident.opened",
+        "brain.suspect.assessed",
+        "brain.decision.made",
+        "brain.action.requested",
+        "brain.action.result",
+        "brain.suspect.tracked",
+        "brain.incident.closed",
+        "brain.units.released"
+      ]
+    ],
+    "forbidden_events": [
+      "brain.action.blocked",
+      "brain.reading.rejected"
+    ],
+    "event_counts": {
+      "brain.incident.opened": 1
+    },
+    "scripted_team": {
+      "dispatched": [
+        {
+          "unit_type": "police",
+          "mode": "contain",
+          "zone_id": "zone-04"
+        },
+        {
+          "unit_type": "police",
+          "mode": "contain",
+          "zone_id": "zone-08"
+        }
+      ],
+      "events_in_order": [
+        [
+          "brain.action.result",
+          "brain.deliberation.started",
+          "brain.case.reviewed",
+          "brain.options.prepared",
+          "brain.plan.verified",
+          "brain.decision.made",
+          "brain.deliberation.finished"
+        ]
+      ],
+      "forbidden_events": [
+        "brain.plan.rejected"
+      ],
+      "event_counts": {
+        "brain.action.requested": 6
+      },
+      "recalled": 2
+    }
+  },
+  "claim": "Proves: a real incident is handled by a team, and every action passes the safety gate.",
+  "how_to_verify": "Visible on the timeline screen; log logs/d3-*.jsonl; `uv run brain scenario d3`.",
+  "short": "Crime"
+}

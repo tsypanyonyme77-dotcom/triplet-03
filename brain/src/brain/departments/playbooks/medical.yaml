@@ -1,0 +1,58 @@
+# Ambulance and medical playbook. Each item is one retrievable, citable unit.
+department: MEDICAL
+items:
+  - id: FEM-PB-002
+    title: Send the nearest ambulance to an accident
+    text: >
+      When an accident incident is open, from a medical emergency call or a collision seen by a camera
+      with confidence of at least half, dispatch the nearest ambulance with mode respond to the zone
+      of the accident.
+    applies_to: [accident]
+    uses: [dispatch_unit]
+    requires: [MED-PB-001]
+
+  - id: MED-PB-001
+    title: Keep one ambulance in reserve
+    text: >
+      Never commit the last ambulance in the city to one incident. A second incident must still be
+      answerable. If only one ambulance is left, send it only when lives are at risk.
+    applies_to: [accident]
+    uses: [dispatch_unit]
+
+  - id: MED-PB-002
+    title: Bring the ambulance home when the incident closes
+    text: >
+      When an accident incident closes, recall every ambulance still out for it so that it returns to
+      its station and the reserve is restored. Recalling a unit only withdraws it, so it stays allowed
+      after the close.
+    applies_to: [accident]
+    uses: [recall_unit]
+    requires: [FEM-PB-002]
+
+  - id: MED-PB-003
+    title: Two independent sources before an ambulance is sent
+    text: >
+      An ambulance is a medium-impact call, so the gate will not send it on one source alone. A
+      medical emergency call and a camera that sees a collision, for the same zone, are two sources.
+      Open the incident on the first and send once the second agrees.
+    applies_to: [accident]
+    uses: [dispatch_unit]
+    requires: [FEM-PB-002]
+
+  - id: MED-PB-004
+    title: The ambulance comes from the hospital nearest the zone
+    text: >
+      Dispatch the ambulance from the hospital closest to the accident, never from a police or fire
+      station. Name the zone of the accident as the destination.
+    applies_to: [accident]
+    uses: [dispatch_unit]
+    requires: [FEM-PB-002]
+
+  - id: MED-PB-005
+    title: A doubtful collision is watched, not answered
+    text: >
+      A camera that reports a collision with a confidence under one half does not open an incident.
+      Keep watching the zone. A second report or a medical call is what turns it into an accident.
+    applies_to: [accident]
+    uses: []
+    escalates_to: [FEM-PB-002]

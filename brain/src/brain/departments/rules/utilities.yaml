@@ -1,0 +1,39 @@
+# Power and air reflexes.
+rules:
+  - id: UTL-003
+    name: overload.appeal
+    scope: condition
+    description: A substation is near its capacity. Ask the zone to use less power.
+    when:
+      incident.type: overload
+    do:
+      - action: broadcast_alert
+        params:
+          message: "Power demand is very high. Please use less if you can."
+          channel: app
+          zone_id: $incident.zone_id
+
+  - id: UTL-004
+    name: overload.disconnect
+    scope: condition
+    description: A substation is near its capacity. Ask to disconnect the zone's grid breaker before it fails.
+    when:
+      incident.type: overload
+    do:
+      - action: set_grid_connection
+        params:
+          zone_id: $incident.zone_id
+          state: disconnected
+
+  - id: UTL-005
+    name: smog.advisory
+    scope: condition
+    description: The air quality index is high. Advise the zone to limit time outdoors.
+    when:
+      incident.type: smog
+    do:
+      - action: broadcast_alert
+        params:
+          message: "Air quality is poor. Limit time outdoors."
+          channel: app
+          zone_id: $incident.zone_id

@@ -1,0 +1,26 @@
+{
+  "properties": {
+    "load_kw": {
+      "minimum": 0.0,
+      "title": "Load Kw",
+      "type": "number"
+    },
+    "capacity_kw": {
+      "exclusiveMinimum": 0.0,
+      "title": "Capacity Kw",
+      "type": "number"
+    },
+    "voltage_v": {
+      "minimum": 0.0,
+      "title": "Voltage V",
+      "type": "number"
+    }
+  },
+  "required": [
+    "load_kw",
+    "capacity_kw",
+    "voltage_v"
+  ],
+  "title": "PowerLoad",
+  "type": "object"
+}

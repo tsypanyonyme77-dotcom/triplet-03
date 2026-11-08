@@ -1,0 +1,61 @@
+# Disaster response playbook: floods. Each item is one retrievable, citable unit; the ids keep the UTL prefix they had when floods belonged to Utilities.
+# Valves are high-impact calls: the gate holds them for a person's signed approval.
+department: DISASTER
+items:
+  - id: UTL-PB-001
+    title: Warn the zone first when the water rises
+    text: >
+      When a flood incident is open, because a water level is at 1.0 metre or more or a flood is reported
+      by an emergency call, broadcast one short alert to that zone: avoid low-lying roads. An alert is a
+      low-impact call and acts at once.
+    applies_to: [flood]
+    uses: [broadcast_alert]
+    precedes: [UTL-PB-002]
+    requires: [DIS-PB-001]
+    substitutes: [UTL-PB-002]
+    conflicts_with: [UTL-PB-004]
+
+  - id: UTL-PB-002
+    title: Closing a valve needs a person to approve it
+    text: >
+      Closing a valve changes the water network for the whole zone, so it is a high-impact call. It needs
+      two independent trusted sources and a human approval. Human approval is not wired up yet, so the gate
+      holds the call and the timeline says why. Ask for it; do not try to get around the hold.
+    applies_to: [flood]
+    uses: [set_valve_state]
+    requires: [UTL-PB-003, UTL-PB-004]
+    conflicts_with: [UTL-PB-004]
+
+  - id: UTL-PB-003
+    title: Close the valve nearest the sensor, in the same zone
+    text: >
+      Ask to close the valve that belongs to the zone with the high water. Never reach into another zone
+      to close a valve: that cuts water to people the flood has not touched.
+    applies_to: [flood]
+    uses: [set_valve_state]
+
+  - id: UTL-PB-004
+    title: A water level that jumps is doubted until another reading agrees
+    text: >
+      One reading far outside a sensor's own history, with no other sensor agreeing, is held as doubted.
+      Do not alert or ask for a valve on it. A second reading in the same direction, or a neighbouring
+      sensor that agrees, confirms it and the response goes ahead.
+    applies_to: [flood]
+    uses: []
+    conflicts_with: [UTL-PB-001, UTL-PB-002]
+
+  - id: UTL-PB-008
+    title: End a flood alert only on a trusted reading that the water has fallen
+    text: >
+      A flood incident clears when the water level is 0.6 metres or less. Close it on a trusted reading,
+      not on the absence of new readings: a silent sensor is not a falling river.
+    applies_to: [flood]
+    uses: []
+
+  - id: DIS-PB-001
+    title: Alert only the zones the flood has touched
+    text: >
+      A flood is local. Broadcast to the zone where the water is rising and to nobody else. An alert to
+      the whole city teaches people to ignore alerts.
+    applies_to: [flood]
+    uses: [broadcast_alert]

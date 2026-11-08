@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "broadcast-alert-zone-07",
+  "action": "broadcast_alert",
+  "params": {
+    "message": "Police activity in Downtown. Please avoid the area.",
+    "channel": "app",
+    "zone_id": "zone-07"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Public alert for inc-0001 (tight-perimeter). Chose tight-perimeter: 2 unit(s) seal the suspect in and 1 stay uncommitted.",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "d2f08ebf6a100acff46a5a8119f8eee374588736b8b689e1123c3fef78d5c208"
+  }
+}

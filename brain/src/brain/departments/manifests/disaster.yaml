@@ -1,0 +1,27 @@
+# Disaster response: floods. A flood gets a public alert and a request to close the nearest valve (a person approves it).
+code: DISASTER
+name: Disaster response
+version: "1"
+description: Floods. Warns the zone and asks to close the nearest valve; a person approves the valve.
+subscribes: [water_level, "emergency_call:flood"]
+incident_types: [flood]
+actuators: [broadcast_alert, set_valve_state]
+needs: [broadcast_alert]          # without these the pack bids low
+reflex_rules: disaster.yaml
+# The desk (`team.departments: on`): an analyst weighs the situation with read-only tools, a chief decides which neighbouring zones to advise.
+agents:
+  analyst:
+    model: strong
+    tools: [graph.context, kb.graph_search, graph.cascade, math.time_to_threshold]
+  chief:
+    model: fast
+    tools: []
+severity: {flood: 0.8}
+detectors:
+  - reading: water_level
+    incident: flood
+    when: [{field: level_m, op: ">=", value: 1.0}]
+    clear: [{field: level_m, op: "<=", value: 0.6}]
+  - reading: emergency_call
+    incident: flood
+    when: [{field: category, op: "==", value: flood}]

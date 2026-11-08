@@ -1,0 +1,138 @@
+{
+ "zones": [
+  {
+   "id": "zone-01",
+   "name": "Block 1",
+   "x": 1,
+   "y": 0
+  },
+  {
+   "id": "zone-02",
+   "name": "Block 2",
+   "x": 0,
+   "y": 1
+  },
+  {
+   "id": "zone-03",
+   "name": "Block 3",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "id": "zone-04",
+   "name": "Block 4",
+   "x": 0,
+   "y": 2
+  }
+ ],
+ "adjacency": [
+  [
+   "zone-01",
+   "zone-02"
+  ],
+  [
+   "zone-02",
+   "zone-03"
+  ],
+  [
+   "zone-01",
+   "zone-04"
+  ],
+  [
+   "zone-04",
+   "zone-03"
+  ]
+ ],
+ "exits": [
+  "zone-01"
+ ],
+ "facilities": [
+  {
+   "id": "hosp-01",
+   "type": "hospital",
+   "zone_id": "zone-01",
+   "actuator_id": "ambulance-dispatch-01",
+   "units": 1
+  },
+  {
+   "id": "sig-02",
+   "type": "signal_controller",
+   "zone_id": "zone-02",
+   "actuator_id": "signal-02"
+  },
+  {
+   "id": "sig-03",
+   "type": "signal_controller",
+   "zone_id": "zone-03",
+   "actuator_id": "signal-03"
+  },
+  {
+   "id": "sig-04",
+   "type": "signal_controller",
+   "zone_id": "zone-04",
+   "actuator_id": "signal-04"
+  }
+ ],
+ "sensors": [
+  {
+   "id": "call-feed-01",
+   "type": "emergency_call",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "call-feed-02",
+   "type": "emergency_call",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "call-feed-03",
+   "type": "emergency_call",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "call-feed-04",
+   "type": "emergency_call",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "cam-01-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "cam-02-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "cam-03-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "cam-04-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "tcam-01-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "tcam-02-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "tcam-03-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "tcam-04-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-04"
+  }
+ ]
+}

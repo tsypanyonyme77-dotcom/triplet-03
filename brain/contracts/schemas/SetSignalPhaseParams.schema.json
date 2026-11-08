@@ -1,0 +1,33 @@
+{
+  "additionalProperties": false,
+  "description": "Data Dictionary section 4: hold a traffic signal in one phase for a while.",
+  "properties": {
+    "intersection_id": {
+      "title": "Intersection Id",
+      "type": "string"
+    },
+    "phase": {
+      "enum": [
+        "green",
+        "red",
+        "yellow",
+        "flashing"
+      ],
+      "title": "Phase",
+      "type": "string"
+    },
+    "duration_s": {
+      "maximum": 3600,
+      "minimum": 1,
+      "title": "Duration S",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "intersection_id",
+    "phase",
+    "duration_s"
+  ],
+  "title": "SetSignalPhaseParams",
+  "type": "object"
+}

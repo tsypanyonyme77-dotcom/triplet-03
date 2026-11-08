@@ -1,0 +1,28 @@
+# Power and air: an overload gets an appeal and a request to disconnect; smog gets an advisory. Floods are Disaster response's.
+code: UTILITIES
+name: Utilities
+version: "1"
+description: Power overloads and smog.
+subscribes: [power_load, air_quality]
+incident_types: [overload, smog]
+actuators: [broadcast_alert, set_grid_connection]
+needs: [broadcast_alert]          # without these the pack bids low
+reflex_rules: utilities.yaml
+# The desk (`team.departments: on`): an analyst weighs the situation with read-only tools, a chief decides which neighbouring zones to advise.
+agents:
+  analyst:
+    model: strong
+    tools: [graph.context, kb.graph_search, graph.cascade, math.time_to_threshold]
+  chief:
+    model: fast
+    tools: []
+severity: {overload: 0.8, smog: 0.4}
+detectors:
+  - reading: power_load
+    incident: overload
+    when: [{field: load_kw, op: ">=", value: 0.95, of: capacity_kw}]      # 95 percent of capacity
+    clear: [{field: load_kw, op: "<=", value: 0.8, of: capacity_kw}]
+  - reading: air_quality
+    incident: smog
+    when: [{field: aqi, op: ">=", value: 150}]
+    clear: [{field: aqi, op: "<=", value: 100}]

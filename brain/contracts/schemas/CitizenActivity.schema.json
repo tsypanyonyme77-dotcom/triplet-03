@@ -1,0 +1,74 @@
+{
+  "description": "Extension: one observation of one citizen.",
+  "properties": {
+    "citizen_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Citizen Id",
+      "type": "string"
+    },
+    "zone_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Zone Id"
+    },
+    "node_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Node Id"
+    },
+    "activity": {
+      "default": "unknown",
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Activity",
+      "type": "string"
+    },
+    "speed_kmh": {
+      "default": 0.0,
+      "minimum": 0.0,
+      "title": "Speed Kmh",
+      "type": "number"
+    },
+    "heading_zone_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Heading Zone Id"
+    },
+    "flags": {
+      "items": {
+        "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+        "type": "string"
+      },
+      "title": "Flags",
+      "type": "array"
+    }
+  },
+  "required": [
+    "citizen_id"
+  ],
+  "title": "CitizenActivity",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "valve-01-01",
+  "action": "set_valve_state",
+  "params": {
+    "valve_id": "valve-01-01",
+    "state": "closed"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Flood reported in zone-01 (wl-01-01#6). Rule UTL-002.",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "3e2f6fadfcbde376182b3274071564ae17f1476808fd7af399943173e1124a95"
+  }
+}

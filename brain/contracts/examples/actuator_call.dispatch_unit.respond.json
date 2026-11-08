@@ -1,0 +1,20 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "police-dispatch-05",
+  "action": "dispatch_unit",
+  "params": {
+    "unit_type": "police",
+    "zone_id": "zone-07",
+    "incident_id": "inc-0001",
+    "mode": "respond"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Crime reported in zone-07 (cam-07-02#1); 2 people left the scene fast, so flight singles no one out. Rule POL-002.",
+  "trust_ref": "verdict-000004",
+  "issued_at": "2026-10-12T19:41:57Z",
+  "nonce": "nonce-000001",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "9280a2bd24563f25263aad00518c55b3db41059c35b90d797bffc9478a2000f5"
+  }
+}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Side view of the glass brain: senses at the back, forward models in the cerebellum, triage in the middle, workspace, packs and team at the front, memory low in the temporal lobe, sleep at the back, the gate on the brain stem, the Twin outside, with the path of a reading drawn between them." viewBox="0 0 1240 690" width="1240" height="690"><title>The glass brain from the side</title><style>
+svg { font-family: Arial, Helvetica, sans-serif; }
+.box, .card { fill: #fff; stroke: #000; stroke-width: 1.4; }
+.box.new, .card.new { fill: #e3e3e3; }
+.box.partner, .card.partner { fill: #fff; stroke-dasharray: 6 4; }
+.box.gate, .card.gate { fill: #fff; stroke-width: 3.2; }
+.frame { fill: none; stroke: #777; stroke-width: 1.2; }
+.tile { fill: #fff; stroke: #999; stroke-width: 1; }
+.arrow { fill: none; stroke: #000; stroke-width: 1.6; }
+.arrow.ember { stroke-dasharray: 7 4; stroke-width: 2.2; }
+.headfill, .headember { fill: #000; }
+.t { font: 700 15px Arial, Helvetica, sans-serif; fill: #000; }
+.s { font: 400 12.5px Arial, Helvetica, sans-serif; fill: #222; }
+.k { font: 400 12px "Courier New", monospace; fill: #333; letter-spacing: .04em; }
+.an { font: 400 12px Arial, Helvetica, sans-serif; fill: #333; text-transform: uppercase; letter-spacing: .06em; }
+.cortex { fill: #f1f1f1; stroke: #000; stroke-width: 1.4; }
+.cbl { fill: #f1f1f1; stroke: #000; stroke-width: 1.2; stroke-dasharray: 3 4; }
+.stem { fill: #f1f1f1; stroke: #000; stroke-width: 1.2; }
+.wire { fill: none; stroke: #444; stroke-width: 1.5; }
+.wire.out { stroke: #000; stroke-width: 2.4; stroke-dasharray: 7 4; }
+.tipfill { fill: #000; }
+.dot { fill: #555; stroke: #000; stroke-width: 1; }
+.dot.gate { fill: #000; }
+.dot.agent { fill: #fff; stroke-width: 2.4; }
+.dot.twin { fill: #fff; stroke-dasharray: 3 2; }
+image { filter: grayscale(1) contrast(1.1); }
+</style><rect width="100%" height="100%" fill="#fff"/><defs><marker id="tip" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="tipfill"/></marker></defs><path class="cortex" d="M172 300 C172 120 400 30 640 32 C860 34 1068 140 1068 300 C1068 420 980 496 800 500 C640 504 560 470 470 470 C330 470 172 440 172 300 Z"/><ellipse class="cbl" cx="372" cy="440" rx="140" ry="78"/><path class="stem" d="M600 470 L612 640 L660 640 L668 470 Z"/><path class="wire" d="M244 276 Q304 322 364 420" marker-end="url(#tip)"/><path class="wire" d="M364 420 Q420 302 476 236" marker-end="url(#tip)"/><path class="wire" d="M476 236 Q608 182 740 180" marker-end="url(#tip)"/><path class="wire" d="M476 236 Q556 246 636 308" marker-end="url(#tip)"/><path class="wire" d="M740 180 Q840 174 940 220" marker-end="url(#tip)"/><path class="wire" d="M740 180 Q824 238 908 348" marker-end="url(#tip)"/><path class="wire" d="M940 220 Q924 258 908 348" marker-end="url(#tip)"/><path class="wire" d="M636 308 Q640 390 644 524" marker-end="url(#tip)"/><path class="wire" d="M908 348 Q776 410 644 524" marker-end="url(#tip)"/><path class="wire out" d="M644 524 Q888 514 1132 556" marker-end="url(#tip)"/><path class="wire" d="M644 524 Q680 442 716 412" marker-end="url(#tip)"/><path class="wire" d="M716 412 Q676 334 636 308" marker-end="url(#tip)"/><path class="wire" d="M516 380 Q616 370 716 412" marker-end="url(#tip)"/><circle class="dot" cx="244" cy="276" r="9"/><text class="t" x="258" y="254" text-anchor="start">Senses</text><text class="s" x="258" y="270" text-anchor="start">back of the cortex</text><circle class="dot" cx="364" cy="420" r="9"/><text class="t" x="348" y="454" text-anchor="end">Forward models</text><text class="s" x="348" y="470" text-anchor="end">cerebellum</text><circle class="dot" cx="476" cy="236" r="9"/><text class="t" x="462" y="210" text-anchor="end">Triage</text><text class="s" x="462" y="226" text-anchor="end">deep in the middle</text><circle class="dot" cx="740" cy="180" r="9"/><text class="t" x="740" y="154" text-anchor="middle">Workspace</text><text class="s" x="740" y="170" text-anchor="middle">front, top</text><circle class="dot" cx="940" cy="220" r="9"/><text class="t" x="958" y="200" text-anchor="start">Packs</text><text class="s" x="958" y="216" text-anchor="start">front</text><circle class="dot" cx="636" cy="308" r="9"/><text class="t" x="654" y="294" text-anchor="start">Reflex</text><text class="s" x="654" y="310" text-anchor="start">centre</text><circle class="dot agent" cx="908" cy="348" r="11"/><text class="t" x="928" y="374" text-anchor="start">Team</text><text class="s" x="928" y="390" text-anchor="start">front, lower</text><circle class="dot gate" cx="644" cy="524" r="9"/><text class="t" x="622" y="532" text-anchor="end">Gate</text><text class="s" x="622" y="548" text-anchor="end">on the brain stem</text><circle class="dot" cx="716" cy="412" r="9"/><text class="t" x="734" y="442" text-anchor="start">Memory</text><text class="s" x="734" y="458" text-anchor="start">low in the temporal lobe</text><circle class="dot" cx="516" cy="380" r="9"/><text class="t" x="498" y="414" text-anchor="end">Sleep</text><text class="s" x="498" y="430" text-anchor="end">back, low</text><circle class="dot twin" cx="1132" cy="556" r="9"/><text class="t" x="1132" y="594" text-anchor="middle">Twin</text><text class="s" x="1132" y="610" text-anchor="middle">outside the brain, beside the city</text><text class="k" x="1064" y="70" text-anchor="end">FRONT</text><text class="k" x="176" y="70">BACK</text><text class="k" x="620" y="664" text-anchor="middle">BRAIN STEM</text><text class="k" x="372" y="540" text-anchor="middle">CEREBELLUM</text></svg>

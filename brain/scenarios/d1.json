@@ -1,0 +1,103 @@
+{
+  "id": "d1",
+  "name": "A calm day",
+  "layers": [
+    "Twin",
+    "Guardian",
+    "City Brain"
+  ],
+  "description": "Citizens walk and jog, traffic flows, and one camera raises a weak crowd-gathering alert that is not a crime. Nothing is wrong.",
+  "expected_brain": "Opens no incident and calls no actuator. Every reading is trusted and every reading is read.",
+  "topology": "topology/small-city.json",
+  "guardian": {
+    "default": "trusted",
+    "overrides": {}
+  },
+  "events": [
+    {
+      "at_ms": 0,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "value": {
+        "citizen_id": "cit-10021",
+        "activity": "walking",
+        "speed_kmh": 4.5
+      }
+    },
+    {
+      "at_ms": 300,
+      "sensor_id": "tcam-05-01",
+      "type": "traffic_camera",
+      "zone_id": "zone-05",
+      "value": {
+        "congestion_score": 0.21,
+        "vehicle_count": 14,
+        "avg_speed_kmh": 42.0,
+        "smoke_detected": false
+      }
+    },
+    {
+      "at_ms": 600,
+      "sensor_id": "cit-feed-08",
+      "type": "citizen_activity",
+      "zone_id": "zone-08",
+      "value": {
+        "citizen_id": "cit-55102",
+        "activity": "running",
+        "speed_kmh": 12.5,
+        "heading_zone_id": "zone-09"
+      }
+    },
+    {
+      "at_ms": 900,
+      "sensor_id": "cam-07-02",
+      "type": "cctv_anomaly",
+      "zone_id": "zone-07",
+      "value": {
+        "anomaly_type": "crowd_gathering",
+        "confidence": 0.41
+      }
+    },
+    {
+      "at_ms": 1200,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 14.0,
+        "heading_zone_id": "zone-08"
+      }
+    },
+    {
+      "at_ms": 1500,
+      "sensor_id": "tcam-05-01",
+      "type": "traffic_camera",
+      "zone_id": "zone-05",
+      "value": {
+        "congestion_score": 0.24,
+        "vehicle_count": 16,
+        "avg_speed_kmh": 40.5,
+        "smoke_detected": false
+      }
+    }
+  ],
+  "expect": {
+    "dispatched": [],
+    "events_in_order": [],
+    "forbidden_events": [
+      "brain.incident.opened",
+      "brain.action.requested",
+      "brain.action.blocked",
+      "brain.reading.rejected"
+    ],
+    "event_counts": {
+      "brain.reading.received": 6
+    }
+  },
+  "claim": "Proves: the Brain does not overreact to a normal city.",
+  "how_to_verify": "Visible on the timeline screen; log logs/d1-*.jsonl; `uv run brain scenario d1`.",
+  "short": "Calm day"
+}

@@ -1,0 +1,19 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "cit-feed-07",
+  "type": "citizen_activity",
+  "zone_id": "zone-07",
+  "timestamp": "2026-10-12T19:41:57.554Z",
+  "sequence_no": 4,
+  "value": {
+    "citizen_id": "cit-88213",
+    "activity": "running",
+    "speed_kmh": 17.5,
+    "heading_zone_id": "zone-08"
+  },
+  "department_code": "POLICE",
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "51dd058515cefa1e96f175cc35a9f31177cc407072ae94ed64051fdf20131a71"
+  }
+}

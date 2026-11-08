@@ -1,0 +1,30 @@
+# Fire: a fire gets the nearest fire unit once two independent sources agree. Its desk advises neighbouring zones.
+code: FIRE
+name: Fire
+version: "1"
+description: Fires. Sends the nearest fire unit once two independent sources agree.
+subscribes: [traffic_camera, "emergency_call:fire"]
+incident_types: [fire]
+actuators: ["dispatch_unit:fire", broadcast_alert]
+needs: [dispatch_unit]          # without these the pack bids low
+reflex_rules: fire.yaml
+# The desk (`team.departments: on`): an analyst weighs the situation with read-only tools, a chief decides which neighbouring zones to advise.
+agents:
+  analyst:
+    model: strong
+    tools: [graph.context, kb.graph_search, solver.plan_allocation]
+  chief:
+    model: fast
+    tools: []
+severity: {fire: 0.9}
+bids:
+  - {incident: fire, unit: fire}
+# What reading means an incident. A condition on a field the Twin does not send simply never matches.
+detectors:
+  - reading: traffic_camera
+    incident: fire
+    priority: 10          # smoke outranks congestion on the same camera reading
+    when: [{field: smoke_detected, op: "==", value: true}]
+  - reading: emergency_call
+    incident: fire
+    when: [{field: category, op: "==", value: fire}]

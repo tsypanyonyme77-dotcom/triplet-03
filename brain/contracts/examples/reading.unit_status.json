@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "unit-feed-police",
+  "type": "unit_status",
+  "zone_id": "zone-07",
+  "timestamp": "2026-10-12T19:42:00.054Z",
+  "sequence_no": 1,
+  "value": {
+    "unit_id": "unit-p-01",
+    "incident_id": "inc-0001",
+    "state": "en_route"
+  },
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "56c8cf3254fff668b857a3446df78272956661df458992a22c7f74462f064a01"
+  }
+}

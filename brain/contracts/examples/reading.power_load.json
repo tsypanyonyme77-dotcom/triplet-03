@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "pm-04-01",
+  "type": "power_load",
+  "zone_id": "zone-04",
+  "timestamp": "2026-10-12T19:41:57.054Z",
+  "sequence_no": 1,
+  "value": {
+    "load_kw": 345.5,
+    "capacity_kw": 520.5,
+    "voltage_v": 229.4
+  },
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "4426fb7bc1e25fbb5ef2ca102e4ca6ce0ed64beeb514de40d4dfd66b7d7f64e7"
+  }
+}

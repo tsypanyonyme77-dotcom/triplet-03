@@ -1,0 +1,27 @@
+# Traffic control: a jam gets a green phase at the nearest signal controller. The code stays MOBILITY (ids, logs and tests use it); the name is what people read.
+code: MOBILITY
+name: Traffic control
+version: "1"
+description: Traffic jams. Holds the nearest signal on green for two minutes.
+subscribes: [traffic_camera]
+incident_types: [jam]
+actuators: [set_signal_phase]
+needs: [set_signal_phase]          # without these the pack bids low
+reflex_rules: mobility.yaml
+# The desk (`team.departments: on`): an analyst weighs the situation with read-only tools, a chief decides which neighbouring zones to advise.
+agents:
+  analyst:
+    model: strong
+    tools: [graph.context, kb.graph_search, graph.cascade]
+  chief:
+    model: fast
+    tools: []
+severity: {jam: 0.3}
+detectors:
+  - reading: traffic_camera
+    incident: jam
+    # Opens at 0.7; ends below 0.4 (the gap stops one noisy reading flapping it) and never while there is smoke.
+    when: [{field: congestion_score, op: ">=", value: 0.7}]
+    clear:
+      - {field: congestion_score, op: "<=", value: 0.4}
+      - {field: smoke_detected, op: "!=", value: true}

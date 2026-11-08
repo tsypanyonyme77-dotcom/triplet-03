@@ -1,0 +1,18 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "tcam-05-01",
+  "type": "traffic_camera",
+  "zone_id": "zone-05",
+  "timestamp": "2026-10-12T19:41:57.054Z",
+  "sequence_no": 1,
+  "value": {
+    "congestion_score": 0.82,
+    "vehicle_count": 47,
+    "avg_speed_kmh": 6.4,
+    "smoke_detected": false
+  },
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "d53e70d871e4cfd22bd8457f09d3f94c80e4ae1655300f853e3e117300849c0e"
+  }
+}

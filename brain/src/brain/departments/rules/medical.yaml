@@ -1,0 +1,15 @@
+# Medical reflexes. `condition` rules run once per open accident incident.
+rules:
+  - id: FIR-002
+    name: accident.respond
+    scope: condition
+    description: An accident is reported. Send the nearest ambulance to the zone.
+    when:
+      incident.type: accident
+    do:
+      - action: dispatch_unit
+        params:
+          unit_type: ambulance
+          zone_id: $incident.zone_id
+          incident_id: $incident.incident_id
+          mode: respond

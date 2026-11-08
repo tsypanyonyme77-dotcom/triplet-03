@@ -1,0 +1,176 @@
+{
+ "title": "City Brain",
+ "uid": "city-brain",
+ "schemaVersion": 39,
+ "version": 1,
+ "refresh": "5s",
+ "time": {
+  "from": "now-15m",
+  "to": "now"
+ },
+ "templating": {
+  "list": [
+   {
+    "name": "DS_PROMETHEUS",
+    "type": "datasource",
+    "query": "prometheus"
+   }
+  ]
+ },
+ "panels": [
+  {
+   "id": 1,
+   "type": "timeseries",
+   "title": "Gate: passed and held, by the check that decided",
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 12,
+    "h": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "sum by (allowed, check) (rate(brain_gate_decisions_total[1m]))",
+     "legendFormat": "{{allowed}} {{check}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "type": "timeseries",
+   "title": "Events per second, by type",
+   "gridPos": {
+    "x": 12,
+    "y": 0,
+    "w": 12,
+    "h": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "topk(8, sum by (type) (rate(brain_events_total[1m])))",
+     "legendFormat": "{{type}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "type": "stat",
+   "title": "Open incidents",
+   "gridPos": {
+    "x": 0,
+    "y": 8,
+    "w": 6,
+    "h": 5
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "brain_open_incidents",
+     "legendFormat": "",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "type": "stat",
+   "title": "Units out",
+   "gridPos": {
+    "x": 6,
+    "y": 8,
+    "w": 6,
+    "h": 5
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "brain_units_out",
+     "legendFormat": "",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "type": "timeseries",
+   "title": "Degraded components (1 = answering from a fallback)",
+   "gridPos": {
+    "x": 12,
+    "y": 8,
+    "w": 12,
+    "h": 5
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "brain_degraded",
+     "legendFormat": "{{component}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "type": "timeseries",
+   "title": "Solver time (seconds per run)",
+   "gridPos": {
+    "x": 0,
+    "y": 13,
+    "w": 12,
+    "h": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "sum by (outcome) (brain_solver_seconds_sum) / sum by (outcome) (brain_solver_seconds_count)",
+     "legendFormat": "{{outcome}}",
+     "refId": "A"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "type": "timeseries",
+   "title": "Dispatch regret against nearest-first (last solution)",
+   "gridPos": {
+    "x": 12,
+    "y": 13,
+    "w": 12,
+    "h": 8
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "${DS_PROMETHEUS}"
+   },
+   "targets": [
+    {
+     "expr": "brain_solver_regret",
+     "legendFormat": "regret",
+     "refId": "A"
+    }
+   ]
+  }
+ ]
+}

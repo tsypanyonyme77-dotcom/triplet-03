@@ -1,0 +1,84 @@
+{
+  "description": "CloudEvents 1.0 JSON envelope. `traceid` ties an event to the reading that caused it.",
+  "properties": {
+    "specversion": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Specversion",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "source": {
+      "default": "city-brain",
+      "title": "Source",
+      "type": "string"
+    },
+    "type": {
+      "title": "Type",
+      "type": "string"
+    },
+    "time": {
+      "format": "date-time",
+      "title": "Time",
+      "type": "string"
+    },
+    "subject": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Subject"
+    },
+    "datacontenttype": {
+      "const": "application/json",
+      "default": "application/json",
+      "title": "Datacontenttype",
+      "type": "string"
+    },
+    "traceid": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Traceid"
+    },
+    "data": {
+      "additionalProperties": true,
+      "title": "Data",
+      "type": "object"
+    },
+    "timing": {
+      "anyOf": [
+        {
+          "additionalProperties": {
+            "type": "number"
+          },
+          "type": "object"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Timing"
+    }
+  },
+  "required": [
+    "type"
+  ],
+  "title": "TimelineEvent",
+  "type": "object"
+}

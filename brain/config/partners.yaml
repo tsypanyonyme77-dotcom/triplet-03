@@ -1,0 +1,68 @@
+# Where the two partner layers live and how to talk to them.
+# Point the Brain at different partners by editing this file; nothing is hard-coded.
+twin:
+  adapter: mcp                          # the Twin exposes readings and actuators as MCP tools
+  url: http://127.0.0.1:8765/mcp
+  hmac_secret_env: TWIN_HMAC_SECRET     # name of the env var holding the secret the Twin signs with
+  require_signature: true
+  max_age_s: null                       # set on a live Twin (seconds): a reading stamped further from the Brain's clock than this is refused as stale
+  poll_interval_ms: 200
+  retry_s: 2.0                          # a Twin that cannot be reached is asked again this often; 0 gives up at the first failure
+  mqtt:                                 # adapter: mqtt only. Readings come from the broker; actions, topology and capabilities go to `url` over HTTP
+    url: mqtt://127.0.0.1:1883          # mqtts:// for TLS
+    topic_prefix: city                  # readings arrive on {prefix}/{zone_id}/{type}/{sensor_id}
+    qos: 1
+    client_id: city-brain
+    username_env: null                  # names of environment variables, never the values
+    password_env: null
+    reorder_ms: 200                     # how long a reading waits for an earlier one from the same sensor
+    tls: null
+  type_aliases: {}                      # the Twin's sensor type -> the contract's, e.g. {river_gauge: water_level}
+  profiles: {}                          # per type, build a field from one the Twin sends, e.g. water_level: {level_m: {from: depth_cm, scale: 0.01}}
+guardian:
+  adapter: rest
+  url: http://127.0.0.1:8766
+  mode: sidecar                         # sidecar: ask per reading. inline: readings arrive carrying `trust`
+  verdict_deadline_ms: 2000
+brain:
+  signing_secret_env: BRAIN_HMAC_SECRET # the Brain signs its actuator calls with this
+  log_dir: logs
+  state_file: state/brain.sqlite        # working memory kept across restarts by `run` and `serve --live` ("" for none)
+  state_max_age_s: 900.0                # saved state older than this is discarded instead of restored
+  accepted_contract_versions: ["2026-09-17"]
+  episodes_dir: null                    # keep closed incidents here as episodes, for `brain sleep` (or `brain serve --episodes DIR`)
+  default_view: strip                   # strip | canopy: which screen opens first (the other is one key away: c)
+  learned_dir: null                     # where `brain sleep` keeps the reflexes it promoted (or `brain serve --learned DIR`)
+  tuned_dir: null                       # where `brain academy` keeps the parameters it tuned (see docs/STATE.md)
+  packs_dir: null                       # a folder of extra pack files (see INTERFACE.md, "When the Twin changes")
+  reference_docs: ["docs/INTEGRATION-brain.md"]      # documents cut into reference chunks for retrieval and citation ([] for none)
+graph:
+  backend: neo4j                        # neo4j: City Graph in Neo4j AND knowledge vectors in Qdrant (default) | memory: neither | qdrant: only Qdrant. An unreachable store is reported and the Brain runs from memory
+  uri: bolt://127.0.0.1:7687
+  user: neo4j
+  password_env: NEO4J_PASSWORD
+  database: neo4j
+  qdrant_location: state/qdrant         # backend: qdrant. A folder (embedded, no server) or ":memory:" ...
+  qdrant_url: null                      # ... or a Qdrant server such as http://qdrant:6333
+  qdrant_api_key_env: null              # the name of the variable holding the server's API key
+  qdrant_fusion: client                 # client: Qdrant answers the dense search, the Brain fuses. server: one hybrid query, Qdrant fuses
+security:
+  require: auto                         # auto: tokens needed only when the server listens off loopback. always | never
+  token_envs: {read: BRAIN_TOKEN_READ, analyse: BRAIN_TOKEN_ANALYSE, approve: BRAIN_TOKEN_APPROVE, admin: BRAIN_TOKEN_ADMIN}
+  push_tokens: {twin: TWIN_PUSH_TOKEN, guardian: GUARDIAN_PUSH_TOKEN}   # a partner's token also names it: its pushed events take that source
+  max_body_bytes: 262144
+  rate_per_minute: 600
+  cookie_name: brain_session
+  keys: {}                              # peer -> signing keys with ids, algorithms and validity (docs/KEYS.md). Empty: the shared secrets named above
+  clock_skew_s: 30                      # a signed actuator call older or newer than this is refused by the receiver
+approval:
+  mode: "off"                           # off: valve and grid calls are held. human: they wait for a signed approval from a person (POST /api/approvals/{id})
+  ttl_s: 120
+  secret_env: BRAIN_APPROVAL_SECRET
+  path: state/approvals.sqlite
+mcp:
+  enabled: true                         # the Brain's own MCP server at /mcp: read-only tools for other teams' agents
+  allowed_hosts: []                     # extra Host headers to accept (DNS-rebinding protection stays on), e.g. ["brain:8080"]
+observability:
+  otlp_endpoint: null                   # an OTLP/HTTP collector such as http://jaeger:4318: one span per timeline event, one trace per reading (uv sync --extra otel)
+  service_name: city-brain

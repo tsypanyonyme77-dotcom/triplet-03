@@ -1,0 +1,8 @@
+{"description": "What a Twin that names things differently might send: a river gauge in centimetres, a car counter, an unlabelled loop sensor with short power names, and a bin sensor the contract has no type for.",
+ "readings": [
+  {"sensor_id": "rg-03", "type": "river_gauge", "zone_id": "zone-01", "sequence_no": 1, "value": {"depth_cm": 42.0, "flow_m3s": 1.2}},
+  {"sensor_id": "rg-03", "type": "river_gauge", "zone_id": "zone-01", "sequence_no": 2, "value": {"depth_cm": 47.5, "flow_m3s": 1.4}},
+  {"sensor_id": "cc-09", "type": "vehicle_counter", "zone_id": "zone-05", "sequence_no": 1, "value": {"congestion_pct": 82.0, "cars": 47, "speed_kmh": 6.0}},
+  {"sensor_id": "pm-02", "type": "sensor_loop", "zone_id": "zone-03", "sequence_no": 1, "value": {"kw": 340.0, "cap_kw": 500.0, "volts": 230.4}},
+  {"sensor_id": "bin-11", "type": "bin_fill_sensor", "zone_id": "zone-02", "sequence_no": 1, "value": {"fill_pct": 71, "bin_id": "b-11"}}
+ ]}

@@ -1,0 +1,17 @@
+{
+  "instances": 100,
+  "incidents": 4,
+  "units": 4,
+  "seeds": [
+    1000,
+    1049
+  ],
+  "differ_share": 0.51,
+  "mean_regret": 4.24,
+  "worst_regret": 30.0,
+  "mean_nearest": 24.63,
+  "mean_optimal": 20.39,
+  "solve_ms_p50": 0.044,
+  "solve_ms_p99": 0.109,
+  "matches_brute_force": true
+}

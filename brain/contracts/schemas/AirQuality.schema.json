@@ -1,0 +1,27 @@
+{
+  "properties": {
+    "aqi": {
+      "maximum": 500,
+      "minimum": 0,
+      "title": "Aqi",
+      "type": "integer"
+    },
+    "pm25_ugm3": {
+      "minimum": 0.0,
+      "title": "Pm25 Ugm3",
+      "type": "number"
+    },
+    "pm10_ugm3": {
+      "minimum": 0.0,
+      "title": "Pm10 Ugm3",
+      "type": "number"
+    }
+  },
+  "required": [
+    "aqi",
+    "pm25_ugm3",
+    "pm10_ugm3"
+  ],
+  "title": "AirQuality",
+  "type": "object"
+}

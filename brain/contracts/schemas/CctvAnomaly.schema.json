@@ -1,0 +1,34 @@
+{
+  "properties": {
+    "anomaly_type": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Anomaly Type",
+      "type": "string"
+    },
+    "confidence": {
+      "maximum": 1.0,
+      "minimum": 0.0,
+      "title": "Confidence",
+      "type": "number"
+    },
+    "entity_id": {
+      "anyOf": [
+        {
+          "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Entity Id"
+    }
+  },
+  "required": [
+    "anomaly_type",
+    "confidence"
+  ],
+  "title": "CctvAnomaly",
+  "type": "object"
+}

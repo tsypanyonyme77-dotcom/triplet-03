@@ -1,0 +1,16 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "grid-04",
+  "action": "set_grid_connection",
+  "params": {
+    "zone_id": "zone-04",
+    "state": "disconnected"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Overload reported in zone-04 (pm-04-01#3).",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "88e84cc7c8a64f2fd94c246bd3c92d8a60600d8322a81cf0475a238aa4bf218c"
+  }
+}

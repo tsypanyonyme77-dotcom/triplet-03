@@ -1,0 +1,35 @@
+{
+  "description": "Extension: feedback on a dispatched unit, so incidents can close.",
+  "properties": {
+    "unit_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Unit Id",
+      "type": "string"
+    },
+    "incident_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Incident Id",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "en_route",
+        "pursuing",
+        "in_position",
+        "on_scene",
+        "apprehended",
+        "lost",
+        "returning"
+      ],
+      "title": "State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "unit_id",
+    "incident_id",
+    "state"
+  ],
+  "title": "UnitStatus",
+  "type": "object"
+}

@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+state/
+
+
+# logs/ is deliberately NOT ignored: the Phase 1 rules ask for a log per run stored in the repository (tests/test_phase1_requirements.py).
+# Commit the ones that matter (logs/canonical/ holds one verified log per scenario); `make clean` clears the rest.
+
+# What serve, sleep and the Academy write when they are pointed at a folder here
+episodes/
+tuned/
+learned/
+.impeccable/review/

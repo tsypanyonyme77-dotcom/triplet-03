@@ -1,0 +1,140 @@
+{
+  "$defs": {
+    "Provenance": {
+      "properties": {
+        "signed_by": {
+          "title": "Signed By",
+          "type": "string"
+        },
+        "hmac": {
+          "title": "Hmac",
+          "type": "string"
+        },
+        "kid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kid"
+        },
+        "alg": {
+          "anyOf": [
+            {
+              "enum": [
+                "HS256",
+                "EdDSA"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alg"
+        }
+      },
+      "required": [
+        "signed_by",
+        "hmac"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "description": "Common envelope carried by every actuator call (Data Dictionary section 1).",
+  "properties": {
+    "contract_version": {
+      "default": "2026-09-17",
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "actuator_id": {
+      "title": "Actuator Id",
+      "type": "string"
+    },
+    "action": {
+      "title": "Action",
+      "type": "string"
+    },
+    "params": {
+      "additionalProperties": true,
+      "title": "Params",
+      "type": "object"
+    },
+    "requesting_layer": {
+      "default": "city_brain",
+      "enum": [
+        "city_brain",
+        "guardian"
+      ],
+      "title": "Requesting Layer",
+      "type": "string"
+    },
+    "justification": {
+      "title": "Justification",
+      "type": "string"
+    },
+    "trust_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Trust Ref"
+    },
+    "issued_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Issued At"
+    },
+    "nonce": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Nonce"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "actuator_id",
+    "action",
+    "params",
+    "justification",
+    "trust_ref"
+  ],
+  "title": "ActuatorCall",
+  "type": "object"
+}

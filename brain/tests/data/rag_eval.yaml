@@ -1,0 +1,126 @@
+# Retrieval evaluation set, written on 2 November 2026 BEFORE any retrieval was run on it or tuned against it.
+#
+# split: design    questions we may look at, and tune retrieval switches on
+#        heldout   questions used only to report; nothing is chosen with them (`brain rag-eval --set` refuses to run on them)
+# kind:  direct    the question uses the item's own words
+#        paraphrase the same need in different words (this is what a dense model is for)
+#        multihop  needs two items, or needs the item that survives a missing actuator
+#        nonanswer nothing in the corpus answers it: the right result is that nothing relevant comes back
+# `expect` lists the item ids a good answer must find; a nonanswer has none.
+# `twin_lacks` names actuator actions the Twin does not report, as the gate's capability list would.
+questions:
+  # ---- police
+  - {id: pol-01, split: design, kind: direct, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "When should a police unit pursue an identified suspect at once?", expect: [POL-PB-001]}
+  - {id: pol-02, split: design, kind: paraphrase, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "A person is running away after a robbery and only a few zones lie between them and the city exits. How should units be placed?", expect: [POL-PB-002]}
+  - {id: pol-03, split: heldout, kind: paraphrase, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "We do not have enough patrol cars to build any perimeter. What is the fallback?", expect: [POL-PB-004]}
+  - {id: pol-04, split: design, kind: paraphrase, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "Everyone at the scene fled when the shots rang out. Does the fact that this person ran mean anything?", expect: [POL-PB-007]}
+  - {id: pol-05, split: heldout, kind: direct, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "What should we do when the suspect has already reached a city exit?", expect: [POL-PB-009]}
+  - {id: pol-06, split: design, kind: paraphrase, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "How many officers may be sent out before we are left with no spare capacity?", expect: [POL-PB-006]}
+  - {id: pol-07, split: heldout, kind: direct, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "Evidence comes from only one source, or from a reading the Guardian has not trusted. What is justified?", expect: [POL-PB-008]}
+  - {id: pol-08, split: heldout, kind: multihop, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "The tight perimeter will probably be outrun and units are scarce. What should be done instead?", expect: [POL-PB-003, POL-PB-004]}
+  - {id: pol-09, split: design, kind: multihop, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "A violent crime is under way. What should the units do and what should the public be told?", expect: [POL-PB-001, POL-PB-005]}
+  - {id: pol-10, split: heldout, kind: paraphrase, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "Tell residents to stay away from the area after a stabbing.", expect: [POL-PB-005]}
+  # ---- fire and ambulance (split into Fire and Ambulance and medical on 6 Nov; the ids kept their FEM prefix)
+  - {id: fem-01, split: design, kind: direct, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "Send the nearest fire unit to a reported fire.", expect: [FEM-PB-001]}
+  - {id: fem-02, split: heldout, kind: paraphrase, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "Someone is injured in a car collision. Which vehicle goes?", expect: [FEM-PB-002]}
+  - {id: fem-03, split: design, kind: paraphrase, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "Smoke and a medical call have been reported from the same block.", expect: [FEM-PB-003]}
+  - {id: fem-04, split: heldout, kind: paraphrase, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "One camera shows smoke but nothing else agrees with it.", expect: [FEM-PB-006]}
+  - {id: fem-05, split: design, kind: paraphrase, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "The blaze is out. How do the vehicles get back to their stations?", expect: [FEM-PB-007]}
+  - {id: fem-06, split: heldout, kind: direct, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "Never commit the last ambulance in the city to one incident.", expect: [MED-PB-001]}
+  - {id: fem-07, split: design, kind: direct, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "Warn the people in the zone of a fire.", expect: [FEM-PB-004]}
+  - {id: med-01, split: design, kind: paraphrase, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "A medical call and a camera both report the same crash. Is that enough to send the ambulance?", expect: [MED-PB-003]}
+  - {id: med-02, split: heldout, kind: direct, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "Where does the ambulance start from?", expect: [MED-PB-004]}
+  - {id: med-03, split: design, kind: paraphrase, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "A camera thinks there may have been a collision but is not sure.", expect: [MED-PB-005]}
+  - {id: med-04, split: heldout, kind: paraphrase, department: MEDICAL, incident_type: accident, kinds: [playbook],
+     question: "The patient has been handed over. How does the ambulance get back to the reserve?", expect: [MED-PB-002]}
+  # ---- mobility
+  - {id: mob-01, split: design, kind: direct, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "Hold the nearest signal on green to clear a traffic jam.", expect: [MOB-PB-001]}
+  - {id: mob-02, split: heldout, kind: paraphrase, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "The Guardian has isolated the traffic light controller. Can we still change it?", expect: [MOB-PB-002]}
+  - {id: mob-03, split: design, kind: paraphrase, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "Cars are backed up on a road with smoke rising from it.", expect: [MOB-PB-003]}
+  - {id: mob-04, split: heldout, kind: paraphrase, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "Should we switch the same light again right after we changed it?", expect: [MOB-PB-004]}
+  - {id: mob-05, split: design, kind: paraphrase, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "When does the congestion incident end?", expect: [MOB-PB-005]}
+  - {id: mob-06, split: heldout, kind: paraphrase, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "Does a busy road compete with a robbery for the two attention slots?", expect: [MOB-PB-006]}
+  # ---- utilities
+  - {id: utl-01, split: design, kind: direct, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "Warn the zone first when the water rises.", expect: [UTL-PB-001]}
+  - {id: utl-02, split: heldout, kind: paraphrase, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "Can the Brain shut the valve on its own when the river floods?", expect: [UTL-PB-002]}
+  - {id: utl-03, split: design, kind: paraphrase, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "Which valve do we close, one in the flooded zone or one in a neighbouring zone?", expect: [UTL-PB-003]}
+  - {id: utl-04, split: heldout, kind: paraphrase, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "One water gauge suddenly reads far higher than it ever has before.", expect: [UTL-PB-004]}
+  - {id: utl-05, split: design, kind: direct, department: UTILITIES, incident_type: overload, kinds: [playbook],
+     question: "Ask for less power before disconnecting a zone.", expect: [UTL-PB-005]}
+  - {id: utl-06, split: heldout, kind: paraphrase, department: UTILITIES, incident_type: overload, kinds: [playbook],
+     question: "Cutting a whole district off the grid: who has to agree?", expect: [UTL-PB-006]}
+  - {id: utl-07, split: design, kind: paraphrase, department: UTILITIES, incident_type: smog, kinds: [playbook],
+     question: "The air is thick with pollution. What do we tell people?", expect: [UTL-PB-007]}
+  - {id: utl-08, split: heldout, kind: paraphrase, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "When do we stop the flood response?", expect: [UTL-PB-008]}
+  - {id: utl-09, split: design, kind: paraphrase, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "Should a flood alert go to the whole city?", expect: [DIS-PB-001]}
+  - {id: utl-10, split: heldout, kind: multihop, department: DISASTER, incident_type: flood, kinds: [playbook], twin_lacks: [set_valve_state],
+     question: "The Twin cannot operate valves. What can still be done about a flood?", expect: [UTL-PB-001]}
+  - {id: utl-11, split: design, kind: multihop, department: DISASTER, incident_type: flood, kinds: [playbook],
+     question: "A flood is reported by two sources. What are the steps, in order?", expect: [UTL-PB-001, UTL-PB-002]}
+  - {id: utl-14, split: design, kind: paraphrase, department: UTILITIES, incident_type: overload, kinds: [playbook],
+     question: "One substation reads far above anything it has ever read. Do we ask a zone to disconnect?", expect: [UTL-PB-010]}
+  - {id: utl-15, split: heldout, kind: paraphrase, department: UTILITIES, incident_type: smog, kinds: [playbook],
+     question: "When can the air quality advisory be ended?", expect: [UTL-PB-011]}
+  # ---- more that need two items (added before anything was run on this file)
+  - {id: pol-11, split: heldout, kind: multihop, department: POLICE, incident_type: crime, kinds: [playbook],
+     question: "The suspect is fleeing, units are short and a lot of people ran. How proportionate should the response be?", expect: [POL-PB-007, POL-PB-004]}
+  - {id: fem-08, split: heldout, kind: multihop, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "A building is on fire and people are hurt. Which vehicles are needed and who should be warned?", expect: [FEM-PB-003, FEM-PB-004]}
+  - {id: fem-09, split: design, kind: multihop, department: FIRE, incident_type: fire, kinds: [playbook],
+     question: "Only one fire engine is left and a second fire has just been reported.", expect: [FEM-PB-005, FEM-PB-001]}
+  - {id: mob-07, split: design, kind: multihop, department: MOBILITY, incident_type: jam, kinds: [playbook],
+     question: "Cars are stuck, smoke is rising and the nearest signal controller has been isolated. What must we not do?", expect: [MOB-PB-002, MOB-PB-003]}
+  - {id: utl-12, split: heldout, kind: multihop, department: UTILITIES, incident_type: overload, kinds: [playbook],
+     question: "The substation is at ninety five percent of its capacity. What do we do first, and what has to wait for a person?", expect: [UTL-PB-005, UTL-PB-006]}
+  - {id: utl-13, split: design, kind: multihop, department: DISASTER, incident_type: flood, kinds: [playbook], twin_lacks: [set_valve_state],
+     question: "We cannot control valves and only one gauge has reported a high level. What is safe to do?", expect: [UTL-PB-004, UTL-PB-001]}
+  # ---- the interface card (reference chunks)
+  - {id: ref-01, split: design, kind: direct, kinds: [reference],
+     question: "Which MCP tool does the Brain poll for sensor readings, and how often?", expect: [REF-INTEGRATION-BRAIN-02]}
+  - {id: ref-02, split: heldout, kind: paraphrase, kinds: [reference],
+     question: "What changes when the Twin calls a sensor type by a different name?", expect: [REF-INTEGRATION-BRAIN-13]}
+  - {id: ref-03, split: design, kind: paraphrase, kinds: [reference],
+     question: "How is the signature on a reading worked out?", expect: [REF-INTEGRATION-BRAIN-11]}
+  - {id: ref-04, split: heldout, kind: paraphrase, kinds: [reference],
+     question: "What does the Brain do when the Guardian stops answering?", expect: [REF-INTEGRATION-BRAIN-18]}
+  - {id: ref-05, split: heldout, kind: direct, kinds: [reference],
+     question: "What happens when the Guardian takes back a verdict on a reading?", expect: [REF-INTEGRATION-BRAIN-16]}
+  # ---- nothing in the corpus answers these
+  - {id: non-01, split: design, kind: nonanswer, question: "How do I bake sourdough bread at home?", expect: []}
+  - {id: non-02, split: heldout, kind: nonanswer, question: "Who won the football world cup in 1998?", expect: []}
+  - {id: non-03, split: design, kind: nonanswer, question: "What is the capital city of Australia?", expect: []}
+  - {id: non-04, split: heldout, kind: nonanswer, question: "Recommend a laptop for playing video games.", expect: []}
+  - {id: non-05, split: design, kind: nonanswer, question: "How can I learn to play the guitar quickly?", expect: []}
+  - {id: non-06, split: heldout, kind: nonanswer, question: "What is the best way to train for a marathon?", expect: []}

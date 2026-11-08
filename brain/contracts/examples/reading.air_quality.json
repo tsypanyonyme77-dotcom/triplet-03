@@ -1,0 +1,17 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "aq-02-01",
+  "type": "air_quality",
+  "zone_id": "zone-02",
+  "timestamp": "2026-10-12T19:41:57.054Z",
+  "sequence_no": 1,
+  "value": {
+    "aqi": 58,
+    "pm25_ugm3": 14.2,
+    "pm10_ugm3": 22.5
+  },
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "e73062d9e565ee8a5e66fce3a2dde94fd5d49065d8dd65349b2f5c9b1e8efd32"
+  }
+}

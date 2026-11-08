@@ -1,0 +1,174 @@
+{
+  "id": "d4",
+  "name": "A flood, an attack and a layer down",
+  "claim": "Proves: the city keeps working, safely, when something goes wrong.",
+  "layers": [
+    "Twin",
+    "Guardian",
+    "City Brain"
+  ],
+  "description": "A real flood is rising at the harbour. At the same time a compromised camera reports a robbery, one sensor floods the Brain with readings, and the Guardian stops answering.",
+  "expected_brain": "Warns the harbour from the evidence it holds, but holds the valve call: only one trusted source vouches for the flood. Tracks the forged robbery report without sending police. When the Guardian goes quiet it says so once and keeps going in degraded mode, with low-impact alerts only.",
+  "how_to_verify": "Visible on the timeline screen; log logs/d4-*.jsonl; `uv run brain scenario d4`.",
+  "topology": "topology/small-city.json",
+  "guardian": {
+    "default": "trusted",
+    "overrides": {
+      "cam-07-02": "untrusted"
+    }
+  },
+  "streams": [
+    {
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "from_ms": 0,
+      "to_ms": 3000,
+      "every_ms": 1000,
+      "base": {
+        "level_m": 0.3
+      },
+      "noise": {
+        "level_m": 0.02
+      },
+      "clamp": {
+        "level_m": [
+          0.2,
+          0.45
+        ]
+      },
+      "seed": 11
+    },
+    {
+      "sensor_id": "tcam-03-01",
+      "type": "traffic_camera",
+      "zone_id": "zone-03",
+      "from_ms": 0,
+      "to_ms": 8000,
+      "every_ms": 50,
+      "base": {
+        "congestion_score": 0.2,
+        "vehicle_count": 20,
+        "avg_speed_kmh": 50.0,
+        "smoke_detected": false
+      },
+      "noise": {
+        "congestion_score": 0.02,
+        "vehicle_count": 2,
+        "avg_speed_kmh": 2.0
+      },
+      "clamp": {
+        "congestion_score": [
+          0.1,
+          0.3
+        ],
+        "vehicle_count": [
+          14,
+          26
+        ],
+        "avg_speed_kmh": [
+          44.0,
+          56.0
+        ]
+      },
+      "seed": 4
+    }
+  ],
+  "events": [
+    {
+      "at_ms": 2000,
+      "sensor_id": "cam-07-02",
+      "type": "cctv_anomaly",
+      "zone_id": "zone-07",
+      "value": {
+        "anomaly_type": "robbery",
+        "confidence": 0.93
+      }
+    },
+    {
+      "at_ms": 3500,
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "value": {
+        "level_m": 0.55
+      }
+    },
+    {
+      "at_ms": 4500,
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "value": {
+        "level_m": 1.1
+      }
+    },
+    {
+      "at_ms": 5500,
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "value": {
+        "level_m": 1.35
+      }
+    },
+    {
+      "at_ms": 6000,
+      "sensor_id": "call-feed-01",
+      "type": "emergency_call",
+      "zone_id": "zone-01",
+      "value": {
+        "call_id": "call-55011",
+        "category": "flood",
+        "caller_confidence": 0.7
+      }
+    },
+    {
+      "at_ms": 9000,
+      "sensor_id": "wl-01-01",
+      "type": "water_level",
+      "zone_id": "zone-01",
+      "value": {
+        "level_m": 0.45
+      }
+    }
+  ],
+  "faults": {
+    "guardian": {
+      "after_verdicts": 120
+    }
+  },
+  "expect": {
+    "actuated": [
+      {
+        "action": "broadcast_alert",
+        "params": {
+          "zone_id": "zone-01"
+        }
+      }
+    ],
+    "never_dispatched": [
+      {
+        "unit_type": "police"
+      }
+    ],
+    "blocked": [
+      "evidence"
+    ],
+    "event_counts": {
+      "brain.guardian.unavailable": 1
+    },
+    "events_in_order": [
+      [
+        "brain.incident.opened",
+        "brain.action.blocked",
+        "brain.guardian.unavailable"
+      ]
+    ],
+    "forbidden_events": [
+      "brain.plan.rejected",
+      "brain.reading.rejected"
+    ]
+  },
+  "short": "Flood under attack"
+}

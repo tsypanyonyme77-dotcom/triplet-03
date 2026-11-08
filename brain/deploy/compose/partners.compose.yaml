@@ -1,0 +1,31 @@
+# The Brain's partners inside the Compose stack: the other containers, by service name.
+# The port is published to 127.0.0.1 only, so the API runs without tokens here (security.require: never).
+twin:
+  adapter: mcp
+  url: http://twin:8765/mcp
+  hmac_secret_env: TWIN_HMAC_SECRET
+  require_signature: true
+  poll_interval_ms: 200
+guardian:
+  adapter: rest
+  url: http://guardian:8766
+  mode: sidecar
+  verdict_deadline_ms: 2000
+brain:
+  signing_secret_env: BRAIN_HMAC_SECRET
+  log_dir: logs
+  state_file: state/brain.sqlite
+  accepted_contract_versions: ["2026-09-17"]
+  reference_docs: ["INTERFACE.md"]
+  episodes_dir: state/episodes   # closed incidents are kept here; `make full-sleep` learns from them
+  learned_dir: state/learned
+graph:
+  backend: neo4j
+  uri: bolt://neo4j:7687
+  user: neo4j
+  password_env: NEO4J_PASSWORD
+  database: neo4j
+  qdrant_url: http://qdrant:6333    # the knowledge vectors; the City Graph stays in Neo4j
+  qdrant_fusion: server
+security:
+  require: never

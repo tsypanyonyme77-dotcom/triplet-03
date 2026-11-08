@@ -1,0 +1,37 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "valve_id": {
+      "title": "Valve Id",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "open",
+        "closed"
+      ],
+      "title": "State",
+      "type": "string"
+    },
+    "flow_target_pct": {
+      "anyOf": [
+        {
+          "maximum": 100.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Flow Target Pct"
+    }
+  },
+  "required": [
+    "valve_id",
+    "state"
+  ],
+  "title": "SetValveStateParams",
+  "type": "object"
+}

@@ -1,0 +1,60 @@
+# Utilities playbook: power overloads and smog (floods moved to Disaster response). The department is reflex-only today; valves and
+# grid switches are high-impact calls that the gate holds for a human approval that is not wired up yet.
+department: UTILITIES
+items:
+  - id: UTL-PB-005
+    title: Ask for less power before disconnecting a zone
+    text: >
+      When a substation reaches 95 percent of its capacity, first broadcast an appeal to the zone to use
+      less power. Disconnecting the zone is the step after that, not the first step.
+    applies_to: [overload]
+    uses: [broadcast_alert]
+    precedes: [UTL-PB-006]
+    requires: [UTL-PB-009]
+    substitutes: [UTL-PB-006]
+
+  - id: UTL-PB-006
+    title: Disconnecting a zone is a last resort and needs approval
+    text: >
+      Disconnecting a zone from the grid cuts the power to everyone in it, so it is a high-impact call and
+      needs a human approval. Use it only when the load is still rising after the appeal and a failure is
+      near. Ask for the zone to be reconnected once the load has fallen to 80 percent of capacity.
+    applies_to: [overload]
+    uses: [set_grid_connection]
+    requires: [UTL-PB-005]
+
+  - id: UTL-PB-007
+    title: Advise people to limit time outdoors when the air is bad
+    text: >
+      When the air quality index is 150 or more, broadcast an advisory to the zone asking people to limit
+      time outdoors. The incident ends when the index falls to 100 or less. Smog never needs a unit.
+    applies_to: [smog]
+    uses: [broadcast_alert]
+    requires: [UTL-PB-009]
+
+  - id: UTL-PB-009
+    title: Alert only the zones the incident has touched
+    text: >
+      An overload or smog is local. Broadcast to the zone where it is happening and to nobody
+      else. An alert to the whole city teaches people to ignore alerts.
+    applies_to: [overload, smog]
+    uses: [broadcast_alert]
+
+  - id: UTL-PB-010
+    title: A power load that jumps is doubted until another reading agrees
+    text: >
+      A substation load far above anything it has read before is one surprising reading, not yet an
+      overload. Hold the grid request until a second reading in the same direction confirms it, and say
+      in the record why nothing was sent.
+    applies_to: [overload]
+    uses: []
+    escalates_to: [UTL-PB-005]
+
+  - id: UTL-PB-011
+    title: End an overload or a smog advisory only on a trusted reading
+    text: >
+      An overload clears when the load is at or below 80 percent of capacity; smog clears when the air
+      quality index is 100 or less. Close the incident on a trusted reading, not on the absence of new ones.
+    applies_to: [overload, smog]
+    uses: []
+

@@ -1,0 +1,19 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "police-dispatch-09",
+  "action": "dispatch_unit",
+  "params": {
+    "unit_type": "police",
+    "zone_id": "zone-08",
+    "incident_id": "inc-0001",
+    "mode": "contain",
+    "target_id": "cit-88213"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Perimeter for cit-88213 (tight-perimeter). Chose tight-perimeter: 2 unit(s) seal the suspect in and 1 stay uncommitted.",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "7ae4ecf5d8fe3521eb50068a233ed12d84275d44ef395170f527f52b33eb0b01"
+  }
+}

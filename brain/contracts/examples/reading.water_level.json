@@ -1,0 +1,16 @@
+{
+  "contract_version": "2026-09-17",
+  "sensor_id": "wl-01-01",
+  "type": "water_level",
+  "zone_id": "zone-01",
+  "timestamp": "2026-10-12T19:41:57.054Z",
+  "sequence_no": 1,
+  "value": {
+    "level_m": 1.35,
+    "flow_rate_m3s": 2.4
+  },
+  "provenance": {
+    "signed_by": "twin",
+    "hmac": "a44c35ff023a8f7740cd6f5317efca7a09dea661da2b8737d09c474708d0dcf0"
+  }
+}

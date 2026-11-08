@@ -1,0 +1,408 @@
+asyncapi: 3.0.0
+info:
+  title: City Brain event feed
+  version: '2026-09-17'
+  description: CloudEvents 1.0 over Server-Sent Events. Replays the run so far, then
+    follows. Each event carries `traceid = <sensor_id>:<sequence_no>` of the reading
+    that caused it.
+servers:
+  brain:
+    host: localhost:8080
+    protocol: http
+    description: GET /events (text/event-stream)
+channels:
+  events:
+    address: /events
+    messages:
+      brain.action.blocked:
+        $ref: '#/components/messages/brain.action.blocked'
+      brain.action.requested:
+        $ref: '#/components/messages/brain.action.requested'
+      brain.action.result:
+        $ref: '#/components/messages/brain.action.result'
+      brain.agent.fallback:
+        $ref: '#/components/messages/brain.agent.fallback'
+      brain.case.reviewed:
+        $ref: '#/components/messages/brain.case.reviewed'
+      brain.corridor.opened:
+        $ref: '#/components/messages/brain.corridor.opened'
+      brain.decision.made:
+        $ref: '#/components/messages/brain.decision.made'
+      brain.degraded:
+        $ref: '#/components/messages/brain.degraded'
+      brain.deliberation.finished:
+        $ref: '#/components/messages/brain.deliberation.finished'
+      brain.deliberation.started:
+        $ref: '#/components/messages/brain.deliberation.started'
+      brain.desk.assessed:
+        $ref: '#/components/messages/brain.desk.assessed'
+      brain.desk.decided:
+        $ref: '#/components/messages/brain.desk.decided'
+      brain.evidence.retracted:
+        $ref: '#/components/messages/brain.evidence.retracted'
+      brain.forecast.warned:
+        $ref: '#/components/messages/brain.forecast.warned'
+      brain.guardian.recovered:
+        $ref: '#/components/messages/brain.guardian.recovered'
+      brain.guardian.unavailable:
+        $ref: '#/components/messages/brain.guardian.unavailable'
+      brain.human.needed:
+        $ref: '#/components/messages/brain.human.needed'
+      brain.incident.closed:
+        $ref: '#/components/messages/brain.incident.closed'
+      brain.incident.opened:
+        $ref: '#/components/messages/brain.incident.opened'
+      brain.llm.status:
+        $ref: '#/components/messages/brain.llm.status'
+      brain.math.estimated:
+        $ref: '#/components/messages/brain.math.estimated'
+      brain.mcp.called:
+        $ref: '#/components/messages/brain.mcp.called'
+      brain.options.prepared:
+        $ref: '#/components/messages/brain.options.prepared'
+      brain.pack.bid:
+        $ref: '#/components/messages/brain.pack.bid'
+      brain.pack.rejected:
+        $ref: '#/components/messages/brain.pack.rejected'
+      brain.pack.uncovered:
+        $ref: '#/components/messages/brain.pack.uncovered'
+      brain.percept.surprise:
+        $ref: '#/components/messages/brain.percept.surprise'
+      brain.perimeter.checked:
+        $ref: '#/components/messages/brain.perimeter.checked'
+      brain.plan.compiled:
+        $ref: '#/components/messages/brain.plan.compiled'
+      brain.plan.outdated:
+        $ref: '#/components/messages/brain.plan.outdated'
+      brain.plan.reconciled:
+        $ref: '#/components/messages/brain.plan.reconciled'
+      brain.plan.verified:
+        $ref: '#/components/messages/brain.plan.verified'
+      brain.push.refused:
+        $ref: '#/components/messages/brain.push.refused'
+      brain.reading.received:
+        $ref: '#/components/messages/brain.reading.received'
+      brain.reading.rejected:
+        $ref: '#/components/messages/brain.reading.rejected'
+      brain.recovered:
+        $ref: '#/components/messages/brain.recovered'
+      brain.scenario.finished:
+        $ref: '#/components/messages/brain.scenario.finished'
+      brain.scenario.started:
+        $ref: '#/components/messages/brain.scenario.started'
+      brain.session.reset:
+        $ref: '#/components/messages/brain.session.reset'
+      brain.shed.planned:
+        $ref: '#/components/messages/brain.shed.planned'
+      brain.solver.fallback:
+        $ref: '#/components/messages/brain.solver.fallback'
+      brain.solver.solved:
+        $ref: '#/components/messages/brain.solver.solved'
+      brain.solver.started:
+        $ref: '#/components/messages/brain.solver.started'
+      brain.started:
+        $ref: '#/components/messages/brain.started'
+      brain.state.discarded:
+        $ref: '#/components/messages/brain.state.discarded'
+      brain.state.restored:
+        $ref: '#/components/messages/brain.state.restored'
+      brain.suspect.assessed:
+        $ref: '#/components/messages/brain.suspect.assessed'
+      brain.suspect.tracked:
+        $ref: '#/components/messages/brain.suspect.tracked'
+      brain.twin.capabilities.changed:
+        $ref: '#/components/messages/brain.twin.capabilities.changed'
+      brain.unit.status:
+        $ref: '#/components/messages/brain.unit.status'
+      brain.units.released:
+        $ref: '#/components/messages/brain.units.released'
+      brain.verdict.received:
+        $ref: '#/components/messages/brain.verdict.received'
+      brain.workspace.deferred:
+        $ref: '#/components/messages/brain.workspace.deferred'
+      brain.workspace.ignited:
+        $ref: '#/components/messages/brain.workspace.ignited'
+      brain.workspace.released:
+        $ref: '#/components/messages/brain.workspace.released'
+operations:
+  receiveEvents:
+    action: receive
+    channel:
+      $ref: '#/channels/events'
+components:
+  messages:
+    brain.action.blocked:
+      name: brain.action.blocked
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.action.requested:
+      name: brain.action.requested
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.action.result:
+      name: brain.action.result
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.agent.fallback:
+      name: brain.agent.fallback
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.case.reviewed:
+      name: brain.case.reviewed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.corridor.opened:
+      name: brain.corridor.opened
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.decision.made:
+      name: brain.decision.made
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.degraded:
+      name: brain.degraded
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.deliberation.finished:
+      name: brain.deliberation.finished
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.deliberation.started:
+      name: brain.deliberation.started
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.desk.assessed:
+      name: brain.desk.assessed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.desk.decided:
+      name: brain.desk.decided
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.evidence.retracted:
+      name: brain.evidence.retracted
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.forecast.warned:
+      name: brain.forecast.warned
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.guardian.recovered:
+      name: brain.guardian.recovered
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.guardian.unavailable:
+      name: brain.guardian.unavailable
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.human.needed:
+      name: brain.human.needed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.incident.closed:
+      name: brain.incident.closed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.incident.opened:
+      name: brain.incident.opened
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.llm.status:
+      name: brain.llm.status
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.math.estimated:
+      name: brain.math.estimated
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.mcp.called:
+      name: brain.mcp.called
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.options.prepared:
+      name: brain.options.prepared
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.pack.bid:
+      name: brain.pack.bid
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.pack.rejected:
+      name: brain.pack.rejected
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.pack.uncovered:
+      name: brain.pack.uncovered
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.percept.surprise:
+      name: brain.percept.surprise
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.perimeter.checked:
+      name: brain.perimeter.checked
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.plan.compiled:
+      name: brain.plan.compiled
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.plan.outdated:
+      name: brain.plan.outdated
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.plan.reconciled:
+      name: brain.plan.reconciled
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.plan.verified:
+      name: brain.plan.verified
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.push.refused:
+      name: brain.push.refused
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.reading.received:
+      name: brain.reading.received
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.reading.rejected:
+      name: brain.reading.rejected
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.recovered:
+      name: brain.recovered
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.scenario.finished:
+      name: brain.scenario.finished
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.scenario.started:
+      name: brain.scenario.started
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.session.reset:
+      name: brain.session.reset
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.shed.planned:
+      name: brain.shed.planned
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.solver.fallback:
+      name: brain.solver.fallback
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.solver.solved:
+      name: brain.solver.solved
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.solver.started:
+      name: brain.solver.started
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.started:
+      name: brain.started
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.state.discarded:
+      name: brain.state.discarded
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.state.restored:
+      name: brain.state.restored
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.suspect.assessed:
+      name: brain.suspect.assessed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.suspect.tracked:
+      name: brain.suspect.tracked
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.twin.capabilities.changed:
+      name: brain.twin.capabilities.changed
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.unit.status:
+      name: brain.unit.status
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.units.released:
+      name: brain.units.released
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.verdict.received:
+      name: brain.verdict.received
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.workspace.deferred:
+      name: brain.workspace.deferred
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.workspace.ignited:
+      name: brain.workspace.ignited
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json
+    brain.workspace.released:
+      name: brain.workspace.released
+      contentType: application/json
+      payload:
+        $ref: ../contracts/schemas/TimelineEvent.schema.json

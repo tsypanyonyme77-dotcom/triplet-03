@@ -1,0 +1,26 @@
+# Disaster response reflexes: floods.
+rules:
+  - id: UTL-001
+    name: flood.alert
+    scope: condition
+    description: A flood is reported. Warn the zone to avoid low-lying roads.
+    when:
+      incident.type: flood
+    do:
+      - action: broadcast_alert
+        params:
+          message: "Flooding reported. Avoid low-lying roads."
+          channel: app
+          zone_id: $incident.zone_id
+
+  - id: UTL-002
+    name: flood.valve.close
+    scope: condition
+    description: A flood is reported. Close the nearest valve to stop more water entering the zone.
+    when:
+      incident.type: flood
+    do:
+      - action: set_valve_state
+        params:
+          valve_id: $device.id
+          state: closed

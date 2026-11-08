@@ -1,0 +1,7 @@
+# Scrape the Brain. With tokens on, add:  authorization: {credentials_file: /etc/prometheus/brain-read-token}
+scrape_configs:
+  - job_name: city-brain
+    scrape_interval: 5s
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["brain:8080"]

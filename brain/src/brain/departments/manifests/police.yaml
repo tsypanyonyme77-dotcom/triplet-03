@@ -1,0 +1,22 @@
+# A department is data: what it listens to, what it may actuate, which rules it runs,
+# and which agents deliberate for it.
+code: POLICE
+name: Police
+subscribes: [citizen_activity, cctv_anomaly, gunshot, "emergency_call:police"]
+incident_types: [crime]
+# Least privilege: the gate refuses any action not listed here.
+actuators: ["dispatch_unit:police", broadcast_alert, recall_unit]
+facility_type: police_station
+needs: [dispatch_unit]          # without these the pack bids low
+reflex_rules: police.yaml
+# The deliberate tier. `model` is a role from config/models.yaml; tools are read-only.
+agents:
+  analyst:
+    model: strong   # weighs the evidence: the judgement most worth the larger model
+    tools: [graph.incident_evidence, graph.entity_timeline, graph.copresence, kb.search]
+  tactician:
+    model: fast
+    tools: [geo.nearest_units, geo.predict_escape, geo.containment_cut]
+  chief:
+    model: strong
+    tools: []

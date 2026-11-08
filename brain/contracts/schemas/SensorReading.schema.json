@@ -1,0 +1,217 @@
+{
+  "$defs": {
+    "Provenance": {
+      "properties": {
+        "signed_by": {
+          "title": "Signed By",
+          "type": "string"
+        },
+        "hmac": {
+          "title": "Hmac",
+          "type": "string"
+        },
+        "kid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kid"
+        },
+        "alg": {
+          "anyOf": [
+            {
+              "enum": [
+                "HS256",
+                "EdDSA"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alg"
+        }
+      },
+      "required": [
+        "signed_by",
+        "hmac"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    },
+    "ReadingRef": {
+      "properties": {
+        "sensor_id": {
+          "title": "Sensor Id",
+          "type": "string"
+        },
+        "sequence_no": {
+          "title": "Sequence No",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "sensor_id",
+        "sequence_no"
+      ],
+      "title": "ReadingRef",
+      "type": "object"
+    },
+    "TrustVerdict": {
+      "additionalProperties": true,
+      "description": "Guardian's answer to \"is this reading telling the truth?\" (agreed format).",
+      "properties": {
+        "verdict_id": {
+          "title": "Verdict Id",
+          "type": "string"
+        },
+        "reading_ref": {
+          "$ref": "#/$defs/ReadingRef"
+        },
+        "status": {
+          "$ref": "#/$defs/VerdictStatus"
+        },
+        "confidence": {
+          "default": 1.0,
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        },
+        "issued_at": {
+          "format": "date-time",
+          "title": "Issued At",
+          "type": "string"
+        },
+        "expires_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expires At"
+        }
+      },
+      "required": [
+        "verdict_id",
+        "reading_ref",
+        "status",
+        "issued_at"
+      ],
+      "title": "TrustVerdict",
+      "type": "object"
+    },
+    "VerdictStatus": {
+      "enum": [
+        "trusted",
+        "suspicious",
+        "untrusted",
+        "unavailable"
+      ],
+      "title": "VerdictStatus",
+      "type": "string"
+    }
+  },
+  "additionalProperties": true,
+  "description": "Common envelope carried by every sensor reading (Data Dictionary section 1).",
+  "properties": {
+    "contract_version": {
+      "title": "Contract Version",
+      "type": "string"
+    },
+    "sensor_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Sensor Id",
+      "type": "string"
+    },
+    "type": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Type",
+      "type": "string"
+    },
+    "zone_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Zone Id",
+      "type": "string"
+    },
+    "timestamp": {
+      "format": "date-time",
+      "title": "Timestamp",
+      "type": "string"
+    },
+    "sequence_no": {
+      "minimum": 0,
+      "title": "Sequence No",
+      "type": "integer"
+    },
+    "value": {
+      "additionalProperties": true,
+      "title": "Value",
+      "type": "object"
+    },
+    "provenance": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Provenance"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "department_code": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Department Code"
+    },
+    "trust": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TrustVerdict"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "contract_version",
+    "sensor_id",
+    "type",
+    "zone_id",
+    "timestamp",
+    "sequence_no",
+    "value"
+  ],
+  "title": "SensorReading",
+  "type": "object"
+}

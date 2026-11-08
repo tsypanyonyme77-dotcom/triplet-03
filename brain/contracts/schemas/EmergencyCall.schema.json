@@ -1,0 +1,40 @@
+{
+  "properties": {
+    "call_id": {
+      "pattern": "^[A-Za-z0-9._:#-]{1,64}$",
+      "title": "Call Id",
+      "type": "string"
+    },
+    "category": {
+      "enum": [
+        "fire",
+        "medical",
+        "police",
+        "flood",
+        "other"
+      ],
+      "title": "Category",
+      "type": "string"
+    },
+    "caller_confidence": {
+      "anyOf": [
+        {
+          "maximum": 1.0,
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Caller Confidence"
+    }
+  },
+  "required": [
+    "call_id",
+    "category"
+  ],
+  "title": "EmergencyCall",
+  "type": "object"
+}

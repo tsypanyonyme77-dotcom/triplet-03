@@ -1,0 +1,93 @@
+{
+  "$defs": {
+    "Provenance": {
+      "properties": {
+        "signed_by": {
+          "title": "Signed By",
+          "type": "string"
+        },
+        "hmac": {
+          "title": "Hmac",
+          "type": "string"
+        },
+        "kid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Kid"
+        },
+        "alg": {
+          "anyOf": [
+            {
+              "enum": [
+                "HS256",
+                "EdDSA"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Alg"
+        }
+      },
+      "required": [
+        "signed_by",
+        "hmac"
+      ],
+      "title": "Provenance",
+      "type": "object"
+    }
+  },
+  "description": "A person's approval of one high-impact call (extension): signed, bound to the call's parameters, used once.",
+  "properties": {
+    "approval_id": {
+      "title": "Approval Id",
+      "type": "string"
+    },
+    "proposal_hash": {
+      "title": "Proposal Hash",
+      "type": "string"
+    },
+    "incident_id": {
+      "title": "Incident Id",
+      "type": "string"
+    },
+    "approver": {
+      "title": "Approver",
+      "type": "string"
+    },
+    "issued_at": {
+      "format": "date-time",
+      "title": "Issued At",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "title": "Expires At",
+      "type": "string"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    }
+  },
+  "required": [
+    "approval_id",
+    "proposal_hash",
+    "incident_id",
+    "approver",
+    "issued_at",
+    "expires_at",
+    "provenance"
+  ],
+  "title": "Approval",
+  "type": "object"
+}

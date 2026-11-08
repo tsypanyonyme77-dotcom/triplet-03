@@ -1,0 +1,19 @@
+{
+  "contract_version": "2026-09-17",
+  "actuator_id": "police-dispatch-05",
+  "action": "dispatch_unit",
+  "params": {
+    "unit_type": "police",
+    "zone_id": "zone-07",
+    "incident_id": "inc-0001",
+    "mode": "pursuit",
+    "target_id": "cit-88213"
+  },
+  "requesting_layer": "city_brain",
+  "justification": "Suspect cit-88213 score 0.82: copresence (cit-feed-07#4); flight (cit-feed-07#4). Rule POL-001.",
+  "trust_ref": "verdict-000004",
+  "provenance": {
+    "signed_by": "city_brain",
+    "hmac": "846249a621e4baeda8fe0a7ea7326d462267811059c22314125e4ace81a37f4e"
+  }
+}

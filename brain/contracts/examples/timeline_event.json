@@ -1,0 +1,38 @@
+{
+  "specversion": "1.0",
+  "id": "09632bba-95d6-4585-96d7-8d41014a82ac",
+  "source": "city-brain",
+  "type": "brain.decision.made",
+  "time": "2026-10-12T20:28:33.980495Z",
+  "subject": "inc-0001",
+  "datacontenttype": "application/json",
+  "traceid": "cit-feed-07:4",
+  "data": {
+    "decision_id": "dec-0002",
+    "department": "POLICE",
+    "tier": "deliberate",
+    "action": "dispatch_unit",
+    "actuator_id": "police-dispatch-05",
+    "params": {
+      "unit_type": "police",
+      "zone_id": "zone-04",
+      "incident_id": "inc-0001",
+      "mode": "contain",
+      "target_id": "cit-88213"
+    },
+    "justification": "Perimeter for cit-88213 (tight-perimeter). Chose tight-perimeter: 2 unit(s) seal the suspect in and 1 stay uncommitted.",
+    "citations": [
+      "cam-07-02#1",
+      "cit-feed-07#4",
+      "verdict-000004",
+      "POL-PB-002",
+      "POL-PB-006",
+      "POL-PB-005"
+    ],
+    "trust_ref": "verdict-000004",
+    "config_hash": "707878344337"
+  },
+  "timing": {
+    "seconds": 0.42
+  }
+}

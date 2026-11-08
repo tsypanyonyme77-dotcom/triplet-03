@@ -1,0 +1,280 @@
+{
+ "zones": [
+  {
+   "id": "zone-01",
+   "name": "Harbor",
+   "x": 0,
+   "y": 0
+  },
+  {
+   "id": "zone-02",
+   "name": "Old Town",
+   "x": 1,
+   "y": 0
+  },
+  {
+   "id": "zone-03",
+   "name": "University",
+   "x": 2,
+   "y": 0
+  },
+  {
+   "id": "zone-04",
+   "name": "Market",
+   "x": 0,
+   "y": 1
+  },
+  {
+   "id": "zone-05",
+   "name": "Civic Center",
+   "x": 1,
+   "y": 1
+  },
+  {
+   "id": "zone-06",
+   "name": "Riverside",
+   "x": 2,
+   "y": 1
+  },
+  {
+   "id": "zone-07",
+   "name": "Downtown",
+   "x": 0,
+   "y": 2
+  },
+  {
+   "id": "zone-08",
+   "name": "Station",
+   "x": 1,
+   "y": 2
+  },
+  {
+   "id": "zone-09",
+   "name": "Industrial",
+   "x": 2,
+   "y": 2
+  }
+ ],
+ "adjacency": [
+  [
+   "zone-01",
+   "zone-02"
+  ],
+  [
+   "zone-02",
+   "zone-03"
+  ],
+  [
+   "zone-04",
+   "zone-05"
+  ],
+  [
+   "zone-05",
+   "zone-06"
+  ],
+  [
+   "zone-07",
+   "zone-08"
+  ],
+  [
+   "zone-08",
+   "zone-09"
+  ],
+  [
+   "zone-01",
+   "zone-04"
+  ],
+  [
+   "zone-02",
+   "zone-05"
+  ],
+  [
+   "zone-03",
+   "zone-06"
+  ],
+  [
+   "zone-04",
+   "zone-07"
+  ],
+  [
+   "zone-05",
+   "zone-08"
+  ],
+  [
+   "zone-06",
+   "zone-09"
+  ]
+ ],
+ "exits": [
+  "zone-01",
+  "zone-03",
+  "zone-09"
+ ],
+ "facilities": [
+  {
+   "id": "ps-05",
+   "type": "police_station",
+   "zone_id": "zone-05",
+   "actuator_id": "police-dispatch-05",
+   "units": 2
+  },
+  {
+   "id": "ps-09",
+   "type": "police_station",
+   "zone_id": "zone-09",
+   "actuator_id": "police-dispatch-09",
+   "units": 2
+  },
+  {
+   "id": "fs-04",
+   "type": "fire_station",
+   "zone_id": "zone-04",
+   "actuator_id": "fire-dispatch-04",
+   "units": 2
+  },
+  {
+   "id": "hosp-03",
+   "type": "hospital",
+   "zone_id": "zone-03",
+   "actuator_id": "ambulance-dispatch-03",
+   "units": 2
+  },
+  {
+   "id": "sig-05-01",
+   "type": "signal_controller",
+   "zone_id": "zone-05",
+   "actuator_id": "signal-05-01"
+  },
+  {
+   "id": "valve-01-01",
+   "type": "valve",
+   "zone_id": "zone-01",
+   "actuator_id": "valve-01-01"
+  },
+  {
+   "id": "grid-04",
+   "type": "grid_breaker",
+   "zone_id": "zone-04",
+   "actuator_id": "grid-04"
+  },
+  {
+   "id": "grid-03",
+   "type": "grid_breaker",
+   "zone_id": "zone-03",
+   "actuator_id": "grid-03"
+  },
+  {
+   "id": "grid-06",
+   "type": "grid_breaker",
+   "zone_id": "zone-06",
+   "actuator_id": "grid-06"
+  }
+ ],
+ "sensors": [
+  {
+   "id": "cam-07-02",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-07"
+  },
+  {
+   "id": "tcam-05-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "cit-feed-03",
+   "type": "citizen_activity",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "cit-feed-07",
+   "type": "citizen_activity",
+   "zone_id": "zone-07"
+  },
+  {
+   "id": "cit-feed-08",
+   "type": "citizen_activity",
+   "zone_id": "zone-08"
+  },
+  {
+   "id": "cit-feed-04",
+   "type": "citizen_activity",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "cit-feed-05",
+   "type": "citizen_activity",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "cit-wifi-07",
+   "type": "citizen_activity",
+   "zone_id": "zone-07"
+  },
+  {
+   "id": "wl-01-01",
+   "type": "water_level",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "wl-01-02",
+   "type": "water_level",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "call-feed-01",
+   "type": "emergency_call",
+   "zone_id": "zone-01"
+  },
+  {
+   "id": "tcam-06-01",
+   "type": "traffic_camera",
+   "zone_id": "zone-06"
+  },
+  {
+   "id": "call-feed-06",
+   "type": "emergency_call",
+   "zone_id": "zone-06"
+  },
+  {
+   "id": "cam-05-03",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "call-feed-05",
+   "type": "emergency_call",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "cam-03-01",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "cam-05-02",
+   "type": "cctv_anomaly",
+   "zone_id": "zone-05"
+  },
+  {
+   "id": "pm-04-01",
+   "type": "power_load",
+   "zone_id": "zone-04"
+  },
+  {
+   "id": "aq-02-01",
+   "type": "air_quality",
+   "zone_id": "zone-02"
+  },
+  {
+   "id": "pm-03-01",
+   "type": "power_load",
+   "zone_id": "zone-03"
+  },
+  {
+   "id": "pm-06-01",
+   "type": "power_load",
+   "zone_id": "zone-06"
+  }
+ ]
+}

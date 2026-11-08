@@ -1,0 +1,59 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "unit_type": {
+      "enum": [
+        "police",
+        "ambulance",
+        "fire"
+      ],
+      "title": "Unit Type",
+      "type": "string"
+    },
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    },
+    "incident_id": {
+      "title": "Incident Id",
+      "type": "string"
+    },
+    "mode": {
+      "anyOf": [
+        {
+          "enum": [
+            "respond",
+            "pursuit",
+            "contain",
+            "patrol"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Mode"
+    },
+    "target_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Target Id"
+    }
+  },
+  "required": [
+    "unit_type",
+    "zone_id",
+    "incident_id"
+  ],
+  "title": "DispatchUnitParams",
+  "type": "object"
+}

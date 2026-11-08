@@ -1,0 +1,55 @@
+# Mobility playbook: traffic jams and the signals that clear them. The department is reflex-only today.
+department: MOBILITY
+items:
+  - id: MOB-PB-001
+    title: Hold the nearest signal on green to clear a jam
+    text: >
+      When a jam incident is open, because congestion on a traffic camera is at 0.7 or more, set the
+      nearest signal controller to green for two minutes so the queue can clear. A signal change is a
+      low-impact call and one trusted source is enough.
+    applies_to: [jam]
+    uses: [set_signal_phase]
+    requires: [MOB-PB-002, MOB-PB-004]
+    conflicts_with: [MOB-PB-003]
+
+  - id: MOB-PB-002
+    title: Never drive a signal the Guardian has quarantined
+    text: >
+      If the Guardian has isolated a signal controller, do not send it a phase change. The gate refuses
+      the call. Pick the next nearest controller or leave the jam to clear on its own.
+    applies_to: [jam]
+    uses: [set_signal_phase]
+
+  - id: MOB-PB-003
+    title: Smoke on the road means a fire, not a jam
+    text: >
+      A congested road with smoke on the camera is not a traffic problem. The jam incident does not end
+      while there is smoke, and a signal change must not delay the fire units. Leave the signal alone.
+    applies_to: [jam, fire]
+    uses: []
+    conflicts_with: [MOB-PB-001]
+
+  - id: MOB-PB-004
+    title: Give a changed signal time to work
+    text: >
+      A signal phase set for two minutes reverts on its own. Do not change the same signal again while
+      the first change is running. Flapping a signal makes a jam worse. A minimum gap between two
+      changes is still waiting for the Mobility team's agreement, so the gate does not enforce one yet.
+    applies_to: [jam]
+    uses: [set_signal_phase]
+
+  - id: MOB-PB-005
+    title: End a jam only on a trusted reading that it has cleared
+    text: >
+      The jam incident closes when congestion falls to 0.4 or less and there is no smoke. The gap between
+      opening at 0.7 and closing at 0.4 stops one noisy reading from opening and closing it again and again.
+    applies_to: [jam]
+    uses: []
+
+  - id: MOB-PB-006
+    title: A jam is low priority next to a crime, a fire or a flood
+    text: >
+      A jam has a low severity, so it is lit without taking one of the two attention slots. A robbery
+      or a fire is never made to wait because a road is busy.
+    applies_to: [jam]
+    uses: []

@@ -1,0 +1,38 @@
+{
+  "calm": {
+    "false_doubts_per_1000": 0.0
+  },
+  "heavy": {
+    "false_doubts_per_1000": 2.0
+  },
+  "skewed": {
+    "false_doubts_per_1000": 7.4
+  },
+  "season": {
+    "false_doubts_per_1000": 0.0
+  },
+  "step_s": {
+    "delay": 3
+  },
+  "step_m": {
+    "delay": 3
+  },
+  "step_l": {
+    "delay": 3
+  },
+  "step_back": {
+    "delay": 3,
+    "recovery_false_doubts": 0,
+    "recovery_delay": 1
+  },
+  "spike": {
+    "spike_adopted": 0,
+    "spike_reported": 1
+  },
+  "ramp": {
+    "ramp_alarms": 0
+  },
+  "walk": {
+    "walk_spike_reported": 1
+  }
+}

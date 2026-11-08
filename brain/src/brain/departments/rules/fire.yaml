@@ -1,0 +1,15 @@
+# Fire reflexes. `condition` rules run once per open fire incident.
+rules:
+  - id: FIR-001
+    name: fire.respond
+    scope: condition
+    description: A fire is reported. Send the nearest fire unit to the zone.
+    when:
+      incident.type: fire
+    do:
+      - action: dispatch_unit
+        params:
+          unit_type: fire
+          zone_id: $incident.zone_id
+          incident_id: $incident.incident_id
+          mode: respond

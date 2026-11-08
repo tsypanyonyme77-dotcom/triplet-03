@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="The bounded improvement loop: observe, measure, propose, verify, promote, audit, then observe again." viewBox="0 0 1240 512" width="1240" height="512"><title>The improvement loop</title><style>
+svg { font-family: Arial, Helvetica, sans-serif; }
+.box, .card { fill: #fff; stroke: #000; stroke-width: 1.4; }
+.box.new, .card.new { fill: #e3e3e3; }
+.box.partner, .card.partner { fill: #fff; stroke-dasharray: 6 4; }
+.box.gate, .card.gate { fill: #fff; stroke-width: 3.2; }
+.frame { fill: none; stroke: #777; stroke-width: 1.2; }
+.tile { fill: #fff; stroke: #999; stroke-width: 1; }
+.arrow { fill: none; stroke: #000; stroke-width: 1.6; }
+.arrow.ember { stroke-dasharray: 7 4; stroke-width: 2.2; }
+.headfill, .headember { fill: #000; }
+.t { font: 700 15px Arial, Helvetica, sans-serif; fill: #000; }
+.s { font: 400 12.5px Arial, Helvetica, sans-serif; fill: #222; }
+.k { font: 400 12px "Courier New", monospace; fill: #333; letter-spacing: .04em; }
+.an { font: 400 12px Arial, Helvetica, sans-serif; fill: #333; text-transform: uppercase; letter-spacing: .06em; }
+.cortex { fill: #f1f1f1; stroke: #000; stroke-width: 1.4; }
+.cbl { fill: #f1f1f1; stroke: #000; stroke-width: 1.2; stroke-dasharray: 3 4; }
+.stem { fill: #f1f1f1; stroke: #000; stroke-width: 1.2; }
+.wire { fill: none; stroke: #444; stroke-width: 1.5; }
+.wire.out { stroke: #000; stroke-width: 2.4; stroke-dasharray: 7 4; }
+.tipfill { fill: #000; }
+.dot { fill: #555; stroke: #000; stroke-width: 1; }
+.dot.gate { fill: #000; }
+.dot.agent { fill: #fff; stroke-width: 2.4; }
+.dot.twin { fill: #fff; stroke-dasharray: 3 2; }
+image { filter: grayscale(1) contrast(1.1); }
+</style><rect width="100%" height="100%" fill="#fff"/><defs><marker id="head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="headfill"/></marker><marker id="headember" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="headember"/></marker></defs><path class="arrow " d="M747 92 L862 121" marker-end="url(#head)"/><path class="arrow " d="M992 206 L992 292" marker-end="url(#head)"/><path class="arrow " d="M864 377 L749 406" marker-end="url(#head)"/><path class="arrow " d="M492 407 L376 378" marker-end="url(#head)"/><path class="arrow " d="M247 294 L247 208" marker-end="url(#head)"/><path class="arrow " d="M374 122 L490 93" marker-end="url(#head)"/><g><rect class="box " x="495" y="20" width="250" height="96" rx="6"/><text class="t" x="509" y="46">Observe</text><text class="s" x="509" y="66">Closed incidents become episodes.</text><text class="s" x="509" y="82">Logs are kept with their hash</text><text class="s" x="509" y="98">chain.</text></g><g><rect class="box new" x="867" y="115" width="250" height="96" rx="6"/><text class="t" x="881" y="141">Measure</text><text class="s" x="881" y="161">Benchmarks with a ground truth:</text><text class="s" x="881" y="177">solver regret, retrieval recall,</text><text class="s" x="881" y="193">forward-model loss.</text></g><g><rect class="box " x="867" y="305" width="250" height="96" rx="6"/><text class="t" x="881" y="331">Propose</text><text class="s" x="881" y="351">Sleep proposes reflexes. The</text><text class="s" x="881" y="367">Academy proposes a listed number.</text></g><g><rect class="box new" x="495" y="400" width="250" height="96" rx="6"/><text class="t" x="509" y="426">Verify</text><text class="s" x="509" y="446">Held-out seeds from 1000, the</text><text class="s" x="509" y="462">whole Test Book, the conformance</text><text class="s" x="509" y="478">kit, the red-team suite.</text></g><g><rect class="box " x="122" y="305" width="250" height="96" rx="6"/><text class="t" x="136" y="331">Promote</text><text class="s" x="136" y="351">A signed overlay, one step at a</text><text class="s" x="136" y="367">time, reversible.</text></g><g><rect class="box new" x="122" y="115" width="250" height="96" rx="6"/><text class="t" x="136" y="141">Audit</text><text class="s" x="136" y="161">A dated report of every check and</text><text class="s" x="136" y="177">its result.</text></g><text class="k" x="620" y="228" text-anchor="middle">BOUNDED</text><text class="t" x="620" y="250" text-anchor="middle">16 listed parameters.</text><text class="s" x="620" y="270" text-anchor="middle">The gate, tactics, suspect scoring, triage,</text><text class="s" x="620" y="286" text-anchor="middle">learning and the optimiser are not on the list.</text><text class="s" x="620" y="306" text-anchor="middle">No signal from the outcome of a dispatch.</text></svg>

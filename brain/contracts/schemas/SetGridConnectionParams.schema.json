@@ -1,0 +1,23 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "zone_id": {
+      "title": "Zone Id",
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "connected",
+        "disconnected"
+      ],
+      "title": "State",
+      "type": "string"
+    }
+  },
+  "required": [
+    "zone_id",
+    "state"
+  ],
+  "title": "SetGridConnectionParams",
+  "type": "object"
+}

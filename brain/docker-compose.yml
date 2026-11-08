@@ -1,0 +1,164 @@
+# The City Brain with its two stand-in partners, one command:   scripts/up.sh   (or: docker compose up -d --wait)
+# Profiles: `core` (Brain + mock Twin + mock Guardian + Neo4j for the city graph + Qdrant for the knowledge vectors), `full` (the same, read from
+# deploy/compose/partners.full.yaml, with the agent teams on a real model when .env holds a key), `mqtt` (a broker), `obs` (Jaeger for traces, Prometheus and Grafana for metrics: `scripts/up.sh full obs`). `make help` lists the commands.
+# Written to be `include:`d by the triplet's root compose file: its own project name and network, every host port from an
+# environment variable, and nothing published beyond 127.0.0.1.
+name: city-brain
+
+x-brain: &brain
+  image: city-brain/brain:dev
+  pull_policy: never
+  restart: unless-stopped
+  networks: [city]
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    TWIN_HMAC_SECRET: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}
+    BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-dev-only-brain-secret}
+    BRAIN_APPROVAL_SECRET: ${BRAIN_APPROVAL_SECRET:-dev-only-approval-secret}
+    NEO4J_PASSWORD: ${NEO4J_PASSWORD:-citybrain-local-pw}
+    OTLP_ENDPOINT: ${OTLP_ENDPOINT:-}  # set by `scripts/up.sh full obs`: one span per timeline event goes to Jaeger
+
+services:
+  twin:
+    <<: *brain
+    profiles: ["core", "full"]
+    entrypoint: ["python", "-m", "mocks.twin"]
+    command: ["--host", "0.0.0.0", "--port", "8765"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket;socket.create_connection(('127.0.0.1',8765),2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  guardian:
+    <<: *brain
+    profiles: ["core", "full"]
+    entrypoint: ["python", "-m", "mocks.guardian"]
+    command: ["--host", "0.0.0.0", "--port", "8766"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8766/health',timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+
+  brain:
+    <<: *brain
+    profiles: ["core", "full"]
+    # BRAIN_CONFIG and BRAIN_FLAGS come from the Makefile (`make full`): the full config, and --llm when .env holds a GROQ_API_KEY.
+    command: serve --host 0.0.0.0 --config ${BRAIN_CONFIG:-deploy/compose/partners.compose.yaml} ${BRAIN_FLAGS:-}
+    ports:
+      - "127.0.0.1:${BRAIN_PORT:-8080}:8080"
+    volumes:
+      - brain-state:/app/state
+      - brain-logs:/app/logs
+    depends_on:
+      twin: {condition: service_healthy}
+      guardian: {condition: service_healthy}
+      neo4j: {condition: service_healthy, required: false}
+      qdrant: {condition: service_healthy, required: false}
+
+  neo4j:
+    image: neo4j:5.26-community
+    profiles: ["core", "full"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-citybrain-local-pw}
+      NEO4J_dbms_usage__report_enabled: "false"
+    volumes:
+      - neo4j-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:7474 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # The vector store behind `graph.backend: qdrant` with `qdrant_url: http://qdrant:6333`. `qdrant_fusion: server` lets it do the hybrid search.
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    profiles: ["core", "full"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${QDRANT_PORT:-6333}:6333"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # The broker for the MQTT Twin adapter (twin.adapter: mqtt). Not needed by the default stack. Publish the mock Twin's readings with
+  # `docker compose --profile mqtt run --rm twin-publisher` once the twin runs with --http.
+  mosquitto:
+    image: eclipse-mosquitto:2.0.20
+    profiles: ["mqtt"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${MQTT_PORT:-1883}:1883"
+    volumes:
+      - ./deploy/compose/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+      - mosquitto-data:/mosquitto/data
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_sub -h localhost -t '$$SYS/broker/version' -C 1 -W 3 || exit 1"]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+
+  # Where the Brain's spans go (OTLP_ENDPOINT, or `observability.otlp_endpoint` in the partners file). Open http://127.0.0.1:16686.
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    profiles: ["obs"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${JAEGER_UI_PORT:-16686}:16686"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
+  # Scrapes the Brain's GET /metrics every 5 s. http://127.0.0.1:9090
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./deploy/grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  # The "City Brain" dashboard (7 panels) over that Prometheus, provisioned at start-up. http://127.0.0.1:3000, read-only without a login.
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    networks: [city]
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-citybrain-local-pw}
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ./deploy/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./deploy/grafana/dashboard.json:/var/lib/grafana/dashboards/city-brain.json:ro
+    depends_on: [prometheus]
+
+networks:
+  city:
+
+volumes:
+  brain-state:
+  brain-logs:
+  neo4j-data:
+  mosquitto-data:
+  qdrant-data:

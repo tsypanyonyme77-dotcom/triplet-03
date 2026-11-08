@@ -1,0 +1,94 @@
+# Police playbook: the operating procedures the department's agents reason from.
+# Each item is one retrievable, citable unit. `helpful` / `harmful` are counters the
+# Academy will maintain from after-action reviews; they start at zero.
+department: POLICE
+items:
+  - id: POL-PB-001
+    title: Pursue an identified suspect at once
+    text: >
+      When a crime incident has a suspect supported by two independent trusted sources,
+      or by one direct identification, dispatch one police unit in pursuit immediately.
+      Do not wait for a fuller picture: the first minutes decide whether the suspect is caught.
+    applies_to: [crime]
+    uses: [dispatch_unit]
+    precedes: [POL-PB-002, POL-PB-005]
+    conflicts_with: [POL-PB-008]
+
+  - id: POL-PB-002
+    title: Contain a suspect fleeing on foot with a tight perimeter
+    text: >
+      If the suspect is fleeing and a small set of zones separates them from every city
+      exit, place one unit in each of those zones. Use the tight perimeter (the zones
+      adjacent to the suspect's area) when it needs three units or fewer and the case
+      confidence is medium or high. A perimeter that would leave no unit in reserve is not allowed.
+    applies_to: [crime]
+    uses: [dispatch_unit]
+    requires: [POL-PB-006]
+    escalates_to: [POL-PB-003]
+    conflicts_with: [POL-PB-007, POL-PB-009]
+
+  - id: POL-PB-003
+    title: Seal the exits when the tight perimeter is likely to be outrun
+    text: >
+      If units cannot reach the tight perimeter before the suspect crosses it, hold the
+      wider perimeter instead: the city exits and the junction zones leading to them.
+      This costs more units, so it is only for high-confidence cases with units to spare.
+    applies_to: [crime]
+    uses: [dispatch_unit]
+    requires: [POL-PB-006]
+    conflicts_with: [POL-PB-007, POL-PB-009]
+
+  - id: POL-PB-004
+    title: Intercept on the likeliest route when containment costs too much
+    text: >
+      When no perimeter fits within the available units, send a single unit to the zone
+      the suspect is most likely to enter next, and keep the pursuit unit on their trail.
+    applies_to: [crime]
+    uses: [dispatch_unit]
+    substitutes: [POL-PB-002, POL-PB-003]
+
+  - id: POL-PB-005
+    title: Warn the public near a violent crime
+    text: >
+      For robbery, assault or shooting, broadcast a short alert to the zone where the
+      crime happened asking people to avoid the area. Never include a description or
+      identity of the suspect, and never alert zones the incident has not touched.
+    applies_to: [crime]
+    uses: [broadcast_alert]
+
+  - id: POL-PB-006
+    title: Keep a reserve
+    text: >
+      Never commit every police unit to one incident. At least one unit in the city must
+      remain uncommitted so that a second incident can still be answered.
+    applies_to: [crime]
+    uses: [dispatch_unit]
+
+  - id: POL-PB-007
+    title: Running away is weak evidence when everyone runs
+    text: >
+      People flee a crime scene out of fear. If several people left the scene fast, flight
+      says little about any one of them: treat the case as low confidence, keep the pursuit
+      proportionate, and do not commit perimeter units until a camera or a second sensor
+      singles the suspect out.
+    applies_to: [crime]
+    uses: []
+    conflicts_with: [POL-PB-002, POL-PB-003]
+
+  - id: POL-PB-008
+    title: Watch, do not act, on thin or untrusted evidence
+    text: >
+      Evidence from a single source, or from a reading the Guardian has not marked trusted,
+      justifies watching an entity and nothing more. Record why no unit was sent.
+    applies_to: [crime]
+    uses: []
+    conflicts_with: [POL-PB-001]
+
+  - id: POL-PB-009
+    title: A suspect at a city exit cannot be contained
+    text: >
+      Once the suspect has reached an exit zone no perimeter can hold them. Do not spend
+      units on containment; keep the pursuit unit on them and alert the exit zone only.
+    applies_to: [crime]
+    uses: [dispatch_unit, broadcast_alert]
+    conflicts_with: [POL-PB-002, POL-PB-003]

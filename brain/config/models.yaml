@@ -1,0 +1,37 @@
+# LLM roles as `provider:model` strings (langchain init_chat_model). Groq needs GROQ_API_KEY.
+# Groq's rate limits are per model, so two models also give the team two allowances.
+# Offline: point both roles at a local model, e.g. "ollama:qwen3:8b".
+roles:
+  fast: groq:openai/gpt-oss-20b
+  strong: groq:openai/gpt-oss-120b
+# Extra arguments per role for init_chat_model. Left empty, "groq:" models get temperature 0, a
+# 20 s timeout and one retry (gpt-oss also low reasoning effort), and "ollama:" models get
+# num_ctx 8192, num_predict 1024, thinking off, temperature 0 (see config.py).
+role_options: {}
+team:
+  enabled: true          # the department team deliberates after the reflex tier has acted
+  departments: "off"     # on: Fire, Ambulance and medical, Traffic control, Disaster response and Utilities also get an agent desk (analyst and chief) that may advise neighbouring zones
+  llm: false             # false: scripted stand-ins. true: LLM agents (stand-ins take over if a model fails)
+  budget_s: 30.0
+  probe_s: 60.0         # with a hosted model: seconds between one-token calls that check the key and the quota (0 off)
+  head_start_s: 1.0     # the reading loop waits at most this long for a fast team before the next reading
+  max_revisions: 1
+  structured_output: auto
+  relative_times: false   # briefs carry seconds since the incident, never a calendar time (a rerun then sees the same prompt)
+  cassette: "off"         # off | record | replay | auto: keep every model call, or play them back with no model (needs cassette_path)
+  cassette_path: null
+explain:
+  narrate: "off"         # off: explanations are worded by code. llm: a model rephrases the one-line version (discarded if it adds a figure)
+  role: fast
+knowledge:
+  mmr: 0.0               # 0 off. Else a near-duplicate of a better hit is held against it (diversity, 0 to 1)
+  utility_weight: 0.0    # 0 off. Else items that helped more than they harmed rank higher
+  graphrag: "off"         # off | local: also walk the links between procedures, from the search's hits (a hit then carries its path)
+  hops: 2
+  team_tools: true       # on: the Analyst also gets graph.context, episodes.similar and kb.graph_search (read-only)
+  conflict_penalty: 0.0  # 0 off. Else the weaker of two items that conflict loses this share of its score (a half cost recall on the design questions)
+  seeds: 3               # the walk starts from the best 3 hits of each signal
+  decay: 0.5
+embeddings:
+  provider: auto         # auto: fastembed, falling back to hashing. Or name one explicitly.
+  model: BAAI/bge-small-en-v1.5

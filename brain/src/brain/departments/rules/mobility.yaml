@@ -1,0 +1,14 @@
+# Traffic reflexes.
+rules:
+  - id: MOB-001
+    name: jam.signal.green
+    scope: condition
+    description: Traffic is jammed. Hold the nearest signal on green for two minutes to clear the queue.
+    when:
+      incident.type: jam
+    do:
+      - action: set_signal_phase
+        params:
+          intersection_id: $device.id
+          phase: green
+          duration_s: 120
