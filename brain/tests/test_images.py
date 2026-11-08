@@ -33,7 +33,7 @@ def test_the_brain_image_holds_no_env_secret():
     assert "GROQ_API_KEY" not in history and ".env" not in history.replace(".envrc", "")
 
 
-def test_d3_passes_inside_the_image_with_no_network():
+def test_t14_passes_inside_the_image_with_no_network():
     result = docker("run", "--rm", "--network", "none", IMAGE, "scenario", "t14", "--inproc", "--speed", "0", "--quiet")
 
     assert result.returncode == 0 and "PASSED" in result.stdout, result.stdout[-400:] + result.stderr[-400:]

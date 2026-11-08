@@ -198,7 +198,7 @@ STEPS: list[Callable[[Context], Awaitable[Step]]] = [run_test_book, baselines, p
 
 
 def screens_step(out: Path, stamp: str) -> Step:
-    """The strips and the canopy on d3, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not."""
+    """The strips and the canopy on t14, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not."""
     if not (shutil.which("chromium") or shutil.which("chromium-browser") or shutil.which("google-chrome")):
         return Step("Screens", True, "skipped: no Chromium on this machine")
     root = config.home()
@@ -243,7 +243,7 @@ def _markdown(report: Report, quick: bool) -> str:
         if "table" in s.data:
             lines += ["", "## Ablations", "", s.data["table"]]
         if "rows" in s.data:
-            lines += ["", "## Learning curve (d3)", "", "| run | team runs | learned plans used | time to last action (ms) | same decisions as run 1 |", "|---|---|---|---|---|"]
+            lines += ["", "## Learning curve (t14)", "", "| run | team runs | learned plans used | time to last action (ms) | same decisions as run 1 |", "|---|---|---|---|---|"]
             lines += [f"| {r['run']} | {r['team_runs']} | {r['compiled_plans']} | {r['last_action_ms']} | {'yes' if r['decisions_equal_to_run_1'] else 'NO'} |" for r in s.data["rows"]]
     return "\n".join(lines) + "\n"
 

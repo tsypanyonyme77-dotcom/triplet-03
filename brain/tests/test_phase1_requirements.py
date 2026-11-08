@@ -9,7 +9,7 @@ import pytest
 
 ROOT = Path(__file__).parents[1]
 CARD = (ROOT / "INTERFACE.md").read_text()
-SCENARIOS = sorted(p.stem for p in (ROOT / "scenarios").glob("d*.json"))
+SCENARIOS = sorted(p.stem for p in (ROOT / "scenarios").glob("t*.json"))
 
 
 def test_the_interface_card_fits_one_page():
@@ -101,6 +101,6 @@ def test_the_test_book_is_generated_from_the_scenario_files_and_lists_every_scen
     committed = (ROOT / "docs" / "TESTBOOK-brain.md").read_text()
 
     assert committed == module.render(), "run: uv run python scripts/gen_testbook.py"
-    assert all(f"## {s}:" in committed for s in SCENARIOS)
+    assert all(f"## {s.upper()}:" in committed for s in SCENARIOS)
     for field in ("Layers involved", "Trigger", "Expected: Twin", "Expected: Guardian", "Expected: Brain", "How to verify"):
         assert committed.count(f"| {field} |") == len(SCENARIOS)

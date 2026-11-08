@@ -38,7 +38,7 @@ def test_the_relay_has_five_steps_in_the_order_the_jury_is_told():
 
 @node
 def test_every_demo_event_gets_a_plain_sentence_or_nothing():
-    logs = sorted((ROOT / "logs/canonical").glob("d?.jsonl"))
+    logs = sorted((ROOT / "logs/canonical").glob("t??.jsonl"))
     out = captions(*logs)["out"]
 
     assert any(row["story"] for row in out)

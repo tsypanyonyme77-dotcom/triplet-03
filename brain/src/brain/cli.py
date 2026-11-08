@@ -42,7 +42,7 @@ def build_parser() -> argparse.ArgumentParser:
     commands = parser.add_subparsers(dest="command", required=True)
 
     scenario = commands.add_parser("scenario", help="run one Test Book scenario against the mocks")
-    scenario.add_argument("id", help="scenario id, e.g. d3")
+    scenario.add_argument("id", help="scenario id, e.g. t14")
     scenario.add_argument("--deterministic", action="store_true", help="a fixed epoch and numbered ids: two runs of one scenario give the same log bytes")
     scenario.add_argument("--speed", type=float, default=1.0, help="playback speed; 0 releases all events at once")
     scenario.add_argument("--inproc", action="store_true", help="run the mocks inside this process instead of as servers")
@@ -61,7 +61,7 @@ def build_parser() -> argparse.ArgumentParser:
     run.set_defaults(handler=cmd_run)
 
     repro = commands.add_parser("repro", help="run a scenario again and report, level by level, what changed: decisions, stream, bytes, prompt")
-    repro.add_argument("id", help="scenario id, e.g. d3")
+    repro.add_argument("id", help="scenario id, e.g. t14")
     repro.add_argument("--runs", type=int, default=5)
     repro.add_argument("--processes", action="store_true", help="each run in a fresh process with its own PYTHONHASHSEED")
     repro.add_argument("--deterministic", action="store_true", help="a fixed epoch and numbered ids, so the bytes can repeat")
@@ -199,7 +199,7 @@ def build_parser() -> argparse.ArgumentParser:
     bench.add_argument("--out", help="write the scores to this JSON file")
     bench.set_defaults(handler=cmd_forward_bench)
 
-    attention = commands.add_parser("attention", help="where the workspace's slots and the team's runs went on the demo scenarios (d3, d4 by default)")
+    attention = commands.add_parser("attention", help="where the workspace's slots and the team's runs went on the demo scenarios (t14, t15 by default)")
     attention.add_argument("ids", nargs="*")
     attention.add_argument("--set", action="append", metavar="SECTION.FIELD=VALUE", help="a policy setting, e.g. workspace.slots_for=team (repeatable)")
     attention.add_argument("--out", help="write the rows to this JSON file")

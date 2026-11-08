@@ -42,7 +42,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 
 | Line | Points | Here |
 | --- | --- | --- |
-| Individual prototype functionality | 10 | The pipeline, the four scenarios, the decision engines |
+| Individual prototype functionality | 10 | The pipeline, the five scenarios, the decision engines |
 | Technical implementation and features | 5 | `decisions/`, `HOW-IT-WORKS.md`, `baseline/` |
 | Interoperability and connectivity between the 3 teams | 15 | Adapters behind two small ports (MCP, REST, MQTT), the conformance kit (`brain conformance`), `brain onboard`, the shared decisions in `decisions/` |
 | Security and trust mechanisms | 10 | The Safety gate, HMAC signing and replay checks, scoped tokens, signed human approval, `brain redteam` (24 attacks), `SECURITY.md` |

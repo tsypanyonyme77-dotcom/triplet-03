@@ -1,0 +1,174 @@
+{
+  "id": "t16",
+  "name": "A quarantined police station",
+  "short": "Quarantine",
+  "claim": "Proves: a device the Guardian has quarantined is never used, and the Brain still handles the incident with another one.",
+  "layers": [
+    "Twin",
+    "Guardian",
+    "City Brain"
+  ],
+  "description": "The same robbery and pursuit as T14, but the Guardian has quarantined police-dispatch-05, the station the Brain would pick first. All readings are trusted.",
+  "expected_brain": "Opens the crime incident and identifies cit-88213. The gate refuses every call to police-dispatch-05 with reason `quarantine`, so no unit leaves that station; the pursuit unit is dispatched from police-dispatch-09 instead, with a trust_ref.",
+  "how_to_verify": "Timeline screen; log logs/t16-*.jsonl; `uv run brain scenario t16`.",
+  "topology": "topology/small-city.json",
+  "guardian": {
+    "default": "trusted",
+    "overrides": {},
+    "quarantined": [
+      "police-dispatch-05"
+    ]
+  },
+  "events": [
+    {
+      "at_ms": 0,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-10021",
+        "activity": "walking",
+        "speed_kmh": 4.5,
+        "heading_zone_id": "zone-04",
+        "age": 41,
+        "wealth": "medium"
+      }
+    },
+    {
+      "at_ms": 200,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "loitering",
+        "speed_kmh": 0.8,
+        "age": 27,
+        "wealth": "low"
+      }
+    },
+    {
+      "at_ms": 400,
+      "sensor_id": "cit-feed-03",
+      "type": "citizen_activity",
+      "zone_id": "zone-03",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-30577",
+        "activity": "running",
+        "speed_kmh": 11.0,
+        "heading_zone_id": "zone-06"
+      }
+    },
+    {
+      "at_ms": 1000,
+      "sensor_id": "cam-07-02",
+      "type": "cctv_anomaly",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "anomaly_type": "robbery",
+        "confidence": 0.93
+      }
+    },
+    {
+      "at_ms": 1200,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-10021",
+        "activity": "walking",
+        "speed_kmh": 4.2,
+        "heading_zone_id": "zone-04"
+      }
+    },
+    {
+      "at_ms": 1500,
+      "sensor_id": "cit-feed-07",
+      "type": "citizen_activity",
+      "zone_id": "zone-07",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 17.5,
+        "heading_zone_id": "zone-08"
+      }
+    },
+    {
+      "at_ms": 2500,
+      "sensor_id": "cit-feed-08",
+      "type": "citizen_activity",
+      "zone_id": "zone-08",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 19.0,
+        "heading_zone_id": "zone-09"
+      }
+    },
+    {
+      "at_ms": 3000,
+      "sensor_id": "cit-feed-03",
+      "type": "citizen_activity",
+      "zone_id": "zone-03",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-30577",
+        "activity": "running",
+        "speed_kmh": 11.5,
+        "heading_zone_id": "zone-06"
+      }
+    },
+    {
+      "at_ms": 3500,
+      "sensor_id": "cit-feed-08",
+      "type": "citizen_activity",
+      "zone_id": "zone-08",
+      "department_code": "POLICE",
+      "value": {
+        "citizen_id": "cit-88213",
+        "activity": "running",
+        "speed_kmh": 18.2,
+        "heading_zone_id": "zone-09"
+      }
+    }
+  ],
+  "expect": {
+    "dispatched": [
+      {
+        "unit_type": "police",
+        "mode": "pursuit",
+        "target_id": "cit-88213"
+      }
+    ],
+    "blocked": [
+      "quarantine"
+    ],
+    "events_in_order": [
+      [
+        "brain.incident.opened",
+        "brain.suspect.assessed",
+        "brain.action.blocked",
+        "brain.decision.made",
+        "brain.action.requested",
+        "brain.action.result",
+        "brain.incident.closed"
+      ]
+    ],
+    "event_counts": {
+      "brain.incident.opened": 1,
+      "brain.action.blocked": 1,
+      "brain.action.requested": 2
+    },
+    "forbidden_events": [
+      "brain.reading.rejected",
+      "brain.plan.rejected"
+    ]
+  }
+}

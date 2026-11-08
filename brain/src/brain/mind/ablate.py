@@ -26,7 +26,7 @@ BURST = "t14"
 
 
 async def ablate(suite: list[str], workdir: Path) -> dict[str, Any]:
-    """Run `suite` under each ablation. A learned reflex is taught first (two runs of d3 and one sleep) so that it can be switched off."""
+    """Run `suite` under each ablation. A learned reflex is taught first (two runs of t14 and one sleep) so that it can be switched off."""
     await learning_curve("t14", runs=2, workdir=workdir, policy=Policy(), suite=["t12", "t14"])
     partners = PartnersConfig(brain=BrainConfig(learned_dir=str(workdir / "learned")))
     runs: dict[str, dict[str, dict[str, Any]]] = {}

@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 
 def _test_book_order(path: Path) -> tuple[str, int]:
-    """d2 before d10: by the number in the file name, not by its spelling."""
+    """t13 before d10: by the number in the file name, not by its spelling."""
     digits = "".join(c for c in path.stem if c.isdigit())
     return path.stem.rstrip("0123456789"), int(digits or 0)
 

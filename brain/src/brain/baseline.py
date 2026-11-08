@@ -75,7 +75,7 @@ async def measure_scenario(
 
 def _all_scenario_ids() -> list[str]:
     folder = config.home() / "scenarios"
-    return sorted((p.stem for p in folder.glob("d*.json")), key=_scenario_number)
+    return sorted((p.stem for p in folder.glob("t*.json")), key=_scenario_number)
 
 
 # Every solver off: the pipeline as it decided before 6 Nov, so the older frozen baselines can still be checked.

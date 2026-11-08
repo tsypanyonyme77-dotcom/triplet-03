@@ -154,7 +154,7 @@
   {
    "id": "class:brain.config.ApprovalConfig",
    "kind": "class",
-   "where": "src/brain/config.py:162",
+   "where": "src/brain/config.py:165",
    "summary": "High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.",
    "bases": [
     "BaseModel"
@@ -163,7 +163,7 @@
   {
    "id": "class:brain.config.BrainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:89",
+   "where": "src/brain/config.py:92",
    "bases": [
     "BaseModel"
    ]
@@ -171,7 +171,7 @@
   {
    "id": "class:brain.config.DesksPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:400",
+   "where": "src/brain/config.py:403",
    "summary": "What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.",
    "bases": [
     "BaseModel"
@@ -180,7 +180,7 @@
   {
    "id": "class:brain.config.Effect",
    "kind": "class",
-   "where": "src/brain/config.py:308",
+   "where": "src/brain/config.py:311",
    "summary": "What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.",
    "bases": [
     "BaseModel"
@@ -189,7 +189,7 @@
   {
    "id": "class:brain.config.EmbeddingsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:454",
+   "where": "src/brain/config.py:457",
    "bases": [
     "BaseModel"
    ]
@@ -197,7 +197,7 @@
   {
    "id": "class:brain.config.ExplainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:478",
+   "where": "src/brain/config.py:481",
    "bases": [
     "BaseModel"
    ]
@@ -214,7 +214,7 @@
   {
    "id": "class:brain.config.ForwardPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:317",
+   "where": "src/brain/config.py:320",
    "summary": "How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.",
    "bases": [
     "BaseModel"
@@ -223,7 +223,7 @@
   {
    "id": "class:brain.config.GatePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:232",
+   "where": "src/brain/config.py:235",
    "bases": [
     "BaseModel"
    ]
@@ -231,7 +231,7 @@
   {
    "id": "class:brain.config.GraphConfig",
    "kind": "class",
-   "where": "src/brain/config.py:110",
+   "where": "src/brain/config.py:113",
    "bases": [
     "BaseModel"
    ]
@@ -239,7 +239,7 @@
   {
    "id": "class:brain.config.GuardianConfig",
    "kind": "class",
-   "where": "src/brain/config.py:74",
+   "where": "src/brain/config.py:77",
    "bases": [
     "BaseModel"
    ]
@@ -247,7 +247,7 @@
   {
    "id": "class:brain.config.KeyConfig",
    "kind": "class",
-   "where": "src/brain/config.py:143",
+   "where": "src/brain/config.py:146",
    "summary": "One signing key of a peer. The first key listed for a peer is its current one.",
    "bases": [
     "BaseModel"
@@ -256,7 +256,7 @@
   {
    "id": "class:brain.config.KnowledgeConfig",
    "kind": "class",
-   "where": "src/brain/config.py:459",
+   "where": "src/brain/config.py:462",
    "summary": "How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.",
    "bases": [
     "BaseModel"
@@ -265,7 +265,7 @@
   {
    "id": "class:brain.config.LearningPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:354",
+   "where": "src/brain/config.py:357",
    "summary": "Sleep: what may be compiled from episodes into reflexes, and how much.",
    "bases": [
     "BaseModel"
@@ -274,7 +274,7 @@
   {
    "id": "class:brain.config.MathConfig",
    "kind": "class",
-   "where": "src/brain/config.py:380",
+   "where": "src/brain/config.py:383",
    "summary": "Estimators that look ahead of a threshold.",
    "bases": [
     "BaseModel"
@@ -283,7 +283,7 @@
   {
    "id": "class:brain.config.McpConfig",
    "kind": "class",
-   "where": "src/brain/config.py:155",
+   "where": "src/brain/config.py:158",
    "summary": "The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.",
    "bases": [
     "BaseModel"
@@ -292,7 +292,7 @@
   {
    "id": "class:brain.config.ModelsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:496",
+   "where": "src/brain/config.py:499",
    "bases": [
     "BaseModel"
    ]
@@ -309,7 +309,7 @@
   {
    "id": "class:brain.config.ObservabilityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:171",
+   "where": "src/brain/config.py:174",
    "summary": "Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).",
    "bases": [
     "BaseModel"
@@ -318,7 +318,7 @@
   {
    "id": "class:brain.config.OptimiserConfig",
    "kind": "class",
-   "where": "src/brain/config.py:367",
+   "where": "src/brain/config.py:370",
    "summary": "Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.",
    "bases": [
     "BaseModel"
@@ -327,7 +327,7 @@
   {
    "id": "class:brain.config.OrchestrationConfig",
    "kind": "class",
-   "where": "src/brain/config.py:391",
+   "where": "src/brain/config.py:394",
    "summary": "The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.",
    "bases": [
     "BaseModel"
@@ -336,7 +336,7 @@
   {
    "id": "class:brain.config.PartnersConfig",
    "kind": "class",
-   "where": "src/brain/config.py:179",
+   "where": "src/brain/config.py:182",
    "bases": [
     "BaseModel"
    ]
@@ -344,7 +344,7 @@
   {
    "id": "class:brain.config.Policy",
    "kind": "class",
-   "where": "src/brain/config.py:417",
+   "where": "src/brain/config.py:420",
    "bases": [
     "BaseModel"
    ]
@@ -352,7 +352,7 @@
   {
    "id": "class:brain.config.ScoringPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:195",
+   "where": "src/brain/config.py:198",
    "bases": [
     "BaseModel"
    ]
@@ -360,7 +360,7 @@
   {
    "id": "class:brain.config.SecurityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:124",
+   "where": "src/brain/config.py:127",
    "summary": "Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).",
    "bases": [
     "BaseModel"
@@ -369,7 +369,7 @@
   {
    "id": "class:brain.config.TacticsPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:258",
+   "where": "src/brain/config.py:261",
    "bases": [
     "BaseModel"
    ]
@@ -377,7 +377,7 @@
   {
    "id": "class:brain.config.TeamConfig",
    "kind": "class",
-   "where": "src/brain/config.py:431",
+   "where": "src/brain/config.py:434",
    "bases": [
     "BaseModel"
    ]
@@ -394,7 +394,7 @@
   {
    "id": "class:brain.config.TriagePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:220",
+   "where": "src/brain/config.py:223",
    "bases": [
     "BaseModel"
    ]
@@ -410,7 +410,7 @@
   {
    "id": "class:brain.config.Window",
    "kind": "class",
-   "where": "src/brain/config.py:190",
+   "where": "src/brain/config.py:193",
    "bases": [
     "BaseModel"
    ]
@@ -418,7 +418,7 @@
   {
    "id": "class:brain.config.WorkspacePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:269",
+   "where": "src/brain/config.py:272",
    "summary": "Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.",
    "bases": [
     "BaseModel"
@@ -1471,7 +1471,7 @@
   {
    "id": "class:brain.perception.ContractError",
    "kind": "class",
-   "where": "src/brain/perception/__init__.py:19",
+   "where": "src/brain/perception/__init__.py:23",
    "bases": [
     "ValueError"
    ]
@@ -1479,12 +1479,12 @@
   {
    "id": "class:brain.perception.Perceived",
    "kind": "class",
-   "where": "src/brain/perception/__init__.py:27"
+   "where": "src/brain/perception/__init__.py:31"
   },
   {
    "id": "class:brain.perception.Perception",
    "kind": "class",
-   "where": "src/brain/perception/__init__.py:38"
+   "where": "src/brain/perception/__init__.py:42"
   },
   {
    "id": "class:brain.persistence.StateFile",
@@ -1934,7 +1934,7 @@
    "kind": "cli_command",
    "where": "src/brain/cli.py:202",
    "handler": "cmd_attention",
-   "summary": "where the workspace's slots and the team's runs went on the demo scenarios (d3, d4 by default)"
+   "summary": "where the workspace's slots and the team's runs went on the demo scenarios (t14, t15 by default)"
   },
   {
    "id": "cli:brain baseline",
@@ -2702,7 +2702,7 @@
   {
    "id": "function:brain.adapters.guardian_v1.canonical",
    "kind": "function",
-   "where": "src/brain/adapters/guardian_v1.py:32",
+   "where": "src/brain/adapters/guardian_v1.py:33",
    "signature": "canonical(body)",
    "summary": "Their canonical form (INTERFACE.md section 3): sorted keys, no whitespace, UTF-8."
   },
@@ -2712,12 +2712,6 @@
    "where": "src/brain/adapters/guardian_v1.py:80",
    "signature": "from_guardian_answer(call, answer)",
    "summary": "`forwarded` with an ok Twin reply is a success; anything else is a refusal that keeps the Guardian's reasons."
-  },
-  {
-   "id": "function:brain.adapters.guardian_v1.sign",
-   "kind": "function",
-   "where": "src/brain/adapters/guardian_v1.py:37",
-   "signature": "sign(body, secret)"
   },
   {
    "id": "function:brain.adapters.guardian_v1.to_guardian_call",
@@ -2799,7 +2793,7 @@
    "kind": "function",
    "where": "src/brain/api/routes/control.py:22",
    "signature": "_test_book_order(path)",
-   "summary": "d2 before d10: by the number in the file name, not by its spelling."
+   "summary": "t13 before d10: by the number in the file name, not by its spelling."
   },
   {
    "id": "function:brain.api.routes.control.register",
@@ -3259,35 +3253,35 @@
   {
    "id": "function:brain.config._with_partner_addresses",
    "kind": "function",
-   "where": "src/brain/config.py:542",
+   "where": "src/brain/config.py:545",
    "signature": "_with_partner_addresses(partners)",
    "summary": "`TWIN_URL` and `GUARDIAN_URL` (the triplet's root `.env`) override the addresses in the file, so one stack-wide variable points the Brain at a partner. A bare `http://host:port` for an MCP Twin means the MCP endpoint at `/mcp`."
   },
   {
    "id": "function:brain.config.fingerprint",
    "kind": "function",
-   "where": "src/brain/config.py:556",
+   "where": "src/brain/config.py:559",
    "signature": "fingerprint(*models)",
    "summary": "Short stable hash of the behaviour-defining config, stamped on every decision."
   },
   {
    "id": "function:brain.config.home",
    "kind": "function",
-   "where": "src/brain/config.py:525",
+   "where": "src/brain/config.py:528",
    "signature": "home()",
    "summary": "Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live."
   },
   {
    "id": "function:brain.config.load",
    "kind": "function",
-   "where": "src/brain/config.py:530",
+   "where": "src/brain/config.py:533",
    "signature": "load(name, path)",
    "summary": "Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults."
   },
   {
    "id": "function:brain.config.secret",
    "kind": "function",
-   "where": "src/brain/config.py:552",
+   "where": "src/brain/config.py:555",
    "signature": "secret(env_name)"
   },
   {
@@ -3374,6 +3368,13 @@
    "kind": "function",
    "where": "src/brain/contracts/signing.py:19",
    "signature": "canonical_json(obj)"
+  },
+  {
+   "id": "function:brain.contracts.signing.hmac_hex",
+   "kind": "function",
+   "where": "src/brain/contracts/signing.py:57",
+   "signature": "hmac_hex(body, secret)",
+   "summary": "HMAC-SHA256 of the plain canonical form, no field left out and no float rewritten: how the Guardian team's contract 1.0 signs (the caller drops the signature field)."
   },
   {
    "id": "function:brain.contracts.signing.payloads",
@@ -4467,7 +4468,7 @@
    "kind": "function",
    "where": "src/brain/mind/ablate.py:28",
    "signature": "async ablate(suite, workdir)",
-   "summary": "Run `suite` under each ablation. A learned reflex is taught first (two runs of d3 and one sleep) so that it can be switched off."
+   "summary": "Run `suite` under each ablation. A learned reflex is taught first (two runs of t14 and one sleep) so that it can be switched off."
   },
   {
    "id": "function:brain.mind.ablate.dump",
@@ -4866,7 +4867,7 @@
   {
    "id": "function:brain.perception._describe",
    "kind": "function",
-   "where": "src/brain/perception/__init__.py:33",
+   "where": "src/brain/perception/__init__.py:37",
    "signature": "_describe(error)"
   },
   {
@@ -5040,7 +5041,7 @@
    "kind": "function",
    "where": "src/brain/rehearse.py:200",
    "signature": "screens_step(out, stamp)",
-   "summary": "The strips and the canopy on d3, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not."
+   "summary": "The strips and the canopy on t14, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not."
   },
   {
    "id": "function:brain.rehearse.team_under_faults",
@@ -6328,6 +6329,18 @@
    "kind": "function",
    "where": "tests/test_perception.py:168",
    "signature": "water(value)"
+  },
+  {
+   "id": "function:tests.test_perception_guardian_v1.perception",
+   "kind": "function",
+   "where": "tests/test_perception_guardian_v1.py:16",
+   "signature": "perception()"
+  },
+  {
+   "id": "function:tests.test_perception_guardian_v1.resign",
+   "kind": "function",
+   "where": "tests/test_perception_guardian_v1.py:20",
+   "signature": "resign(reading)"
   },
   {
    "id": "function:tests.test_perimeter.line",
@@ -7844,7 +7857,7 @@
   {
    "id": "method:brain.config.ModelsConfig.options_for",
    "kind": "method",
-   "where": "src/brain/config.py:511",
+   "where": "src/brain/config.py:514",
    "signature": "options_for(role)",
    "summary": "Explicit options win; otherwise each provider gets the settings that suit it."
   },
@@ -9369,38 +9382,45 @@
   {
    "id": "method:brain.perception.ContractError.__init__",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:20",
+   "where": "src/brain/perception/__init__.py:24",
    "signature": "__init__(code, message)"
   },
   {
    "id": "method:brain.perception.Perception.__init__",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:39",
-   "signature": "__init__(accepted_versions, twin_secret, require_signature, profiles, type_aliases, keyring, max_age_s)"
+   "where": "src/brain/perception/__init__.py:43",
+   "signature": "__init__(accepted_versions, twin_secret, require_signature, profiles, type_aliases, keyring, max_age_s, dialect)"
+  },
+  {
+   "id": "method:brain.perception.Perception._from_guardian_v1",
+   "kind": "method",
+   "where": "src/brain/perception/__init__.py:139",
+   "signature": "_from_guardian_v1(raw)",
+   "summary": "A reading as the Guardian team's contract 1.0 has it, in ours: check their `hmac` (HMAC-SHA256 over the sorted, compact JSON without it, as they document), then `sensor_type` becomes `type` and `sequence_reset` is carried out. Returns (our reading, whether it asks for a counter reset)."
   },
   {
    "id": "method:brain.perception.Perception._translate",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:122",
+   "where": "src/brain/perception/__init__.py:160",
    "signature": "_translate(reading)",
    "summary": "Apply the type alias and the field profile. Runs only after the signature and replay checks."
   },
   {
    "id": "method:brain.perception.Perception.ingest",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:65",
+   "where": "src/brain/perception/__init__.py:72",
    "signature": "ingest(raw)"
   },
   {
    "id": "method:brain.perception.Perception.restore",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:62",
+   "where": "src/brain/perception/__init__.py:69",
    "signature": "restore(saved)"
   },
   {
    "id": "method:brain.perception.Perception.snapshot",
    "kind": "method",
-   "where": "src/brain/perception/__init__.py:58",
+   "where": "src/brain/perception/__init__.py:65",
    "signature": "snapshot()",
    "summary": "The last sequence number seen per sensor: without it a restart would accept replays of old readings."
   },
@@ -9630,175 +9650,175 @@
   {
    "id": "method:brain.runtime.BrainService._bids",
    "kind": "method",
-   "where": "src/brain/runtime.py:309",
+   "where": "src/brain/runtime.py:310",
    "signature": "_bids(incident)"
   },
   {
    "id": "method:brain.runtime.BrainService._deliberation_request",
    "kind": "method",
-   "where": "src/brain/runtime.py:468",
+   "where": "src/brain/runtime.py:469",
    "signature": "_deliberation_request()",
    "summary": "The reflex graph asks the team through here: only an incident that holds a workspace slot gets a model."
   },
   {
    "id": "method:brain.runtime.BrainService._estimate",
    "kind": "method",
-   "where": "src/brain/runtime.py:376",
+   "where": "src/brain/runtime.py:377",
    "signature": "_estimate(percept, trusted)",
    "summary": "With `math.kalman: on`, track each water level and say, when the estimate moves by a tenth, when it will cross the line."
   },
   {
    "id": "method:brain.runtime.BrainService._handle",
    "kind": "method",
-   "where": "src/brain/runtime.py:642",
+   "where": "src/brain/runtime.py:643",
    "signature": "async _handle(raw)"
   },
   {
    "id": "method:brain.runtime.BrainService._on_percept",
    "kind": "method",
-   "where": "src/brain/runtime.py:450",
+   "where": "src/brain/runtime.py:451",
    "signature": "_on_percept(percept)",
    "summary": "The forward models predict each environmental sensor from its history and report what does not fit."
   },
   {
    "id": "method:brain.runtime.BrainService._prewarn",
    "kind": "method",
-   "where": "src/brain/runtime.py:406",
+   "where": "src/brain/runtime.py:407",
    "signature": "async _prewarn(reading, trace_id)",
    "summary": "A flood forecast close enough to the line sends one low-impact alert before the line is crossed, through the gate like any alert."
   },
   {
    "id": "method:brain.runtime.BrainService._recheck_capabilities",
    "kind": "method",
-   "where": "src/brain/runtime.py:606",
+   "where": "src/brain/runtime.py:607",
    "signature": "async _recheck_capabilities()",
    "summary": "A Twin that adds or drops an actuator tool mid-run is reported. The gate keeps the list it read at start: a new tool is never used."
   },
   {
    "id": "method:brain.runtime.BrainService._restore",
    "kind": "method",
-   "where": "src/brain/runtime.py:486",
+   "where": "src/brain/runtime.py:487",
    "signature": "async _restore()",
    "summary": "Pick up the state saved by an earlier run of this Brain, if it is still the same session."
   },
   {
    "id": "method:brain.runtime.BrainService._save",
    "kind": "method",
-   "where": "src/brain/runtime.py:538",
+   "where": "src/brain/runtime.py:539",
    "signature": "async _save()",
    "summary": "Commit everything this Brain knows. Called once a reading has been handled in full."
   },
   {
    "id": "method:brain.runtime.BrainService._stories",
    "kind": "method",
-   "where": "src/brain/runtime.py:304",
+   "where": "src/brain/runtime.py:305",
    "signature": "_stories()",
    "summary": "The episodes kept so far, for the Analyst's `episodes.similar` tool."
   },
   {
    "id": "method:brain.runtime.BrainService._surprise_of",
    "kind": "method",
-   "where": "src/brain/runtime.py:312",
+   "where": "src/brain/runtime.py:313",
    "signature": "_surprise_of(incident)",
    "summary": "0 to 1: how far the newest evidence sat from what the forward models predicted."
   },
   {
    "id": "method:brain.runtime.BrainService._taught_by",
    "kind": "method",
-   "where": "src/brain/runtime.py:357",
+   "where": "src/brain/runtime.py:358",
    "signature": "_taught_by(reading_id)",
    "summary": "(stored episodes containing this reading, learned rules those episodes taught)."
   },
   {
    "id": "method:brain.runtime.BrainService._team_finished",
    "kind": "method",
-   "where": "src/brain/runtime.py:562",
+   "where": "src/brain/runtime.py:563",
    "signature": "async _team_finished()",
    "summary": "A team finished between readings: save now. During a reading, that reading's own save covers it."
   },
   {
    "id": "method:brain.runtime.BrainService._team_started_pursuit",
    "kind": "method",
-   "where": "src/brain/runtime.py:630",
+   "where": "src/brain/runtime.py:631",
    "signature": "async _team_started_pursuit(incident_id, entity_id, zone_id)",
    "summary": "Tell the reflex graph a pursuit is under way, so it tracks instead of re-deciding."
   },
   {
    "id": "method:brain.runtime.BrainService._twin_answered",
    "kind": "method",
-   "where": "src/brain/runtime.py:601",
+   "where": "src/brain/runtime.py:602",
    "signature": "async _twin_answered()"
   },
   {
    "id": "method:brain.runtime.BrainService._unit_returned",
    "kind": "method",
-   "where": "src/brain/runtime.py:754",
+   "where": "src/brain/runtime.py:755",
    "signature": "async _unit_returned(status, reading, trace_id)",
    "summary": "A unit says it has finished and is on its way back: it is no longer out. When it was the last unit out for a fire or an accident (which have no other way to end), the incident is over."
   },
   {
    "id": "method:brain.runtime.BrainService._unit_status",
    "kind": "method",
-   "where": "src/brain/runtime.py:777",
+   "where": "src/brain/runtime.py:778",
    "signature": "async _unit_status(status, verdict, reading, trace_id)"
   },
   {
    "id": "method:brain.runtime.BrainService._urgency_of",
    "kind": "method",
-   "where": "src/brain/runtime.py:318",
+   "where": "src/brain/runtime.py:319",
    "signature": "_urgency_of(incident)",
    "summary": "0 to 1: for a flood, how fast the water is still rising, from the level forecast (full at `urgency_full_rate_m_per_min`)."
   },
   {
    "id": "method:brain.runtime.BrainService._verdict",
    "kind": "method",
-   "where": "src/brain/runtime.py:731",
+   "where": "src/brain/runtime.py:732",
    "signature": "async _verdict(reading, raw, trace_id)"
   },
   {
    "id": "method:brain.runtime.BrainService._wait_for_twin",
    "kind": "method",
-   "where": "src/brain/runtime.py:592",
+   "where": "src/brain/runtime.py:593",
    "signature": "async _wait_for_twin(retry_s)"
   },
   {
    "id": "method:brain.runtime.BrainService.handle",
    "kind": "method",
-   "where": "src/brain/runtime.py:634",
+   "where": "src/brain/runtime.py:635",
    "signature": "async handle(raw)"
   },
   {
    "id": "method:brain.runtime.BrainService.reoffer",
    "kind": "method",
-   "where": "src/brain/runtime.py:724",
+   "where": "src/brain/runtime.py:725",
    "signature": "async reoffer(pending_id)",
    "summary": "A person has answered a pending approval: put the held call back through the gate, which checks everything again."
   },
   {
    "id": "method:brain.runtime.BrainService.retract",
    "kind": "method",
-   "where": "src/brain/runtime.py:326",
+   "where": "src/brain/runtime.py:327",
    "signature": "retract(reading_id, reason)",
    "summary": "The Guardian (or an operator) takes back its verdict on a reading. Returns None if the Brain never saw it."
   },
   {
    "id": "method:brain.runtime.BrainService.run",
    "kind": "method",
-   "where": "src/brain/runtime.py:567",
+   "where": "src/brain/runtime.py:568",
    "signature": "async run()",
    "summary": "Consume the Twin's stream until it ends (only a mock's stream ever does)."
   },
   {
    "id": "method:brain.runtime.BrainService.run_until_quiet",
    "kind": "method",
-   "where": "src/brain/runtime.py:622",
+   "where": "src/brain/runtime.py:623",
    "signature": "async run_until_quiet()",
    "summary": "For scenario runs: keep going until the stream has ended and no team is still deliberating."
   },
   {
    "id": "method:brain.runtime.BrainService.start",
    "kind": "method",
-   "where": "src/brain/runtime.py:192",
+   "where": "src/brain/runtime.py:193",
    "signature": "async start()"
   },
   {
@@ -10836,7 +10856,7 @@
    "id": "module:brain.cli",
    "kind": "module",
    "path": "src/brain/cli.py",
-   "summary": "Command line: `brain scenario d3`, `brain run`, `brain sleep`, `brain export-schemas`, `brain audit verify <log>`.",
+   "summary": "Command line: `brain scenario t14`, `brain run`, `brain sleep`, `brain export-schemas`, `brain audit verify <log>`.",
    "lines": 289
   },
   {
@@ -10893,7 +10913,7 @@
    "kind": "module",
    "path": "src/brain/config.py",
    "summary": "Configuration models. Defaults here equal the shipped YAML files in `config/`.",
-   "lines": 559
+   "lines": 562
   },
   {
    "id": "module:brain.conformance",
@@ -10927,7 +10947,7 @@
    "kind": "module",
    "path": "src/brain/contracts/signing.py",
    "summary": "HMAC-SHA256 over a canonical JSON form of the envelope.",
-   "lines": 54
+   "lines": 59
   },
   {
    "id": "module:brain.departments",
@@ -11415,7 +11435,7 @@
    "kind": "module",
    "path": "src/brain/perception/__init__.py",
    "summary": "Perception: turn untrusted bytes from the Twin into typed, checked readings.",
-   "lines": 136
+   "lines": 174
   },
   {
    "id": "module:brain.persistence",
@@ -11485,7 +11505,7 @@
    "kind": "module",
    "path": "src/brain/runtime.py",
    "summary": "BrainService: the loop that turns a stream of readings into decisions.",
-   "lines": 804
+   "lines": 805
   },
   {
    "id": "module:brain.scenario",
@@ -12142,6 +12162,13 @@
    "kind": "module",
    "path": "tests/test_perception.py",
    "lines": 267
+  },
+  {
+   "id": "module:tests.test_perception_guardian_v1",
+   "kind": "module",
+   "path": "tests/test_perception_guardian_v1.py",
+   "summary": "Readings in the Guardian team's contract 1.0, as their Twin mock really sent them (captured 8 Nov 2026) and as their Interface Card shows them.",
+   "lines": 91
   },
   {
    "id": "module:tests.test_perimeter",
@@ -15043,10 +15070,10 @@
    "signature": "test_their_verdict_becomes_ours_and_keeps_what_ours_does_not_have()"
   },
   {
-   "id": "test:tests.test_images.test_d3_passes_inside_the_image_with_no_network",
+   "id": "test:tests.test_images.test_t14_passes_inside_the_image_with_no_network",
    "kind": "test",
    "where": "tests/test_images.py:36",
-   "signature": "test_d3_passes_inside_the_image_with_no_network()"
+   "signature": "test_t14_passes_inside_the_image_with_no_network()"
   },
   {
    "id": "test:tests.test_images.test_the_brain_image_holds_no_env_secret",
@@ -16023,6 +16050,54 @@
    "kind": "test",
    "where": "tests/test_perception.py:172",
    "signature": "test_without_a_profile_a_renamed_field_is_rejected_with_a_clear_code(perception)"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_changed_value_or_a_missing_signature_is_refused",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:35",
+   "signature": "test_a_changed_value_or_a_missing_signature_is_refused()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_reading_in_our_own_format_is_refused_by_a_brain_set_to_their_dialect",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:48",
+   "signature": "test_a_reading_in_our_own_format_is_refused_by_a_brain_set_to_their_dialect()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_reading_their_twin_really_sent_is_accepted_and_typed",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:25",
+   "signature": "test_a_reading_their_twin_really_sent_is_accepted_and_typed()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_repeated_sequence_number_is_a_replay",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:55",
+   "signature": "test_a_repeated_sequence_number_is_a_replay()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_restarted_twin_may_start_the_counter_again_only_with_a_newer_reading",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:65",
+   "signature": "test_a_restarted_twin_may_start_the_counter_again_only_with_a_newer_reading()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_a_sensor_the_brain_does_not_model_passes_untyped_and_an_emergency_call_gets_our_category",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:76",
+   "signature": "test_a_sensor_the_brain_does_not_model_passes_untyped_and_an_emergency_call_gets_our_category()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_our_own_dialect_is_unchanged",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:85",
+   "signature": "test_our_own_dialect_is_unchanged()"
+  },
+  {
+   "id": "test:tests.test_perception_guardian_v1.test_the_example_in_their_card_verifies_with_its_example_key",
+   "kind": "test",
+   "where": "tests/test_perception_guardian_v1.py:31",
+   "signature": "test_the_example_in_their_card_verifies_with_its_example_key()"
   },
   {
    "id": "test:tests.test_perimeter.test_a_suspect_already_at_an_exit_cannot_be_sealed_in",
@@ -20480,6 +20555,11 @@
   {
    "source": "class:brain.perception.Perception",
    "label": "defines",
+   "target": "method:brain.perception.Perception._from_guardian_v1"
+  },
+  {
+   "source": "class:brain.perception.Perception",
+   "label": "defines",
    "target": "method:brain.perception.Perception._translate"
   },
   {
@@ -21615,11 +21695,6 @@
   {
    "source": "module:brain.adapters.guardian_v1",
    "label": "defines",
-   "target": "function:brain.adapters.guardian_v1.sign"
-  },
-  {
-   "source": "module:brain.adapters.guardian_v1",
-   "label": "defines",
    "target": "function:brain.adapters.guardian_v1.to_guardian_call"
   },
   {
@@ -21631,6 +21706,11 @@
    "source": "module:brain.adapters.guardian_v1",
    "label": "imports",
    "target": "module:brain.contracts"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "imports",
+   "target": "module:brain.contracts.signing"
   },
   {
    "source": "module:brain.adapters.guardian_v1",
@@ -23860,6 +23940,11 @@
    "source": "module:brain.contracts.signing",
    "label": "defines",
    "target": "function:brain.contracts.signing.canonical_json"
+  },
+  {
+   "source": "module:brain.contracts.signing",
+   "label": "defines",
+   "target": "function:brain.contracts.signing.hmac_hex"
   },
   {
    "source": "module:brain.contracts.signing",
@@ -27598,145 +27683,145 @@
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.degraded",
-   "where": "src/brain/runtime.py:587"
+   "where": "src/brain/runtime.py:588"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.evidence.retracted",
-   "where": "src/brain/runtime.py:342"
+   "where": "src/brain/runtime.py:343"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.forecast.warned",
-   "where": "src/brain/runtime.py:440"
+   "where": "src/brain/runtime.py:441"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.guardian.recovered",
-   "where": "src/brain/runtime.py:751"
+   "where": "src/brain/runtime.py:752"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.guardian.unavailable",
-   "where": "src/brain/runtime.py:740"
+   "where": "src/brain/runtime.py:741"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.human.needed",
-   "where": "src/brain/runtime.py:699"
+   "where": "src/brain/runtime.py:700"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.human.needed",
-   "where": "src/brain/runtime.py:704"
+   "where": "src/brain/runtime.py:705"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.incident.closed",
-   "where": "src/brain/runtime.py:694"
+   "where": "src/brain/runtime.py:695"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.incident.closed",
-   "where": "src/brain/runtime.py:774"
+   "where": "src/brain/runtime.py:775"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.incident.closed",
-   "where": "src/brain/runtime.py:790"
+   "where": "src/brain/runtime.py:791"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.incident.opened",
-   "where": "src/brain/runtime.py:684"
+   "where": "src/brain/runtime.py:685"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.math.estimated",
-   "where": "src/brain/runtime.py:403"
+   "where": "src/brain/runtime.py:404"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.pack.rejected",
-   "where": "src/brain/runtime.py:299"
+   "where": "src/brain/runtime.py:300"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.percept.surprise",
-   "where": "src/brain/runtime.py:460"
+   "where": "src/brain/runtime.py:461"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.reading.received",
-   "where": "src/brain/runtime.py:659"
+   "where": "src/brain/runtime.py:660"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.reading.rejected",
-   "where": "src/brain/runtime.py:651"
+   "where": "src/brain/runtime.py:652"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.recovered",
-   "where": "src/brain/runtime.py:604"
+   "where": "src/brain/runtime.py:605"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.started",
-   "where": "src/brain/runtime.py:283"
+   "where": "src/brain/runtime.py:284"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.state.discarded",
-   "where": "src/brain/runtime.py:503"
+   "where": "src/brain/runtime.py:504"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.state.restored",
-   "where": "src/brain/runtime.py:521"
+   "where": "src/brain/runtime.py:522"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.twin.capabilities.changed",
-   "where": "src/brain/runtime.py:617"
+   "where": "src/brain/runtime.py:618"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.unit.status",
-   "where": "src/brain/runtime.py:778"
+   "where": "src/brain/runtime.py:779"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.units.released",
-   "where": "src/brain/runtime.py:764"
+   "where": "src/brain/runtime.py:765"
   },
   {
    "source": "module:brain.runtime",
    "label": "emits",
    "target": "event:brain.verdict.received",
-   "where": "src/brain/runtime.py:667"
+   "where": "src/brain/runtime.py:668"
   },
   {
    "source": "module:brain.runtime",
@@ -32427,7 +32512,7 @@
   {
    "source": "module:tests.test_images",
    "label": "defines",
-   "target": "test:tests.test_images.test_d3_passes_inside_the_image_with_no_network"
+   "target": "test:tests.test_images.test_t14_passes_inside_the_image_with_no_network"
   },
   {
    "source": "module:tests.test_images",
@@ -33973,6 +34058,66 @@
    "source": "module:tests.test_perception",
    "label": "imports",
    "target": "module:brain.timeline"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "function:tests.test_perception_guardian_v1.perception"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "function:tests.test_perception_guardian_v1.resign"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_changed_value_or_a_missing_signature_is_refused"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_reading_in_our_own_format_is_refused_by_a_brain_set_to_their_dialect"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_reading_their_twin_really_sent_is_accepted_and_typed"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_repeated_sequence_number_is_a_replay"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_restarted_twin_may_start_the_counter_again_only_with_a_newer_reading"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_a_sensor_the_brain_does_not_model_passes_untyped_and_an_emergency_call_gets_our_category"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_our_own_dialect_is_unchanged"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_perception_guardian_v1.test_the_example_in_their_card_verifies_with_its_example_key"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.adapters.guardian_v1"
+  },
+  {
+   "source": "module:tests.test_perception_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.perception"
   },
   {
    "source": "module:tests.test_perimeter",

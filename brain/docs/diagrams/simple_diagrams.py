@@ -3,7 +3,7 @@
     uv run python docs/diagrams/simple_diagrams.py
 
 One small vocabulary throughout: a card with an icon, a labelled arrow, and a swimlane for an execution flow. The parts carry the same
-plain names as the screen. The flows are the Test Book's real scenarios (d2 to d4) (`uv run brain scenario t14 --inproc --speed 0` shows the same
+plain names as the screen. The flows are the Test Book's real scenarios (t13 to t15) (`uv run brain scenario t14 --inproc --speed 0` shows the same
 order); numbers in them come from those runs. The SVG files stand alone for the report and the deck; the page themes the same drawings.
 """
 
@@ -494,7 +494,7 @@ def seeing() -> D:
 
 
 def flow_crime() -> D:
-    d = D("flow-crime", "Example run: a crime and a pursuit (d3)", "A robbery is seen, the Guardian vouches for it, a rule sends one unit in milliseconds, then the team adds a perimeter and an alert. After the arrest the Brain closes the incident and calls the spare units back.")
+    d = D("flow-crime", "Example run: a crime and a pursuit (t14)", "A robbery is seen, the Guardian vouches for it, a rule sends one unit in milliseconds, then the team adds a perimeter and an alert. After the arrest the Brain closes the incident and calls the spare units back.")
     d.lanes([TWIN, GUARD, BRAIN, GATE], [
         (0, "camera", "Camera sees a robbery; a citizen runs", "twin"),
         (1, "check", "Both readings trusted", "guardian"),
@@ -510,7 +510,7 @@ def flow_crime() -> D:
 
 
 def flow_fake_flood() -> D:
-    d = D("flow-fake-flood", "Example run: a fake flood (d2)", "Two gauges watch the harbour. One reads 0.3 m, the other 1.8 m, and the Guardian does not trust the second. The Brain still opens an incident, but the Safety gate refuses the warning and the valve call, and says why. When the honest gauge reads on, the incident closes.")
+    d = D("flow-fake-flood", "Example run: a fake flood (t13)", "Two gauges watch the harbour. One reads 0.3 m, the other 1.8 m, and the Guardian does not trust the second. The Brain still opens an incident, but the Safety gate refuses the warning and the valve call, and says why. When the honest gauge reads on, the incident closes.")
     d.lanes([TWIN, GUARD, BRAIN, GATE], [
         (0, "waves", "Gauge A reads 0.3 m; gauge B reads 1.8 m", "twin"),
         (1, "cross", "Gauge B: untrusted", "bad"),
@@ -524,7 +524,7 @@ def flow_fake_flood() -> D:
 
 
 def flow_flood_attack() -> D:
-    d = D("flow-flood-attack", "Example run: a flood, an attack and a layer down (d4)", "The river rises while a forged robbery report arrives and a camera floods the Brain. The forecast warns the harbour before the line. The valve waits, because one trusted source is not two. Then the Guardian goes silent: the Brain says so once and carries on with low-impact alerts only.")
+    d = D("flow-flood-attack", "Example run: a flood, an attack and a layer down (t15)", "The river rises while a forged robbery report arrives and a camera floods the Brain. The forecast warns the harbour before the line. The valve waits, because one trusted source is not two. Then the Guardian goes silent: the Brain says so once and carries on with low-impact alerts only.")
     d.lanes([TWIN, GUARD, BRAIN, GATE], [
         (0, "waves", "River gauge rising; a forged robbery report", "twin"),
         (1, "cross", "The robbery report: untrusted", "bad"),

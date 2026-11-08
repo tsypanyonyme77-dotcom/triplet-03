@@ -9,7 +9,7 @@ SHELL := /bin/bash
 
 # S: a scenario id for the targets that take one (make scenario S=t14).
 # FLAGS: extra flags for brain scenario, e.g. FLAGS="--no-departments".
-S ?= d3
+S ?= t14
 FLAGS ?=
 IMAGE ?= city-brain/brain
 TAG ?= dev
@@ -46,7 +46,7 @@ llm: ## one scenario with the agent teams on a real model (needs GROQ_API_KEY in
 > uv run $(ENVFILE) brain scenario $(S) --llm --speed 0.5 $(FLAGS)
 
 llm-all: ## every department's agents on the real model, spaced for the free plan (Police, Fire, Utilities, Mobility)
-> @for s in d3 d2 d4; do echo "== $$s"; uv run $(ENVFILE) brain scenario $$s --llm --speed 0.5 | grep -E "desk\.|case.reviewed|plan.verified|agent.fallback|^(PASSED|FAILED)" | cut -c1-200; sleep 65; done
+> @for s in t14 t13 t15; do echo "== $$s"; uv run $(ENVFILE) brain scenario $$s --llm --speed 0.5 | grep -E "desk\.|case.reviewed|plan.verified|agent.fallback|^(PASSED|FAILED)" | cut -c1-200; sleep 65; done
 
 sleep: ## learn from the episodes `make serve` kept in state/episodes (reflexes go to state/learned; add FLAGS=--dry-run to write nothing)
 > uv run brain sleep --episodes state/episodes --learned state/learned $(FLAGS)
@@ -114,7 +114,7 @@ up: ## the Brain and both mock partners in containers on http://127.0.0.1:8080
 down: ## stop that stack
 > docker compose --profile core --profile full --profile mqtt --profile obs down
 
-smoke: ## start the stack, run d3 over the network mocks, verify the log, stop
+smoke: ## start the stack, run t14 over the network mocks, verify the log, stop
 > scripts/compose_smoke.sh
 
 hall-kit: ## pack the image and model cache for a venue with no network (hall-kit/), then check it
@@ -133,7 +133,7 @@ full-scenario: ## run one scenario inside the full stack and print its verdict: 
 > docker compose exec -T brain brain scenario $(S) --no-spawn --config deploy/compose/partners.full.yaml $(FLAGS) | grep -E "desk\.|agent.fallback|^(PASSED|FAILED)" | cut -c1-200
 
 full-agents: ## every department's agents on the real model in the full stack, 65 s apart (the crime, the fake flood and the layer-down flood)
-> @for s in d3 d2 d4; do echo "== $$s"; $(MAKE) --no-print-directory full-scenario S=$$s FLAGS="--llm --speed 0.5"; sleep 65; done
+> @for s in t14 t13 t15; do echo "== $$s"; $(MAKE) --no-print-directory full-scenario S=$$s FLAGS="--llm --speed 0.5"; sleep 65; done
 
 full-state: ## what is inside the stack's Neo4j and Qdrant
 > -docker compose exec -T neo4j sh -c 'cypher-shell -u neo4j -p "$${NEO4J_AUTH#neo4j/}" "MATCH (n) RETURN labels(n)[0] AS label, count(*) AS n ORDER BY n DESC LIMIT 8"'

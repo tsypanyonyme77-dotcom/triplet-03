@@ -13,7 +13,7 @@ from brain.timeline import MemorySink, Timeline
 from tests.test_learned_plans import decisions
 from tests.test_scenarios import play
 
-SUITE = ["t12", "t14", "t15"]  # a small suite keeps the tests quick; the default is d1 to d4
+SUITE = ["t12", "t14", "t15"]  # a small suite keeps the tests quick; the default is t12 to t15
 
 
 async def record(folder, scenario_id="t14", runs=2):

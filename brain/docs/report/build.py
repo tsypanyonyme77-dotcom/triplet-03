@@ -4,7 +4,7 @@
 
 Part 0 (the Brain in the triplet), Part 2 (the City Brain) and Part 4 (the Test Book), eleven A4 pages. Every figure is drawn here as SVG
 with the repository's icon set and the technology logos in docs/diagrams/logos/ (each logo belongs to its owner; none implies endorsement).
-The numbers come from the repository: the Test Book, the frozen baseline, the suite, and real runs of d3 (timings), d2 and d4.
+The numbers come from the repository: the Test Book, the frozen baseline, the suite, and real runs of t14 (timings), t13 and t15.
 """
 
 from __future__ import annotations
@@ -278,7 +278,7 @@ def fig_loops() -> str:
     b.append(ARROW([(390, 100), (390, 118)], BLUE, "an incident needs a team", 396, 113, anchor="start"))
     b.append(ARROW([(640, 218), (640, 236)], GOOD, "a closed incident becomes an episode", 634, 232, anchor="end"))
     b.append(ARROW([(120, 336), (120, 346), (30, 346), (30, 70), (36, 70)], GOOD, dash="4 3"))
-    b.append(T(14, 366, "A promoted lesson comes back as a reflex in the inner loop (learning curve of d3: team runs 1 to 0, last action 94.7 ms to 35.5 ms).", 9.5, 400, INK2))
+    b.append(T(14, 366, "A promoted lesson comes back as a reflex in the inner loop (learning curve of t14: team runs 1 to 0, last action 94.7 ms to 35.5 ms).", 9.5, 400, INK2))
     return SVG(780, 376, "".join(b), "Three loops: inner, task and meta")
 
 
@@ -288,7 +288,7 @@ def fig_loops() -> str:
 def fig_detection() -> str:
     stages = [
         ("shield", "Perception", GOOD, ["contract version,", "HMAC, replay,", "value ranges"], "refused with a code", "brain.reading.rejected"),
-        ("eye", "Guardian verdict", GOOD, ["trusted, suspicious,", "untrusted; a score", "built on untrusted", "evidence is damped"], "d2: a lying gauge is refused", "nothing is sent"),
+        ("eye", "Guardian verdict", GOOD, ["trusted, suspicious,", "untrusted; a score", "built on untrusted", "evidence is damped"], "t13: a lying gauge is refused", "nothing is sent"),
         ("dial", "Forward models", GOOD, ["each sensor's own normal", "coupled sensors,", "level forecast"], "a gauge jumps 70 spreads (forward-bench)", "the reflex is held"),
         ("route", "Triage", INK, ["six packs' detectors", "crime triggers", "alarms no pack knows"], "a riot, a call 'other'", "a person is asked"),
         ("eye", "Workspace", INK, ["salience: severity,", "trust, evidence, surprise,", "urgency; two seats"], "a rising river (unit test)", "takes the seat"),
@@ -426,14 +426,14 @@ def fig_gate() -> str:
 
 def fig_flows() -> str:
     cols = [
-        ("A fake flood (d2)", WARN, [
+        ("A fake flood (t13)", WARN, [
             ("drop", "an honest gauge reads 0.3 m; a second says 1.8 m"),
             ("shield", "the Guardian marks the second gauge untrusted"),
             ("route", "the Brain opens a flood incident, evidence untrusted"),
             ("lock", "the gate refuses the warning and the valve call"),
             ("check", "the honest gauge clears it; nothing reaches the city"),
             ("file", "the explanation names the check that held each call")]),
-        ("A flood, an attack, a layer down (d4)", BLUE, [
+        ("A flood, an attack, a layer down (t15)", BLUE, [
             ("drop", "the water rises while a forged robbery arrives"),
             ("alert", "the forged report is tracked; no police are sent"),
             ("lock", "the valve is held: one trusted source, needs two"),
@@ -626,7 +626,7 @@ def pages() -> list[str]:
 """))
     p.append(page(2, "Part 0 · One scenario traced end to end", f"""
 <h1>One scenario, end to end: crime and pursuit</h1>
-<p class='lede'>A robbery is caught on camera in Downtown (scenario <code>d3</code>). The trace below is from a real run at normal speed; times are measured from the first reading. Read it left to right: the same event is touched by every layer and by most components of the Brain, and each hand-off is an event on the timeline.</p>
+<p class='lede'>A robbery is caught on camera in Downtown (scenario <code>t14</code>). The trace below is from a real run at normal speed; times are measured from the first reading. Read it left to right: the same event is touched by every layer and by most components of the Brain, and each hand-off is an event on the timeline.</p>
 {fig_trace()}
 <p class='cap'>Figure 2. The reflex tier answers 3.5 ms after the evidence arrives; the team's fuller plan follows about 70 ms later and passes the same gate. The perimeter solver checks the team's plan (2 units hold, 2 are used).</p>
 <div class='cols'><div>
@@ -634,7 +634,7 @@ def pages() -> list[str]:
 <p><b>Trust first.</b> The camera reading is acted on only after the Guardian's verdict; the second reading (a citizen running away at 18 km/h) lifts the suspect's score to 0.82.</p>
 <p><b>Two speeds.</b> A rule dispatches the first unit at once; the Analyst, Tactician and Chief then place a perimeter, and code verifies it before anything is proposed.</p></div><div>
 <h3>What it would look like if it went wrong</h3>
-<p><b>A fake flood (d2):</b> the Guardian marks the reading untrusted and the gate refuses the warning and the valve call. <b>A layer down (d4):</b> the Guardian stops answering, the Brain says so once and carries on with low-impact alerts only.</p></div></div>
+<p><b>A fake flood (t13):</b> the Guardian marks the reading untrusted and the gate refuses the warning and the valve call. <b>A layer down (t15):</b> the Guardian stops answering, the Brain says so once and carries on with low-impact alerts only.</p></div></div>
 """))
     p.append(page(3, "Part 0 · Shared decisions", f"""
 <h1>How the layers were made to fit</h1>
@@ -670,7 +670,7 @@ def pages() -> list[str]:
 <p class='cap'>Figure 2c. Everything outside the two ports can be replaced; the logic cannot tell which partner it talks to.</p>
 <h2>The five things the jury looks for, and where to check each</h2>
 <table style='font-size:7.3pt'><tr><th style='width:21%'>Requirement</th><th>What the repository does</th><th style='width:27%'>How to check it</th></tr>
-<tr><td><b>Logic separate from partner I/O</b></td><td>The logic reaches partners only through <code>TwinPort</code> and <code>GuardianPort</code> (<code>ports.py</code>). Protocols live in <code>adapters/</code>, one class each: MCP, HTTP and MQTT for the Twin, REST for the Guardian.</td><td><code>tests/test_layering.py</code> fails if logic imports an adapter or the reverse; <code>tests/test_twin_mqtt.py</code> runs <code>d3</code> over MQTT.</td></tr>
+<tr><td><b>Logic separate from partner I/O</b></td><td>The logic reaches partners only through <code>TwinPort</code> and <code>GuardianPort</code> (<code>ports.py</code>). Protocols live in <code>adapters/</code>, one class each: MCP, HTTP and MQTT for the Twin, REST for the Guardian.</td><td><code>tests/test_layering.py</code> fails if logic imports an adapter or the reverse; <code>tests/test_twin_mqtt.py</code> runs <code>t14</code> over MQTT.</td></tr>
 <tr><td><b>A complete Interface Card</b></td><td><code>INTERFACE.md</code>: what the Brain receives and sends, an example of each message, how to repoint it, how it authenticates. Long form: <code>docs/INTEGRATION-brain.md</code>.</td><td><code>tests/test_contracts.py</code> validates every example in <code>contracts/examples/</code> and verifies each signature.</td></tr>
 <tr><td><b>Settings in configuration</b></td><td><code>config/partners.yaml</code> holds each partner's adapter, address, secret variable name, renames and units. Secrets come from the environment; code defaults are loopback addresses.</td><td>A test requires the YAML to equal the defaults; <code>brain onboard</code> proposes edits for a renamed Twin.</td></tr>
 <tr><td><b>Standard protocols and formats</b></td><td>MCP, REST and MQTT; JSON Schema; HMAC-SHA256 or Ed25519 over canonical JSON; Server-Sent Events and CloudEvents 1.0 described by AsyncAPI; TLS; OpenTelemetry.</td><td><code>contracts/schemas/</code>; <code>docs/asyncapi.yaml</code> (55 event types).</td></tr>
@@ -720,9 +720,9 @@ def pages() -> list[str]:
 </div></div>
 <table><tr><th>What can stop a reading</th><th>Event</th><th>Shown by</th></tr>
 <tr><td>bad signature, replay, out-of-range value</td><td><code>brain.reading.rejected</code> with a stable code</td><td>Table 2, redteam</td></tr>
-<tr><td>untrusted evidence</td><td><code>brain.action.blocked</code> (trust)</td><td>d2, d4</td></tr>
+<tr><td>untrusted evidence</td><td><code>brain.action.blocked</code> (trust)</td><td>t13, t15</td></tr>
 <tr><td>a jump the sensor&rsquo;s own history cannot explain</td><td><code>brain.percept.surprise</code> (doubted)</td><td>forward-bench</td></tr>
-<tr><td>a sensor goes silent</td><td>nothing opens; the other sources carry on</td><td>d4</td></tr></table>
+<tr><td>a sensor goes silent</td><td>nothing opens; the other sources carry on</td><td>t15</td></tr></table>
 """))
     p.append(page(7, "Part 2 · 2.2 Decision method", f"""
 <h1>2.2 Decision method: rules, agents and solvers, joined</h1>
@@ -765,7 +765,7 @@ def pages() -> list[str]:
 <tr><td>Test Book, every scenario, frozen decisions</td><td>4 scenarios, no differences from the frozen baseline</td></tr>
 <tr><td>Held-out variants (shifted, reseeded, decoyed)</td><td>50 of 50 decide as their base</td></tr>
 <tr><td>Red team (forged and replayed readings, wrong scopes, floods)</td><td>24 attacks, all refused</td></tr>
-<tr><td>Learning curve on d3</td><td>team runs 1 to 0; last action 94.7 ms to 35.5 ms; decisions identical</td></tr></table>
+<tr><td>Learning curve on t14</td><td>team runs 1 to 0; last action 94.7 ms to 35.5 ms; decisions identical</td></tr></table>
 """))
     p.append(page(10, "Part 2 · 2.5 Security and trust", f"""
 <h1>2.5 Security: what is trusted, what is not, and what happens when it is wrong</h1>
@@ -805,10 +805,10 @@ def pages() -> list[str]:
 <h1 style='margin-top:4mm'>4. Test Book (the Brain&rsquo;s scenarios)</h1>
 <p>Four scenarios, each one trigger (<code>uv run brain scenario dN</code>) and one log in <code>logs/</code>, with expectations in <code>scenarios/</code>. Together they cover the brief&rsquo;s four interaction rows. The generated list is <code>docs/TESTBOOK-brain.md</code>.</p>
 <table><tr><th>ID</th><th>Scenario</th><th>Layers</th><th>Expected output</th></tr>
-<tr><td>d1</td><td>A calm day</td><td>Twin, Brain</td><td>no incident, no actuator call: the Brain does not overreact</td></tr>
-<tr><td>d2</td><td>A fake flood</td><td>Twin, Guardian, Brain</td><td>the gauge is untrusted; the gate refuses the warning and the valve call; nothing reaches the city</td></tr>
-<tr><td>d3</td><td>A crime and a pursuit</td><td>Twin, Guardian, Brain</td><td>reflex dispatch, a team perimeter checked and verified, units recalled at the arrest</td></tr>
-<tr><td>d4</td><td>A flood, an attack and a layer down</td><td>all three</td><td>warning sent, valve held, forged report sends no police, one &lsquo;Guardian away&rsquo; and low-impact alerts only</td></tr></table>
+<tr><td>t12</td><td>A calm day</td><td>Twin, Brain</td><td>no incident, no actuator call: the Brain does not overreact</td></tr>
+<tr><td>t13</td><td>A fake flood</td><td>Twin, Guardian, Brain</td><td>the gauge is untrusted; the gate refuses the warning and the valve call; nothing reaches the city</td></tr>
+<tr><td>t14</td><td>A crime and a pursuit</td><td>Twin, Guardian, Brain</td><td>reflex dispatch, a team perimeter checked and verified, units recalled at the arrest</td></tr>
+<tr><td>t15</td><td>A flood, an attack and a layer down</td><td>all three</td><td>warning sent, valve held, forged report sends no police, one &lsquo;Guardian away&rsquo; and low-impact alerts only</td></tr></table>
 """))
     return p
 

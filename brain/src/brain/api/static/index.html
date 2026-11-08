@@ -1121,7 +1121,7 @@ function renderRelay(s) {
     el("h2", {}, "What is happening"), el("p", {}, named.description),
     el("h2", {}, "What the Brain should do"), el("p", {}, named.expected_brain),
     ...(fin ? [el("h2", {}, "Result"), el("p", { class: "res" }, mark(fin.passed ? "good" : "critical", fin.passed ? "check" : "cross"), fin.passed ? ` Every expectation was met (${(fin.checks || []).length} checks).` : " An expectation was not met: open the result at the top.")] : []),
-  ] : [el("h2", {}, "Four scenarios, four things to get right"), ...scenarios.map(sc => el("p", {}, el("b", {}, sc.short || sc.name), ` ${(sc.claim || "").replace(/^Proves: /, "")}`))]));
+  ] : [el("h2", {}, `${scenarios.length} scenarios, ${scenarios.length} things to get right`), ...scenarios.map(sc => el("p", {}, el("b", {}, sc.short || sc.name), ` ${(sc.claim || "").replace(/^Proves: /, "")}`))]));
 }
 
 function feedRows(s) {

@@ -161,7 +161,7 @@ LANES = {"twin": 150, "guardian": 310, "perception": 480, "reflex": 650, "team":
 def scenario() -> str:
     title = "The pursuit leaves 6 ms after the deciding reading; the agents add the rest 0.1 s later"
     p = [text(24, 36, title, size=20, weight=700),
-         text(24, 60, "Scenario d3, a crime and a pursuit, run in process on 7 November 2026 against the stand-in Twin and Guardian. Times are from its log.",
+         text(24, 60, "Scenario t14, a crime and a pursuit, run in process on 7 November 2026 against the stand-in Twin and Guardian. Times are from its log.",
               size=12, fill=MUTED)]
 
     heads = {"twin": ("Twin", "Cities: Skylines 2"), "guardian": ("Guardian", "trust layer"),

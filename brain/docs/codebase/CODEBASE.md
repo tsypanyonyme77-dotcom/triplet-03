@@ -258,9 +258,8 @@ flowchart LR
 - **`src/brain/adapters/guardian_v1.py`** (157 lines): The Guardian team's contract 1.0 (guardian/INTERFACE.md), behind the same two ports as every other partner.
     - class `GuardianGateway` `src/brain/adapters/guardian_v1.py:145`: The Twin as the gate sees it: audited actions go through the Guardian, everything else to the real Twin. Methods: `__init__`, `call_actuator`.
     - class `GuardianV1Adapter` `src/brain/adapters/guardian_v1.py:95` Methods: `__init__`, `aclose`, `call_actuator`, `get_verdict`, `is_quarantined`.
-    - `canonical(body)` `src/brain/adapters/guardian_v1.py:32`: Their canonical form (INTERFACE.md section 3): sorted keys, no whitespace, UTF-8.
+    - `canonical(body)` `src/brain/adapters/guardian_v1.py:33`: Their canonical form (INTERFACE.md section 3): sorted keys, no whitespace, UTF-8.
     - `from_guardian_answer(call, answer)` `src/brain/adapters/guardian_v1.py:80`: `forwarded` with an ok Twin reply is a success; anything else is a refusal that keeps the Guardian's reasons.
-    - `sign(body, secret)` `src/brain/adapters/guardian_v1.py:37`
     - `to_guardian_call(call, dispatcher_id)` `src/brain/adapters/guardian_v1.py:53`: Our actuator call in theirs. Their names: `set_grid_state` and `set_signal` (state + duration_s); the unit's type, mode and target ride in `params`. Their registry knows one dispatcher (`dispatch-central`), ours one per station: with `dispatcher_id` set, every dispatch goes to it and names its station in `params`.
     - `to_verdict(raw)` `src/brain/adapters/guardian_v1.py:41`: Their verdict in our model: `ts` is `issued_at`, `trust_score` is `confidence`, `suspect` is `suspicious`. The rest (layers, threat level, the action they took) stays on the verdict as extra fields, where the explanations and the screen can read it.
 - **`src/brain/adapters/tls.py`** (48 lines): TLS and mutual TLS for the Brain's two connections and its own listener.
@@ -406,43 +405,43 @@ flowchart LR
 
 ### brain.config
 
-- **`src/brain/config.py`** (559 lines): Configuration models. Defaults here equal the shipped YAML files in `config/`.
-    - class `ApprovalConfig` `src/brain/config.py:162`: High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.
-    - class `BrainConfig` `src/brain/config.py:89`
-    - class `DesksPolicy` `src/brain/config.py:400`: What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.
-    - class `Effect` `src/brain/config.py:308`: What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.
-    - class `EmbeddingsConfig` `src/brain/config.py:454`
-    - class `ExplainConfig` `src/brain/config.py:478`
+- **`src/brain/config.py`** (562 lines): Configuration models. Defaults here equal the shipped YAML files in `config/`.
+    - class `ApprovalConfig` `src/brain/config.py:165`: High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.
+    - class `BrainConfig` `src/brain/config.py:92`
+    - class `DesksPolicy` `src/brain/config.py:403`: What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.
+    - class `Effect` `src/brain/config.py:311`: What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.
+    - class `EmbeddingsConfig` `src/brain/config.py:457`
+    - class `ExplainConfig` `src/brain/config.py:481`
     - class `FieldProfile` `src/brain/config.py:21`: How to build a field the Brain expects from one the Twin sends: `canonical = twin_field * scale + offset`.
-    - class `ForwardPolicy` `src/brain/config.py:317`: How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.
-    - class `GatePolicy` `src/brain/config.py:232`
-    - class `GraphConfig` `src/brain/config.py:110`
-    - class `GuardianConfig` `src/brain/config.py:74`
-    - class `KeyConfig` `src/brain/config.py:143`: One signing key of a peer. The first key listed for a peer is its current one.
-    - class `KnowledgeConfig` `src/brain/config.py:459`: How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.
-    - class `LearningPolicy` `src/brain/config.py:354`: Sleep: what may be compiled from episodes into reflexes, and how much.
-    - class `MathConfig` `src/brain/config.py:380`: Estimators that look ahead of a threshold.
-    - class `McpConfig` `src/brain/config.py:155`: The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.
-    - class `ModelsConfig` `src/brain/config.py:496` Methods: `options_for`.
+    - class `ForwardPolicy` `src/brain/config.py:320`: How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.
+    - class `GatePolicy` `src/brain/config.py:235`
+    - class `GraphConfig` `src/brain/config.py:113`
+    - class `GuardianConfig` `src/brain/config.py:77`
+    - class `KeyConfig` `src/brain/config.py:146`: One signing key of a peer. The first key listed for a peer is its current one.
+    - class `KnowledgeConfig` `src/brain/config.py:462`: How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.
+    - class `LearningPolicy` `src/brain/config.py:357`: Sleep: what may be compiled from episodes into reflexes, and how much.
+    - class `MathConfig` `src/brain/config.py:383`: Estimators that look ahead of a threshold.
+    - class `McpConfig` `src/brain/config.py:158`: The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.
+    - class `ModelsConfig` `src/brain/config.py:499` Methods: `options_for`.
     - class `MqttConfig` `src/brain/config.py:40`: The broker a Twin publishes readings to (adapter `mqtt`). Actions, topology and capabilities still go to `twin.url` over HTTP.
-    - class `ObservabilityConfig` `src/brain/config.py:171`: Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).
-    - class `OptimiserConfig` `src/brain/config.py:367`: Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.
-    - class `OrchestrationConfig` `src/brain/config.py:391`: The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.
-    - class `PartnersConfig` `src/brain/config.py:179`
-    - class `Policy` `src/brain/config.py:417`
-    - class `ScoringPolicy` `src/brain/config.py:195`
-    - class `SecurityConfig` `src/brain/config.py:124`: Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).
-    - class `TacticsPolicy` `src/brain/config.py:258`
-    - class `TeamConfig` `src/brain/config.py:431`
+    - class `ObservabilityConfig` `src/brain/config.py:174`: Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).
+    - class `OptimiserConfig` `src/brain/config.py:370`: Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.
+    - class `OrchestrationConfig` `src/brain/config.py:394`: The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.
+    - class `PartnersConfig` `src/brain/config.py:182`
+    - class `Policy` `src/brain/config.py:420`
+    - class `ScoringPolicy` `src/brain/config.py:198`
+    - class `SecurityConfig` `src/brain/config.py:127`: Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).
+    - class `TacticsPolicy` `src/brain/config.py:261`
+    - class `TeamConfig` `src/brain/config.py:434`
     - class `TlsConfig` `src/brain/config.py:31`: Files for TLS. As a client: `ca` is the authority to trust, `cert` and `key` what we present for mutual TLS. As a server: `cert` and `key` are ours, and `ca` (if set) is the authority a client's certificate must come from.
-    - class `TriagePolicy` `src/brain/config.py:220`
+    - class `TriagePolicy` `src/brain/config.py:223`
     - class `TwinConfig` `src/brain/config.py:53`
-    - class `Window` `src/brain/config.py:190`
-    - class `WorkspacePolicy` `src/brain/config.py:269`: Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.
-    - `fingerprint(*models)` `src/brain/config.py:556`: Short stable hash of the behaviour-defining config, stamped on every decision.
-    - `home()` `src/brain/config.py:525`: Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live.
-    - `load(name, path)` `src/brain/config.py:530`: Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults.
-    - `secret(env_name)` `src/brain/config.py:552`
+    - class `Window` `src/brain/config.py:193`
+    - class `WorkspacePolicy` `src/brain/config.py:272`: Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.
+    - `fingerprint(*models)` `src/brain/config.py:559`: Short stable hash of the behaviour-defining config, stamped on every decision.
+    - `home()` `src/brain/config.py:528`: Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live.
+    - `load(name, path)` `src/brain/config.py:533`: Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults.
+    - `secret(env_name)` `src/brain/config.py:555`
 
 ### brain.conformance
 
@@ -493,8 +492,9 @@ flowchart LR
     - class `WaterLevel` `src/brain/contracts/models.py:145`
     - class `_Value` `src/brain/contracts/models.py:92`
     - `utcnow()` `src/brain/contracts/models.py:20`
-- **`src/brain/contracts/signing.py`** (54 lines): HMAC-SHA256 over a canonical JSON form of the envelope.
+- **`src/brain/contracts/signing.py`** (59 lines): HMAC-SHA256 over a canonical JSON form of the envelope.
     - `canonical_json(obj)` `src/brain/contracts/signing.py:19`
+    - `hmac_hex(body, secret)` `src/brain/contracts/signing.py:57`: HMAC-SHA256 of the plain canonical form, no field left out and no float rewritten: how the Guardian team's contract 1.0 signs (the caller drops the signature field).
     - `payloads(envelope)` `src/brain/contracts/signing.py:33`: The bytes a signature covers: the current form, then the older one (identical unless a whole-number float is present).
     - `sign(envelope, secret, signed_by)` `src/brain/contracts/signing.py:43`
     - `signature(envelope, secret)` `src/brain/contracts/signing.py:39`
@@ -770,7 +770,7 @@ flowchart LR
 
 - **`src/brain/mind/__init__.py`** (1 lines): The Brain's attention: a bus, a salience score and a small workspace that decides which incidents get deliberation.
 - **`src/brain/mind/ablate.py`** (65 lines): Ablations: switch one region of the Brain off, replay the Test Book, and report what it saved and what it changed.
-    - `async ablate(suite, workdir)` `src/brain/mind/ablate.py:28`: Run `suite` under each ablation. A learned reflex is taught first (two runs of d3 and one sleep) so that it can be switched off.
+    - `async ablate(suite, workdir)` `src/brain/mind/ablate.py:28`: Run `suite` under each ablation. A learned reflex is taught first (two runs of t14 and one sleep) so that it can be switched off.
     - `dump(result)` `src/brain/mind/ablate.py:64`
     - `table(result)` `src/brain/mind/ablate.py:55`
 - **`src/brain/mind/academy.py`** (264 lines): The Academy: the Brain improves its own parameters, inside a fence, one step at a time.
@@ -874,10 +874,10 @@ flowchart LR
 
 ### brain.perception
 
-- **`src/brain/perception/__init__.py`** (136 lines): Perception: turn untrusted bytes from the Twin into typed, checked readings.
-    - class `ContractError` `src/brain/perception/__init__.py:19` Methods: `__init__`.
-    - class `Perceived` `src/brain/perception/__init__.py:27`
-    - class `Perception` `src/brain/perception/__init__.py:38` Methods: `__init__`, `_translate`, `ingest`, `restore`, `snapshot`.
+- **`src/brain/perception/__init__.py`** (174 lines): Perception: turn untrusted bytes from the Twin into typed, checked readings.
+    - class `ContractError` `src/brain/perception/__init__.py:23` Methods: `__init__`.
+    - class `Perceived` `src/brain/perception/__init__.py:31`
+    - class `Perception` `src/brain/perception/__init__.py:42` Methods: `__init__`, `_from_guardian_v1`, `_translate`, `ingest`, `restore`, `snapshot`.
 
 ### brain.persistence
 
@@ -931,7 +931,7 @@ flowchart LR
     - `async promises(context)` `src/brain/rehearse.py:137`: Every scenario's own timeline keeps the temporal promises (trust before action, nothing after close, every unit home).
     - `async rehearse(out, quick, screens)` `src/brain/rehearse.py:251`: Run every step, write `<date>.md` and `<date>.json` into `out`, and return the report.
     - `async run_test_book(context)` `src/brain/rehearse.py:85`
-    - `screens_step(out, stamp)` `src/brain/rehearse.py:200`: The strips and the canopy on d3, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not.
+    - `screens_step(out, stamp)` `src/brain/rehearse.py:200`: The strips and the canopy on t14, and the canopy smoke test, if Chromium is here. Skipped (and passing) if it is not.
     - `async team_under_faults(context)` `src/brain/rehearse.py:181`: With half of the role calls failing, the team's fallbacks and the verifier still leave a safe, gate-checked run.
 
 ### brain.reliability
@@ -969,7 +969,7 @@ flowchart LR
 
 ### brain.runtime
 
-- **`src/brain/runtime.py`** (804 lines): BrainService: the loop that turns a stream of readings into decisions.
+- **`src/brain/runtime.py`** (805 lines): BrainService: the loop that turns a stream of readings into decisions.
     - class `BrainService` `src/brain/runtime.py:101` Methods: `__init__`, `_bids`, `_deliberation_request`, `_estimate`, `_handle`, `_on_percept`, `_prewarn`, `_recheck_capabilities`, `_restore`, `_save`, `_stories`, `_surprise_of`, `_taught_by`, `_team_finished`, `_team_started_pursuit`, `_twin_answered`, `_unit_returned`, `_unit_status`, `_urgency_of`, `_verdict`, `_wait_for_twin`, `handle`, `reoffer`, `retract`, `run`, `run_until_quiet`, `start`.
 
 ### brain.scenario
@@ -1104,7 +1104,7 @@ flowchart LR
 | --- | --- | --- | --- |
 | CLI | `brain ablate` | `src/brain/cli.py:170` | switch each region off in turn, replay the Test Book, and show what each one is worth |
 | CLI | `brain academy` | `src/brain/cli.py:262` | the Brain tunes its own parameters, inside a fence, and shows the evidence |
-| CLI | `brain attention` | `src/brain/cli.py:202` | where the workspace's slots and the team's runs went on the demo scenarios (d3, d4 by default) |
+| CLI | `brain attention` | `src/brain/cli.py:202` | where the workspace's slots and the team's runs went on the demo scenarios (t14, t15 by default) |
 | CLI | `brain baseline` | `src/brain/cli.py:149` | record or check what the Brain decides on the Test Book |
 | CLI | `brain bench` | `src/brain/cli.py:249` | run the scenarios, baselines, interop, security and benchmark steps and write one table (--quick skips the slow ones) |
 | CLI | `brain conformance` | `src/brain/cli.py:98` | check a Twin, a Guardian or a Brain against the contract (no arguments: the shipped mocks and this Brain) |
@@ -1205,29 +1205,29 @@ Every event the Brain emits, where it is emitted, whether the screen draws it, a
 | `brain.corridor.opened` | `src/brain/plan/corridor.py:54` | yes |  |
 | `brain.decision.made` | `src/brain/graph/actuation.py:150` | yes | test_approval, test_conditions, test_demo_scenarios, test_explain, test_learned_plans, test_mcpserver, test_observability, test_prov, test_repro, test_resilient_kb, test_restart, test_scenario_faults, test_scenarios, test_specs, test_team, test_telemetry, test_twin_http, test_twin_mqtt |
 | `brain.decision.made.data.params.zone_id` | not emitted |  | test_repro |
-| `brain.degraded` | `src/brain/runtime.py:587` | yes |  |
+| `brain.degraded` | `src/brain/runtime.py:588` | yes |  |
 | `brain.deliberation.finished` | `src/brain/departments/builder.py:481` | yes | test_team |
 | `brain.deliberation.started` | `src/brain/departments/builder.py:451` | yes | test_funnel, test_learned_plans, test_scenarios, test_sleep, test_workspace_runtime |
 | `brain.desk.assessed` | `src/brain/departments/desk.py:205` | yes | test_solver_briefs |
 | `brain.desk.decided` | `src/brain/departments/desk.py:215` | yes |  |
-| `brain.evidence.retracted` | `src/brain/runtime.py:342` | yes | test_forward_runtime, test_retraction, test_specs |
-| `brain.forecast.warned` | `src/brain/runtime.py:440` | yes |  |
+| `brain.evidence.retracted` | `src/brain/runtime.py:343` | yes | test_forward_runtime, test_retraction, test_specs |
+| `brain.forecast.warned` | `src/brain/runtime.py:441` | yes |  |
 | `brain.gate.allowed` | not emitted |  | test_telemetry |
 | `brain.gate.check` | not emitted |  | test_telemetry |
-| `brain.guardian.recovered` | `src/brain/runtime.py:751` | yes |  |
-| `brain.guardian.unavailable` | `src/brain/runtime.py:740` | yes | test_demo_scenarios, test_scenarios, test_story_js |
-| `brain.human.needed` | `src/brain/departments/desk.py:157`, `src/brain/departments/desk.py:197`, `src/brain/runtime.py:699`, `src/brain/runtime.py:704` | yes | test_security, test_workspace_runtime |
-| `brain.incident.closed` | `src/brain/runtime.py:694`, `src/brain/runtime.py:774`, `src/brain/runtime.py:790` | yes | test_api, test_conditions, test_explain, test_observability, test_packs, test_repro, test_restart, test_specs, test_team |
-| `brain.incident.opened` | `src/brain/runtime.py:684` | yes | test_api, test_attention_report, test_conditions, test_demo_scenarios, test_explain, test_observability, test_packs, test_restart, test_retraction, test_timeline_snapshot |
+| `brain.guardian.recovered` | `src/brain/runtime.py:752` | yes |  |
+| `brain.guardian.unavailable` | `src/brain/runtime.py:741` | yes | test_demo_scenarios, test_scenarios, test_story_js |
+| `brain.human.needed` | `src/brain/departments/desk.py:157`, `src/brain/departments/desk.py:197`, `src/brain/runtime.py:700`, `src/brain/runtime.py:705` | yes | test_security, test_workspace_runtime |
+| `brain.incident.closed` | `src/brain/runtime.py:695`, `src/brain/runtime.py:775`, `src/brain/runtime.py:791` | yes | test_api, test_conditions, test_explain, test_observability, test_packs, test_repro, test_restart, test_specs, test_team |
+| `brain.incident.opened` | `src/brain/runtime.py:685` | yes | test_api, test_attention_report, test_conditions, test_demo_scenarios, test_explain, test_observability, test_packs, test_restart, test_retraction, test_timeline_snapshot |
 | `brain.llm.status` | `src/brain/llm_health.py:104` | yes | test_llm_health, test_security |
-| `brain.math.estimated` | `src/brain/runtime.py:403` | yes |  |
+| `brain.math.estimated` | `src/brain/runtime.py:404` | yes |  |
 | `brain.mcp.called` | `src/brain/mcpserver.py:52` | yes | test_mcpserver |
 | `brain.options.prepared` | `src/brain/departments/builder.py:202` | yes | test_explain, test_repro, test_story_js, test_timing |
 | `brain.options.prepared.data.usage.seconds` | not emitted |  | test_repro |
 | `brain.pack.bid` | `src/brain/mind/workspace.py:127` | yes | test_bids |
-| `brain.pack.rejected` | `src/brain/runtime.py:299` | yes | test_knowledge_graph, test_packs |
+| `brain.pack.rejected` | `src/brain/runtime.py:300` | yes | test_knowledge_graph, test_packs |
 | `brain.pack.uncovered` | `src/brain/mind/workspace.py:131` | yes | test_bids |
-| `brain.percept.surprise` | `src/brain/runtime.py:460` | yes | test_conditions, test_forward_runtime |
+| `brain.percept.surprise` | `src/brain/runtime.py:461` | yes | test_conditions, test_forward_runtime |
 | `brain.perimeter.checked` | `src/brain/departments/builder.py:250` | yes | test_story_js |
 | `brain.plan.compiled` | `src/brain/graph/incident_graph.py:121` | yes | test_learned_plans, test_sleep |
 | `brain.plan.outdated` | `src/brain/graph/incident_graph.py:282` | yes |  |
@@ -1235,9 +1235,9 @@ Every event the Brain emits, where it is emitted, whether the screen draws it, a
 | `brain.plan.rejected` | `src/brain/departments/builder.py:255` | yes | test_solver_briefs, test_team |
 | `brain.plan.verified` | `src/brain/departments/builder.py:255` | yes | test_explain, test_rag_eval, test_scenarios, test_solver_briefs, test_story_js, test_team |
 | `brain.push.refused` | `src/brain/api/routes/events.py:38` | yes |  |
-| `brain.reading.received` | `src/brain/runtime.py:659` | yes | test_attention_report, test_conditions, test_explain, test_explain_render, test_forward_runtime, test_funnel, test_journal, test_observability, test_repro, test_telemetry |
-| `brain.reading.rejected` | `src/brain/runtime.py:651` | yes | test_restart |
-| `brain.recovered` | `src/brain/runtime.py:604` | yes |  |
+| `brain.reading.received` | `src/brain/runtime.py:660` | yes | test_attention_report, test_conditions, test_explain, test_explain_render, test_forward_runtime, test_funnel, test_journal, test_observability, test_repro, test_telemetry |
+| `brain.reading.rejected` | `src/brain/runtime.py:652` | yes | test_restart |
+| `brain.recovered` | `src/brain/runtime.py:605` | yes |  |
 | `brain.scenario.failed` | `src/brain/api/__init__.py:223` | yes |  |
 | `brain.scenario.finished` | `src/brain/scenario.py:506` | yes | test_replay |
 | `brain.scenario.started` | `src/brain/replay.py:138`, `src/brain/scenario.py:488` | yes |  |
@@ -1251,15 +1251,15 @@ Every event the Brain emits, where it is emitted, whether the screen draws it, a
 | `brain.solver.fallback` | `src/brain/departments/facts.py:39`, `src/brain/engines/dispatch.py:155`, `src/brain/engines/dispatch.py:168` | yes | test_engines_dispatch |
 | `brain.solver.solved` | `src/brain/engines/dispatch.py:160` | yes | test_engines_dispatch, test_telemetry |
 | `brain.solver.started` | `src/brain/engines/dispatch.py:151` |  |  |
-| `brain.started` | `src/brain/runtime.py:283` | yes |  |
-| `brain.state.discarded` | `src/brain/runtime.py:503` | yes | test_restart |
-| `brain.state.restored` | `src/brain/runtime.py:521` | yes | test_restart |
+| `brain.started` | `src/brain/runtime.py:284` | yes |  |
+| `brain.state.discarded` | `src/brain/runtime.py:504` | yes | test_restart |
+| `brain.state.restored` | `src/brain/runtime.py:522` | yes | test_restart |
 | `brain.suspect.assessed` | `src/brain/graph/incident_graph.py:179` | yes | test_scenarios |
 | `brain.suspect.tracked` | `src/brain/graph/incident_graph.py:165` | yes | test_team |
-| `brain.twin.capabilities.changed` | `src/brain/runtime.py:617` |  | test_llm_security |
-| `brain.unit.status` | `src/brain/runtime.py:778` | yes | test_team |
-| `brain.units.released` | `src/brain/graph/actuation.py:280`, `src/brain/runtime.py:764` | yes | test_conditions, test_preemption, test_restart, test_specs |
-| `brain.verdict.received` | `src/brain/runtime.py:667` | yes | test_explain, test_funnel, test_scenarios, test_specs, test_telemetry |
+| `brain.twin.capabilities.changed` | `src/brain/runtime.py:618` |  | test_llm_security |
+| `brain.unit.status` | `src/brain/runtime.py:779` | yes | test_team |
+| `brain.units.released` | `src/brain/graph/actuation.py:280`, `src/brain/runtime.py:765` | yes | test_conditions, test_preemption, test_restart, test_specs |
+| `brain.verdict.received` | `src/brain/runtime.py:668` | yes | test_explain, test_funnel, test_scenarios, test_specs, test_telemetry |
 | `brain.workspace.deferred` | `src/brain/mind/workspace.py:106` | yes | test_attention_report, test_funnel, test_workspace_runtime |
 | `brain.workspace.ignited` | `src/brain/mind/workspace.py:115`, `src/brain/mind/workspace.py:89` | yes | test_attention_report, test_bids, test_explain, test_funnel, test_workspace_runtime |
 | `brain.workspace.released` | `src/brain/mind/workspace.py:54` | yes | test_story_js, test_workspace_runtime |
@@ -1288,9 +1288,9 @@ Playbook items (`src/brain/departments/playbooks/police.yaml`): `POL-PB-001` Pur
 
 Each file must equal its model's defaults (a test checks this): change both together.
 
-- `config/models.yaml` → `brain.config.ModelsConfig` (src/brain/config.py:496); loaded by `brain.commands.common`, `brain.envprint`
-- `config/partners.yaml` → `brain.config.PartnersConfig` (src/brain/config.py:179); loaded by `brain.commands.common`, `brain.commands.learning`, `brain.commands.run`, `brain.envprint`, `tests.test_contracts`
-- `config/policy.yaml` → `brain.config.Policy` (src/brain/config.py:417); loaded by `brain.bench`, `brain.commands.evidence`, `brain.commands.learning`, `brain.commands.run`, `brain.commands.trust`
+- `config/models.yaml` → `brain.config.ModelsConfig` (src/brain/config.py:499); loaded by `brain.commands.common`, `brain.envprint`
+- `config/partners.yaml` → `brain.config.PartnersConfig` (src/brain/config.py:182); loaded by `brain.commands.common`, `brain.commands.learning`, `brain.commands.run`, `brain.envprint`, `tests.test_contracts`
+- `config/policy.yaml` → `brain.config.Policy` (src/brain/config.py:420); loaded by `brain.bench`, `brain.commands.evidence`, `brain.commands.learning`, `brain.commands.run`, `brain.commands.trust`
 
 ## Test Book scenarios
 
@@ -2027,7 +2027,7 @@ Imports: `brain.adapters`, `brain.adapters.guardian_v1`, `brain.config`, `brain.
 
 The container image: non-root, no secret inside, and the Brain runs a scenario in it with no network. Skipped without Docker or the image.
 
-- `test_d3_passes_inside_the_image_with_no_network` `tests/test_images.py:36`
+- `test_t14_passes_inside_the_image_with_no_network` `tests/test_images.py:36`
 - `test_the_brain_image_holds_no_env_secret` `tests/test_images.py:27`
 - `test_the_brain_image_runs_as_a_non_root_user` `tests/test_images.py:20`
 - `test_the_image_starts_with_the_embedding_model_already_in_it` `tests/test_images.py:42`
@@ -2333,6 +2333,21 @@ Imports: `brain.clock`, `brain.config`, `brain.contracts`, `brain.contracts.sign
 - `test_unknown_reading_types_pass_through_untyped` `tests/test_perception.py:42`
 - `test_without_a_limit_the_timestamp_is_not_compared_with_the_clock` `tests/test_perception.py:266`
 - `test_without_a_profile_a_renamed_field_is_rejected_with_a_clear_code` `tests/test_perception.py:172`
+
+### `tests/test_perception_guardian_v1.py` (8 tests)
+
+Readings in the Guardian team's contract 1.0, as their Twin mock really sent them (captured 8 Nov 2026) and as their Interface Card shows them.
+
+Imports: `brain.adapters.guardian_v1`, `brain.perception`
+
+- `test_a_changed_value_or_a_missing_signature_is_refused` `tests/test_perception_guardian_v1.py:35`
+- `test_a_reading_in_our_own_format_is_refused_by_a_brain_set_to_their_dialect` `tests/test_perception_guardian_v1.py:48`
+- `test_a_reading_their_twin_really_sent_is_accepted_and_typed` `tests/test_perception_guardian_v1.py:25`
+- `test_a_repeated_sequence_number_is_a_replay` `tests/test_perception_guardian_v1.py:55`
+- `test_a_restarted_twin_may_start_the_counter_again_only_with_a_newer_reading` `tests/test_perception_guardian_v1.py:65`
+- `test_a_sensor_the_brain_does_not_model_passes_untyped_and_an_emergency_call_gets_our_category` `tests/test_perception_guardian_v1.py:76`
+- `test_our_own_dialect_is_unchanged` `tests/test_perception_guardian_v1.py:85`
+- `test_the_example_in_their_card_verifies_with_its_example_key` `tests/test_perception_guardian_v1.py:31`
 
 ### `tests/test_perimeter.py` (9 tests)
 

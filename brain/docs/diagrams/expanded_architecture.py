@@ -433,7 +433,7 @@ footer { color: var(--muted); font-size: .85rem; border-top: 1px solid var(--lin
 <tr><td>Log bytes</td><td><span class="tag open">different every run</span>: a random id per event and the wall clock</td></tr>
 <tr><td>The agents' prompt</td><td><span class="tag open">differs</span> by the wall-clock time of the incident</td></tr>
 <tr><td>Real model, same prompt, temperature 0</td><td><span class="tag open">5 different answers in 5 calls</span>; with a seed, 4 different in 5</td></tr>
-<tr><td>Real team on the earlier b2 (now d3), 26 Oct, 5 trials</td><td>3 distinct plans, agreement 0.75, all 5 passed the checks</td></tr>
+<tr><td>Real team on the earlier b2 (now t14), 26 Oct, 5 trials</td><td>3 distinct plans, agreement 0.75, all 5 passed the checks</td></tr>
 <tr><td>Can a log be replayed?</td><td><span class="tag open">no</span>: it keeps a summary of each reading, not the reading</td></tr>
 </table></div>
 <h3 style="margin-top:28px">What the Brain claims, level by level</h3>
@@ -542,7 +542,7 @@ __PLANEROWS__
 <tr><td>How soon does the water overflow?</td><td>Kalman filter, level and rate</td><td>Static threshold</td><td class="num">forward-bench ramps</td></tr>
 <tr><td>What path clears the way for an ambulance?</td><td>Time-dependent shortest path, then signals</td><td>No corridor</td><td class="num">unit tests</td></tr>
 <tr><td>What is the plan?</td><td>Agent team on LangGraph, bounded by the solver</td><td>Scripted team, solver</td><td class="num">plan agreement, gap</td></tr>
-<tr><td>Is it allowed?</td><td>The gate. Code, never a model</td><td>It cannot be absent</td><td class="num">d1 to d4, red team</td></tr>
+<tr><td>Is it allowed?</td><td>The gate. Code, never a model</td><td>It cannot be absent</td><td class="num">t12 to t15, red team</td></tr>
 <tr><td>Who may approve a valve or grid cut?</td><td>LangGraph interrupt and an HMAC-signed approval</td><td>The action stays held</td><td class="num">tampered approval refused (tests)</td></tr>
 <tr><td>Why did it do that?</td><td>Explanation from the log, PROV export, signed bundle</td><td>Same, from the log alone</td><td class="num">counterfactuals on the gate</td></tr>
 <tr><td>How do we improve safely?</td><td>Sleep, Academy, one audited improvement cycle</td><td>Off</td><td class="num">before and after on held-out seeds</td></tr>
@@ -572,7 +572,7 @@ __PLANEROWS__
 
 <section id="trace">
 <h2>One flood, through every engine</h2>
-<p>Shown in scenario <code>d4</code>. It shows the interconnection in one pass: the same trace id follows the reading through all of this.</p>
+<p>Shown in scenario <code>t15</code>. It shows the interconnection in one pass: the same trace id follows the reading through all of this.</p>
 <ol class="flow">
 <li><b>A water-level reading arrives, signed.</b> Perception checks the contract, the signature and the replay counter.</li>
 <li><b>The Guardian trusts it and the forward model agrees.</b> The Kalman tracker reports the rise rate and a time to the flood threshold with an interval.</li>

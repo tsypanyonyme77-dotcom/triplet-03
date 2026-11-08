@@ -1,6 +1,6 @@
 """Writes logs/canonical/bN.jsonl and bN.inputs.jsonl: one verified, repeatable run of every Test Book scenario.
 
-    uv run python scripts/make_canonical.py [d3 d4 ...]
+    uv run python scripts/make_canonical.py [t14 t15 ...]
 
 The runs are deterministic (see brain.clock), so rerunning gives the same bytes, and `brain replay logs/canonical/bN.inputs.jsonl`
 reproduces them. They are sealed with the development secrets, so replay them with no `.env` loaded. A scenario that fails is not written.
@@ -38,7 +38,7 @@ async def main(ids: list[str]) -> int:
     for name, value in DEV_SECRETS.items():
         os.environ[name] = value  # sealed with the development secrets whatever the environment holds
     OUT.mkdir(parents=True, exist_ok=True)
-    ids = ids or [p.stem for p in sorted((ROOT / "scenarios").glob("d*.json"), key=lambda p: int(p.stem[1:]))]
+    ids = ids or [p.stem for p in sorted((ROOT / "scenarios").glob("t*.json"), key=lambda p: int(p.stem[1:]))]
     return 0 if all([await one(i) for i in ids]) else 1
 
 

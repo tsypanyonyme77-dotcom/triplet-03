@@ -274,7 +274,7 @@ the header chip shows the state; M forces the scripted team; `brain llm-check` t
 a closed incident ─▶ an episode (state/episodes) ─▶ brain sleep: the same plan made more than once
    ─▶ rehearsed as a candidate reflex against the real team ─▶ promoted only if it passes every check
    ─▶ next time the pattern recurs a learned reflex answers: team runs 1 → 0, time to last action 74.6 ms → 35.3 ms,
-      decisions identical (brain learning-curve d3)
+      decisions identical (brain learning-curve t14)
 ```
 
 ## 7. The switches that matter
@@ -298,7 +298,7 @@ a closed incident ─▶ an episode (state/episodes) ─▶ brain sleep: the sam
 
 ```bash
 uv run brain serve --approvals            # the screen at :8080; number keys run scenarios; C canopy; M model; G a guided tour
-uv run brain scenario t15 --inproc --speed 0   # one scenario in a second (d1 to d4)
+uv run brain scenario t15 --inproc --speed 0   # one scenario in a second (t12 to t16)
 uv run brain explain …                    # why a decision was taken, with counterfactuals
 uv run brain replay logs/<run>.inputs.jsonl    # play a run back; exit 0 if identical
 uv run brain llm-check                    # is the key good, how much quota is left
