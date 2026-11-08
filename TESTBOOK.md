@@ -94,7 +94,7 @@ Checked: dispatched units [{'unit_type': 'police', 'mode': 'pursuit', 'target_id
 | Trigger | `./scenarios/triggers/t15.sh`, or `uv run brain scenario t15` |
 | Expected: Twin | Streams 6 signed readings from 4 sensors (cctv_anomaly, emergency_call, traffic_camera, water_level); answers each actuator call. |
 | Expected: Guardian | Judges every reading `trusted` by default, each within the Brain's 2 s verdict deadline except cam-07-02: `untrusted` and goes silent after 120 verdicts. |
-| Expected: Brain | Warns the harbour from the evidence it holds, but holds the valve call: only one trusted source vouches for the flood. Tracks the forged robbery report without sending police. When the Guardian goes quiet it says so once and keeps going in degraded mode, with low-impact alerts only. |
+| Expected: Brain | Warns the harbour from the evidence it holds, but holds the valve call: only one trusted source vouches for the flood. Tracks the forged robbery report without sending police. When the Guardian goes quiet it says so once and acts on no reading it has not judged. |
 | How to verify | Timeline screen (key `4`); log file `logs/t15-*.jsonl`; `uv run brain scenario t15 --inproc --speed 0` prints each check; `uv run brain replay logs/canonical/t15.inputs.jsonl` reproduces it |
 
 ### T16: A quarantined police station

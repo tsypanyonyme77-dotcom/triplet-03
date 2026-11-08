@@ -136,8 +136,8 @@ def boundary() -> str:
     h = bottom - top
     twin = c.box(10, top, 190, "Twin", ["Any engine that speaks the Interface Card."], "partner", h)
     ta = c.box(230, top, 190, "Twin adapters", ["One class each: MCP (default), HTTP, MQTT.", "Protocol, TLS and retries stay here.", "With a v1 Guardian a gateway wraps it: audited actions go through the Guardian."], "", h)
-    ga = c.box(836, top, 190, "Guardian adapter", ["Two classes: REST (our contract) and v1 (the Guardian team's 1.0).", "A bad or late verdict becomes degraded mode, not a crash."], "", h)
-    guardian = c.box(1056, top, 174, "Guardian", ["Any service that issues a verdict. The team's one also audits actuator calls and quarantines."], "partner", h)
+    ga = c.box(836, top, 190, "Guardian adapter", ["Two classes: REST (our contract) and v1 (the Guardian team's 1.0).", "A missing or late verdict means no action, never a crash."], "", h)
+    guardian = c.box(1056, top, 174, "Guardian", ["Any service that issues a verdict. The team's one is fed by the Twin directly, audits actuator calls and quarantines."], "partner", h)
     for x, name in ((430, "TwinPort"), (808, "GuardianPort")):
         c.frame(x, top, 18, h)
         c.label(x + 9, top - 10, name, "middle")

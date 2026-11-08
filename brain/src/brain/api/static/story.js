@@ -50,8 +50,8 @@
             why: "The Brain will still look at it, but it cannot be the reason for any order." }
         : null,  /* no verdict at all is said once, by brain.guardian.unavailable */
     "brain.guardian.unavailable": () => ({ layer: "GUARDIAN", step: 1, tone: "hold",
-      say: "The Guardian has stopped answering, so the Brain carries on carefully: only low-impact actions until it returns.",
-      why: "With no verdicts, nothing can be trusted, so the Brain keeps watching and sends only warnings that cannot hurt." }),
+      say: "The Guardian has stopped answering, so the Brain keeps watching but acts on nothing new until it returns.",
+      why: "Every action needs a trusted verdict: no verdict, no action, which is also the Guardian's own fail-safe rule." }),
     "brain.incident.opened": (e, s, d) => ({ layer: "BRAIN", step: 2, tone: "now",
       say: `The Brain opens a ${incidentWord[d.type] || d.type} incident in ${zone(s, d.zone_id)}${d.evidence_verdict === "untrusted" ? ", though its evidence is not trusted" : ""}.`,
       why: "An incident is the Brain's file on one event: it collects every reading about it and tracks it until it closes." }),

@@ -162,7 +162,7 @@ The book requires scenarios that, taken together, test all three layers and ever
 
 The Guardian team's own scenarios (T1 to T11) are in the shared root [`TESTBOOK.md`](../TESTBOOK.md), with their logs in the root `logs/` folder.
 
-**"A team whose layer behaves correctly is not penalized for a partner's failure, provided it shows this with its mocks."** Each such failure is a scripted fault in a scenario, not a claim: the Guardian goes silent (`faults.guardian.after_verdicts` in T15; the Brain emits `brain.guardian.unavailable`, sends only low-impact alerts and dispatches no police), the Guardian quarantines a device (T16), a sensor lies (T13), the Twin drops (`faults.twin`), the vector index dies (`faults.knowledge`). The `expect` block of each names what must happen and what must never happen, and the canonical log is the evidence.
+**"A team whose layer behaves correctly is not penalized for a partner's failure, provided it shows this with its mocks."** Each such failure is a scripted fault in a scenario, not a claim: the Guardian goes silent (`faults.guardian.after_verdicts` in T15; the Brain emits `brain.guardian.unavailable`, acts on no reading it has not judged and dispatches no police), the Guardian quarantines a device (T16), a sensor lies (T13), the Twin drops (`faults.twin`), the vector index dies (`faults.knowledge`). The `expect` block of each names what must happen and what must never happen, and the canonical log is the evidence.
 
 ### Demo day (the 2-minute pitch and 8-minute live demo)
 

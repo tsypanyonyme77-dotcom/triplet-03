@@ -525,7 +525,7 @@ def flow_fake_flood() -> D:
 
 
 def flow_flood_attack() -> D:
-    d = D("flow-flood-attack", "Example run: a flood, an attack and a layer down (t15)", "The river rises while a forged robbery report arrives and a camera floods the Brain. The forecast warns the harbour before the line. The valve waits, because one trusted source is not two. Then the Guardian goes silent: the Brain says so once and carries on with low-impact alerts only.")
+    d = D("flow-flood-attack", "Example run: a flood, an attack and a layer down (t15)", "The river rises while a forged robbery report arrives and a camera floods the Brain. The forecast warns the harbour before the line. The valve waits, because one trusted source is not two. Then the Guardian goes silent: the Brain says so once and acts on nothing the Guardian has not judged.")
     d.lanes([TWIN, GUARD, BRAIN, GATE], [
         (0, "waves", "River gauge rising; a forged robbery report", "twin"),
         (1, "cross", "The robbery report: untrusted", "bad"),
@@ -535,14 +535,14 @@ def flow_flood_attack() -> D:
         (2, "search", "Flood incident opened", "brain"),
         (3, "stop", "Valve HELD: needs 2 trusted sources, found 1", "bad"),
         (1, "stop", "The Guardian stops answering. Said once", "bad"),
-        (0, "alert2", "Warnings still reach the harbour", "good"),
+        (2, "shield", "Nothing new is sent without a verdict", "good"),
     ], step=150)
     return d
 
 
 def flow_failure() -> D:
     d = D("flow-failures", "Example runs: when something breaks", "Each failure has a planned answer, and each is checked by a test or a scenario. The rule is the same throughout: lose a helper and carry on; lose trust and stop acting.")
-    rows = [("shield", "Guardian stops answering", "t15", "guardian", "stop", "Low-impact actions only, and it says so once", "bad", "Safe: no high-impact action on unjudged data"),
+    rows = [("shield", "Guardian stops answering", "t15", "guardian", "stop", "No action without a verdict; it says so once", "bad", "Safe: nothing acted on unjudged data"),
             ("city", "Twin unreachable mid-pursuit", "tests", "twin", "loop", "Says it is degraded, asks again every 2 s", "brain", "Twin returns; the run carries on"),
             ("qdrant", "Vector store stops", "tests", "store", "book", "Copy in memory answers the search", "good", "Decisions do not change; the switch is logged"),
             ("groq", "A model call fails", "real runs", "store", "agents", "Scripted stand-in takes the role", "good", "Scenario still passes; fallback logged"),

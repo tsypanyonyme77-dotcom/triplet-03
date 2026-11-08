@@ -172,7 +172,7 @@ function resize() {
   camera.aspect = W / H; camera.updateProjectionMatrix();
   uScale.value = H * renderer.getPixelRatio() / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
   sizePost();
-  if (!running) draw(0);
+  draw(0);  /* setSize clears the canvas: draw now, in the same frame, or one blank frame is shown */
 }
 
 function glowSprite(color, size) {
@@ -671,7 +671,7 @@ function shotFor(e, s) {
       if (!row || !p || !["dispatched", "duplicate", "broadcast", "ok", "accepted"].includes(d.status)) return null;
       return { pri: 3, dwell: 1.6, zone: z, cam: p ? closeOn(p) : null, legs: [leg("twin", .7), { cam: closeOn(p), hold: .9 }], head: d.unit_id ? `${String(d.unit_id).replace(/^unit-/, "")} is on its way` : "The Twin answered", sub: `${describe(s, row.action, row.params)[0]}`, tone: "good", comet: { from: true, to: p, color: COLOR.bone } };
     }
-    case "brain.guardian.unavailable": return { pri: 6, dwell: 2.6, cam: regionCam("senses"), legs: [leg("senses", 2.2)], head: "The Guardian has stopped answering", sub: "Only low-impact actions until it returns", tone: "critical" };
+    case "brain.guardian.unavailable": return { pri: 6, dwell: 2.6, cam: regionCam("senses"), legs: [leg("senses", 2.2)], head: "The Guardian has stopped answering", sub: "No verdict, no action until it returns", tone: "critical" };
     case "brain.degraded": return { pri: 5, dwell: 2.2, cam: regionCam("twin"), legs: [leg("twin", 1.9)], head: "The Twin has stopped answering", sub: "The Brain keeps what it holds and tries again", tone: "critical" };
     case "brain.recovered": return { pri: 4, dwell: 1.8, cam: regionCam("twin"), legs: [leg("twin", 1.5)], head: "The Twin answers again", sub: "The Brain reads on from where it stopped", tone: "good" };
     case "brain.human.needed": return { pri: 5, dwell: 2.4, cam: regionCam("gate"), legs: [leg("gate", 2)], head: "A person is needed", sub: names(s, String(d.message || d.why || "the Brain cannot decide this alone").replace(/_/g, " ")), tone: "held" };

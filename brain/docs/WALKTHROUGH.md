@@ -116,7 +116,7 @@ A robbery is caught on camera in Downtown. One citizen who was at the scene runs
 
 A real flood is rising at the harbour. At the same time a compromised camera reports a robbery, one sensor floods the Brain with readings, and the Guardian stops answering.
 
-**What the Brain should do:** Warns the harbour from the evidence it holds, but holds the valve call: only one trusted source vouches for the flood. Tracks the forged robbery report without sending police. When the Guardian goes quiet it says so once and keeps going in degraded mode, with low-impact alerts only.
+**What the Brain should do:** Warns the harbour from the evidence it holds, but holds the valve call: only one trusted source vouches for the flood. Tracks the forged robbery report without sending police. When the Guardian goes quiet it says so once and acts on no reading it has not judged.
 
 | # | Element | What happens | Why it matters |
 | --- | --- | --- | --- |
@@ -137,7 +137,7 @@ A real flood is rising at the harbour. At the same time a compromised camera rep
 | 15 | Safety gate | The Safety gate checks the order to warn Harbor and signs it. | The gate checks the order's trust, evidence, limits and who may approve it, then signs it. Only a signed order reaches the city. |
 | 16 | City | The warning reaches Harbor. | The Twin carries out the signed order and answers that it did, so the Brain knows it happened. |
 | 17 | Twin, Guardian | The Twin sends 24 readings and the Guardian judges 23. | Every reading enters here, signed, and is checked before anything depends on it. |
-| 18 | Guardian | The Guardian has stopped answering, so the Brain carries on carefully: only low-impact actions until it returns. | With no verdicts, nothing can be trusted, so the Brain keeps watching and sends only warnings that cannot hurt. |
+| 18 | Guardian | The Guardian has stopped answering, so the Brain keeps watching but acts on nothing new until it returns. | Every action needs a trusted verdict: no verdict, no action, which is also the Guardian's own fail-safe rule. |
 | 19 | Twin | The Twin sends 48 readings. | Every reading enters here, signed, and is checked before anything depends on it. |
 | 20 | Brain | The scenario is over and every expectation was met. | Each scenario states in advance what each layer must do; this is the check against it. |
 

@@ -98,7 +98,7 @@ A third mode, `guardian.mode: inline`, is built in the Brain (`runtime._verdict`
 `BrainService._handle` (`runtime.py`) runs this for every reading, in order:
 
 1. **Perception** (`perception/`). Checks the contract version, the HMAC signature, the sequence number (a replay or out-of-order reading is refused) and the value ranges; drops every field outside an allowlist (demographic fields never enter); applies renames and units from config only after the signature check. A bad reading becomes `brain.reading.rejected` with a stable code (`signature_invalid`, `replay_or_out_of_order`, `value_invalid`…).
-2. **Guardian verdict** (`adapters/guardian_rest.py`, or `guardian_v1.py` for the Guardian team's). `POST /verdicts` with the reading (v1: `POST /v1/verdicts/request` by sensor and sequence number) with a 2 s deadline. If the Guardian is silent the Brain enters degraded mode (`brain.guardian.unavailable`): only low-impact actions can pass, and a score built on unvouched evidence is damped to near zero.
+2. **Guardian verdict** (`adapters/guardian_rest.py`, or `guardian_v1.py` for the Guardian team's). `POST /verdicts` with the reading (v1: `POST /v1/verdicts/request` by sensor and sequence number) with a 2 s deadline. If the Guardian is silent the Brain says so once (`brain.guardian.unavailable`) and acts on no reading it has not judged: every call still needs a trusted, unexpired verdict, and only a low-impact call backed by an earlier verdict can pass, and a score built on unvouched evidence is damped to near zero.
 3. **Store** (`citygraph/`). The reading and its verdict become nodes in the city graph (in memory, and mirrored to Neo4j by default; the knowledge vectors are in Qdrant).
 4. **Forward models and the level forecast** (`mind/forward.py`, `mind/neighbours.py`, `engines/kalman.py`). Each sensor learns its own normal. A reading far outside it is a *surprise*; the first one is *doubted* and the reflex that would act on it is held. A level tracker also forecasts when a water level crosses the flood line.
 5. **Early alert** (`runtime._prewarn`). If a trusted forecast says the line is within 10 minutes (and no forward model doubts the reading and no coupled sensor disagrees), one low-impact alert goes to the zone through the gate, before the line is crossed.
@@ -274,7 +274,7 @@ brain.guardian.unavailable the Guardian stops answering; one event, then degrade
 … a camera floods the Brain with readings, each now "unavailable" …  brain.scenario.finished passed
 ```
 
-The early alert is skipped on a doubted gauge: a public message gets the same safeguards as the reflex. The valve waits because one trusted source is not enough, not because the Guardian went away; after it goes away only low-impact actions could pass.
+The early alert is skipped on a doubted gauge: a public message gets the same safeguards as the reflex. The valve waits because one trusted source is not enough, not because the Guardian went away; after it goes away nothing new is sent, because no new reading has a verdict.
 
 ### 6.4 Two collisions, one close ambulance (unit tests)
 
@@ -284,7 +284,7 @@ No demo scenario shows this any more; `tests/test_engines_dispatch.py` does. Wit
 
 - **`t13`, a fake flood.** A second gauge reads 1.8 m while the honest one reads 0.3 m. The Guardian marks it untrusted. The Brain still opens a flood incident, but `brain.action.blocked` twice (check `trust_ref`: no Guardian verdict stands behind the order), once for the warning and once for the valve. Nothing is sent. The incident closes when the honest gauge reads on.
 - **`t15`, the forged robbery.** The camera reading is untrusted; the incident opens with `evidence_verdict: untrusted` and no police are sent.
-- **`t15`, the Guardian goes down.** `brain.guardian.unavailable` once; every later verdict is `unavailable`. Only low-impact actions could pass.
+- **`t15`, the Guardian goes down.** `brain.guardian.unavailable` once; every later verdict is `unavailable`, so nothing new is sent: the log shows no action after that point.
 
 ### 6.6 A person is needed
 

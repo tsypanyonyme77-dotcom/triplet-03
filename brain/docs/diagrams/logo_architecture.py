@@ -28,7 +28,7 @@ BRAND = {
     "githubactions": "2088FF", "modelcontextprotocol": "111111", "uv": "DE5FE9", "pytest": "0A9EDC", "threedotjs": "111111",
     "mqtt": "660066", "apachekafka": "231F20", "openapiinitiative": "6BA539", "eclipsemosquitto": "3C5280", "jsonwebtokens": "111111", "openssl": "721412",
 }
-SIZES = {"networkx": (452, 101), "groq": (40, 15), "grpc": (366, 157), "cloudevents": (366, 246)}  # width, height of the files that are not square
+SIZES = {"networkx": (96, 101), "groq": (40, 15), "grpc": (366, 157), "cloudevents": (366, 246)}  # width, height of the files that are not square
 
 GLYPHS = {
     "city": '<path d="M6 42V22h10v20M16 42V10h12v32M28 42V26h10v16M4 42h40"/>',
@@ -64,8 +64,8 @@ def logo_uri(name: str) -> tuple[str, float]:
     svg = (LOGOS / f"{name}.svg").read_text()
     if name in BRAND:
         svg = re.sub(r"<svg ", f'<svg fill="#{BRAND[name]}" ', svg, count=1)
-    if name == "networkx":  # the banner carries white padding; the file's own size is what matters
-        svg = re.sub(r'(<svg[^>]*?)width="[^"]*"', r'\1', svg, count=1)
+    if name == "networkx":  # the file is the full banner with no viewBox and Inkscape-only lettering: keep the node mark on its left
+        svg = re.sub(r'width="[\d.]+"\s+height="[\d.]+"', 'width="96" height="101" viewBox="0 0 96 101"', svg, count=1)
     w, h = SIZES.get(name, (24, 24))
     return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode(), w / h
 
@@ -168,7 +168,7 @@ class Canvas:
 
 
 def big_picture() -> str:
-    c = Canvas(1240, "The City Brain sits between the Twin and the Guardian. Readings come in over MCP, verdicts over REST, and every action leaves through the gate.")
+    c = Canvas(1240, "The Twin feeds both the Brain and the Guardian. The Brain asks the Guardian for its verdict on each reading over REST, and every action leaves through the gate.")
     others = c.card(532, 8, ["modelcontextprotocol"], "Other teams", "call our tools", "new")
     twin = c.card(30, 180, ["city"], "Twin", "the city engine", "partner")
     brain = c.card(500, 180, ["brain", "python", "langgraph", "fastapi"], "City Brain", "Python, LangGraph, FastAPI", "", 240)
@@ -178,10 +178,13 @@ def big_picture() -> str:
     ops = c.card(764, 372, ["grafana", "jaeger"], "Operators", "metrics and traces", "new")
     c.arrow(f"M{twin.right} 232 H{brain.x}")
     c.label(285, 222, "readings · MCP")
+    # The Twin feeds the Guardian too; the Brain asks for the verdict on the same signed reading by sensor and sequence number.
+    c.arrow(f"M{twin.x + 40} {twin.bottom} V560 H{guardian.cx} V{guardian.bottom}")
+    c.label(900, 552, "readings, pushed · REST /v1/readings")
     c.arrow(f"M{brain.right} 218 H{guardian.x}")
-    c.label(910, 208, "reading to judge")
+    c.label(887, 208, "ask: sensor + seq no · REST")
     c.arrow(f"M{guardian.x} 254 H{brain.right}")
-    c.label(910, 272, "verdict · REST")
+    c.label(887, 272, "signed verdict · REST")
     c.arrow(f"M{others.cx} {others.bottom} V{brain.y}")
     c.label(others.cx + 14, 166, "MCP tools", "start")
     c.arrow(f"M{brain.cx} {brain.bottom} V{gate.y}")
@@ -189,8 +192,8 @@ def big_picture() -> str:
     c.label(screen.cx - 8, 330, "live feed", "end")
     c.arrow(f"M{brain.right - 20} {brain.bottom} V340 H{ops.cx} V{ops.y}")
     c.arrow(f"M{gate.cx} {gate.bottom} V528 H{twin.cx} V{twin.bottom}", "ember")
-    c.label(260, 520, "signed calls · MCP tools", "middle")
-    c.low = max(c.low, 540)
+    c.label(369, 520, "signed calls · 4 kinds audited by the Guardian", "middle")
+    c.low = max(c.low, 566)
     return c.svg()
 
 
@@ -439,9 +442,9 @@ def incident_flow() -> str:
         (["brain"], "6 Workspace", "two slots of attention", "", "global workspace"),
     ]
     mid = [  # drawn right to left
-        (["agents"], "7 Packs bid", "who can answer", "", "specialised modules"),
+        (["agents"], "7 Departments bid", "who can answer", "", "specialised modules"),
         (["python", "langgraph"], "8 Reflex", "rules act at once", "", "reflexes and habits"),
-        (["ortools"], "9 Solve", "allocator, milliseconds", "new", "not biological"),
+        (["ortools"], "9 Solve", "allocator, milliseconds", "new", "a solver, no analogue"),
         (["langchain", "groq"], "10 Deliberate", "agent team, seconds", "", "prefrontal"),
         (["scale"], "11 Reconcile", "the better plan wins", "new", "habit vs deliberation"),
         (["shield"], "12 Verify", "code checks the agents", "", "conflict monitor (code)"),
