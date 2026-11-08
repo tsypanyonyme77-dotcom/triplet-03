@@ -1,0 +1,9 @@
+.venv/
+**/__pycache__/
+*.pyc
+tests/
+tools/
+docs/
+src/viewer/
+**/node_modules/
+**/dist/

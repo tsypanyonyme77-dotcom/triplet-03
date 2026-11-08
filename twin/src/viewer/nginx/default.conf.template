@@ -1,0 +1,23 @@
+# TWIN_URL and TWIN_OPERATOR_KEY are filled in when the container starts.
+server {
+    listen 80;
+    root /usr/share/nginx/html;
+    # A browser sends every cookie it holds for localhost, on any port, so other local projects' cookies
+    # arrive here too; the default 8k per header answers them with 400.
+    large_client_header_buffers 4 128k;
+
+    location /twin/ {
+        proxy_pass ${TWIN_URL}/;
+        proxy_set_header X-Operator-Key "${TWIN_OPERATOR_KEY}";
+        proxy_set_header Cookie "";  # the Twin uses none
+        # the frame stream: pass every event on at once and keep the connection through a pause
+        proxy_http_version 1.1;
+        proxy_set_header Connection "";
+        proxy_buffering off;
+        proxy_read_timeout 1h;
+    }
+
+    location / {
+        try_files $uri /index.html;
+    }
+}
