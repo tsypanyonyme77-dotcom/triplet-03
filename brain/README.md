@@ -6,7 +6,7 @@ This README follows Part 2 of the final Phase 1 report, [`../docs/report.pdf`](.
 
 **Where it stands (8 Nov 2026).** All five Brain scenarios (T12 to T16) pass, with their logs in `logs/`; 1,114 tests; 60 of 60 held-out variants decide as their base scenario; `brain redteam` refuses 24 of 24 attacks. Against the Guardian team's live Guardian the Brain has run the fake flood, a real flood and T16. It has not yet run with the Twin team's real Twin, and no run yet joins all three teams' layers ([Known limitations](#known-limitations)).
 
-**Contents:** [The triplet](#the-triplet) · [Role and goals](#role-and-goals) · [Architecture](#architecture) · [One scenario end to end](#one-scenario-end-to-end-t14) · [Tech stack](#tech-stack-and-why) · [Interfaces](#interfaces-inout) · [Security](#security-measures) · [Run this layer alone](#run-this-layer-alone-r1) · [How we test with mocks](#how-we-test-with-mocks) · [Scenarios and logs](#scenarios-and-logs-r2) · [Phase 1 map](#phase-1-map-requirement-to-source) · [Known limitations](#known-limitations) · [Configuration](#configuration) · [Layout](#layout)
+**Contents:** [The triplet](#the-triplet) · [Role and goals](#role-and-goals) · [Architecture](#architecture) · [One scenario end to end](#one-scenario-end-to-end-t14) · [Tech stack](#tech-stack-and-why) · [Interfaces](#interfaces-inout) · [Security](#security-measures) · [Run this layer alone](#run-this-layer-alone-r1) · [Observability](#observability) · [How we test with mocks](#how-we-test-with-mocks) · [Scenarios and logs](#scenarios-and-logs-r2) · [Phase 1 map](#phase-1-map-requirement-to-source) · [Known limitations](#known-limitations) · [Configuration](#configuration) · [Layout](#layout)
 
 ## The triplet
 
@@ -114,6 +114,7 @@ Everything runs offline on one laptop: the embedding model is in the Docker imag
 | Storage | Neo4j, Qdrant, SQLite | "Why was this unit sent?" in one graph query; hybrid search over 39 procedures; approvals and checkpoints. No decision waits on them |
 | Interfaces | MCP, FastAPI, MQTT, CloudEvents | MCP gives the Twin's tools schemas and discovery; REST is one question, one answer per verdict; SSE is one-way, replayable, library-free |
 | Operations | Docker, OpenTelemetry, three.js, pytest | one command starts the whole city; spans follow a reading through every step; the screen works offline; 1,114 tests |
+| Observability (optional) | Traefik, Prometheus, Grafana, Loki, Jaeger | one Compose profile (`make obs`) adds metrics, logs and traces around the Brain and its stores, behind one door ([Observability](#observability)) |
 
 Why each choice, with the options rejected: [`docs/decisions/`](docs/decisions/).
 
@@ -181,6 +182,24 @@ With the Guardian team's real Guardian (contract 1.0) and their Twin mock instea
 Why both, and what happens when one is down: [`docs/decisions/0005-databases.md`](docs/decisions/0005-databases.md). Decisions never wait on either: an unreachable store is reported once and the Brain keeps going from memory.
 
 The first run downloads a 65 MB embedding model once. The agent teams run on a real model only with `--llm` and a `GROQ_API_KEY` in `.env` (copy `.env.example`); without it, scripted agents answer the same way every time and every scenario still passes.
+
+## Observability
+
+The `obs` Compose profile puts an operations stack around the Brain, Neo4j and Qdrant. It is optional: the Brain, the scenarios and the tests run without it.
+
+```bash
+make obs        # the Brain, both mocks, Neo4j, Qdrant, plus Traefik, Prometheus, Grafana, Loki and Jaeger
+```
+
+| Piece | What it gives | Address (through Traefik, port `TRAEFIK_PORT`, default 8000) |
+| --- | --- | --- |
+| Traefik | one door for every screen, with request metrics and a JSON access log | http://traefik.localhost:8000/ |
+| Prometheus | scrapes the Brain's `/metrics` (events by type, gate decisions by the check that decided, incidents open, units out, solver time, degraded components, `brain_store_up`), Traefik, Qdrant and Loki | http://prometheus.localhost:8000/ |
+| Grafana | one "City Brain" dashboard: stores, services, fallbacks and log errors at a glance; decisions, traffic, logs and traces in rows | http://grafana.localhost:8000/ |
+| Loki (with Promtail) | seven days of every container's log, labelled by service | in Grafana |
+| Jaeger | one trace per scenario, one span per timeline event (reading, verdict, decision, action), sent over OTLP when `OTLP_ENDPOINT` is set | http://jaeger.localhost:8000/ |
+
+The timeline screen (http://brain.localhost:8000/) has an **Observe** button to the dashboard, and the dashboard links back. Loki is for operating the system, not evidence: the record of what the Brain decided stays the hash-chained log in `logs/`, checked by `brain verify-log`. Limits: the stack publishes to `127.0.0.1` only and runs the Brain without tokens, so do not expose it as it is; Neo4j gives reachability and logs, no request metrics. Details: [`docs/OBSERVABILITY.md`](docs/OBSERVABILITY.md).
 
 ## How we test with mocks
 
@@ -372,7 +391,7 @@ Partner addresses, protocols and the names of the secret variables are in [`conf
 | `scenarios/` | The Test Book scenarios (`t12` to `t16`), city topologies, one trigger script per scenario |
 | `logs/canonical/` | One verified log per scenario |
 | `config/`, `contracts/` | Partner settings and policy; JSON schemas and one example of every message |
-| `docs/` | Our report part, how it works, security, decisions, diagrams ([`docs/README.md`](docs/README.md)) |
+| `docs/` | Our report part, how it works, security, observability, decisions, diagrams ([`docs/README.md`](docs/README.md)) |
 | `Dockerfile`, `docker-compose.yml`, `docker-compose.guardian.yml`, `deploy/`, `scripts/`, `Makefile` | Containers (the mock stack, and the stack with the real Guardian) and helpers (`make help` lists every target) |
 
 ## Members
