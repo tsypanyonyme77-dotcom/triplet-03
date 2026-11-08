@@ -1,7 +1,0 @@
-{"ts": "2026-11-08T14:18:26.784207+00:00", "scenario": "T6", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
-{"ts": "2026-11-08T14:18:26.833952+00:00", "scenario": "T6", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
-{"ts": "2026-11-08T14:18:26.845118+00:00", "scenario": "T6", "step": "verdict", "sensor_id": "wl-port-03", "status": "trusted", "reasons": []}
-{"ts": "2026-11-08T14:18:26.856660+00:00", "scenario": "T6", "step": "brain_call", "call": {"actuator_id": "valve-port-12", "action": "set_valve_state", "params": {"state": "closed"}, "zone_id": "zone-07", "trust_ref": "verdict-5df9010ee434", "justification": "T6"}, "decision": "blocked", "reasons": ["device_quarantined"]}
-{"ts": "2026-11-08T14:18:26.856727+00:00", "scenario": "T6", "step": "check", "what": "blocked device_quarantined", "passed": true}
-{"ts": "2026-11-08T14:18:26.860033+00:00", "scenario": "T6", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
-{"ts": "2026-11-08T14:18:26.867470+00:00", "scenario": "T6", "step": "end", "passed": true}

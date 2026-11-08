@@ -1,9 +1,0 @@
-{"ts": "2026-11-08T14:18:27.421863+00:00", "scenario": "T7", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
-{"ts": "2026-11-08T14:18:27.476767+00:00", "scenario": "T7", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
-{"ts": "2026-11-08T14:18:27.480443+00:00", "scenario": "T7", "step": "inject", "kind": "silence", "params": {}, "status": 200}
-{"ts": "2026-11-08T14:18:27.480479+00:00", "scenario": "T7", "step": "wait", "seconds": 25}
-{"ts": "2026-11-08T14:18:52.491913+00:00", "scenario": "T7", "step": "check", "what": "health degraded", "passed": true, "health": {"status": "degraded", "version": "0.1.0", "contract_version": "1.0", "config_dir": "config", "transport": {"twin": "rest", "mode": "push", "reachable": false}, "twin": "degraded", "sensors": {"known": 21, "stale": 21}, "threat": {}}}
-{"ts": "2026-11-08T14:18:52.497107+00:00", "scenario": "T7", "step": "verdict", "sensor_id": "fm-port-01", "status": "unknown", "reasons": ["stale"]}
-{"ts": "2026-11-08T14:18:52.497144+00:00", "scenario": "T7", "step": "check", "what": "verdict unknown", "passed": true}
-{"ts": "2026-11-08T14:18:52.502418+00:00", "scenario": "T7", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
-{"ts": "2026-11-08T14:18:52.502456+00:00", "scenario": "T7", "step": "end", "passed": true}
