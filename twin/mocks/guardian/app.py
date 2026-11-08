@@ -27,7 +27,7 @@ from pydantic import BaseModel, Field
 CONTRACT_VERSION = "2026-09-17"
 HMAC_KEY = os.environ.get("TWIN_HMAC_KEY", "dev-only-hmac-key")
 LOG_DIR = os.environ.get("LOG_DIR", "")
-TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8000").rstrip("/")
+TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8001").rstrip("/")
 TWIN_API_KEY = os.environ.get("TWIN_GUARDIAN_API_KEY", "")
 UI_DIR = Path(os.environ.get("MOCK_UI_DIR", Path(__file__).parent / "ui"))
 DEVICE_ACTUATOR_ID = "device-control-01"

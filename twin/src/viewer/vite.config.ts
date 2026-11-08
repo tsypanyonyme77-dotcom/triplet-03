@@ -6,7 +6,7 @@ import { defineConfig, loadEnv } from 'vite'
 // 127.0.0.1, not localhost: uvicorn listens on IPv4 only, and localhost can resolve to ::1 first.
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, '.', '')
-  const twin = env.TWIN_URL || 'http://127.0.0.1:8000'
+  const twin = env.TWIN_URL || 'http://127.0.0.1:8001'
   const operatorKey = env.TWIN_OPERATOR_KEY
   return {
     plugins: [react()],

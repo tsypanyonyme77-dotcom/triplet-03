@@ -24,14 +24,20 @@ services:
   twin:
     <<: *service
     build: .
-    ports: ["${TWIN_PORT:-8000}:8000"]
-    healthcheck: *python-health
+    ports: ["${TWIN_PORT:-8001}:8001"]
+    healthcheck:
+      <<: *python-health
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8001/health', timeout=2)"]
     environment:
       LOG_DIR: /logs
       GUARDIAN_URL: ${GUARDIAN_URL:-http://mock-guardian:8000}
       BRAIN_URL: ${BRAIN_URL:-http://mock-brain:8000}
+      # the mocks speak the Twin's own envelopes; a real Guardian needs guardian-v1 (its contract 1.0)
+      GUARDIAN_DIALECT: ${GUARDIAN_DIALECT:-twin}
       GUARDIAN_INGEST_URL: ${GUARDIAN_INGEST_URL:-}
-      BRAIN_NOTIFY_URL: ${BRAIN_NOTIFY_URL:-}
+      BRAIN_NOTIFY_URL: ${BRAIN_NOTIFY_URL:-http://mock-brain:8000/notify}
+      TWIN_API_KEY: ${TWIN_API_KEY:-}
+      BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-}
       TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
       TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-brain-key}
       TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
@@ -54,7 +60,7 @@ services:
       twin:
         condition: service_healthy
     environment:
-      TWIN_URL: http://twin:8000
+      TWIN_URL: http://twin:8001
       TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
 
   mock-guardian:
@@ -63,11 +69,11 @@ services:
       context: .
       dockerfile: mocks/Dockerfile
       args: { MOCK: guardian }
-    ports: ["${MOCK_GUARDIAN_PORT:-8001}:8000"]
+    ports: ["${MOCK_GUARDIAN_PORT:-8003}:8000"]   # 8003: where the real Guardian listens in the triplet
     healthcheck: *python-health
     environment:
       LOG_DIR: /logs
-      TWIN_URL: ${TWIN_URL:-http://twin:8000}
+      TWIN_URL: ${TWIN_URL:-http://twin:8001}
       TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
       TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
 
@@ -77,11 +83,11 @@ services:
       context: .
       dockerfile: mocks/Dockerfile
       args: { MOCK: brain }
-    ports: ["${MOCK_BRAIN_PORT:-8002}:8000"]
+    ports: ["${MOCK_BRAIN_PORT:-8002}:8000"]      # 8002: where the real City Brain listens in the triplet
     healthcheck: *python-health
     environment:
       LOG_DIR: /logs
-      TWIN_URL: ${TWIN_URL:-http://twin:8000}
+      TWIN_URL: ${TWIN_URL:-http://twin:8001}
       GUARDIAN_URL: ${GUARDIAN_URL:-http://mock-guardian:8000}
       TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-brain-key}
 
@@ -92,6 +98,6 @@ services:
     volumes:
       - ./scenarios:/scenarios:ro
     environment:
-      TWIN_URL: http://twin:8000
+      TWIN_URL: http://twin:8001
       TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
     entrypoint: ["python", "/scenarios/trigger.py"]
