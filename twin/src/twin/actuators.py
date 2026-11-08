@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
-from twin.city.base import CitySource
+from twin.city.base import CitySource, station_actuator_id
 from twin.devices import DeviceRegistry
 
 DISPATCH_ACTUATOR_ID = "dispatch-centre-01"
@@ -21,7 +21,19 @@ class ParamError(ValueError):
     """Raised for malformed params; the API turns it into HTTP 422 with a clear message."""
 
 
-def _dispatch_unit(params: dict[str, Any], city: CitySource, _devices: DeviceRegistry) -> dict[str, Any]:
+def _free_station(unit_type: str, station_id: str | None, city: CitySource, devices: DeviceRegistry) -> tuple[str | None, bool]:
+    """The station a unit may come from, given the quarantined ones: (station or None for any, refused).
+    A station named and quarantined is refused; with none named, a quarantined station is passed over."""
+    if station_id is not None:
+        return station_id, devices.blocks(station_actuator_id(station_id))
+    stations = [s["station_id"] for s in city.stations() if s["unit_kind"] == unit_type]
+    free = [s for s in stations if not devices.blocks(station_actuator_id(s))]
+    if len(free) == len(stations):
+        return None, False
+    return (free[0], False) if free else (None, True)
+
+
+def _dispatch_unit(params: dict[str, Any], city: CitySource, devices: DeviceRegistry) -> dict[str, Any]:
     unit_type, incident_id = params.get("unit_type"), params.get("incident_id")
     if unit_type not in UNIT_TYPES:
         raise ParamError(f"params.unit_type must be one of {list(UNIT_TYPES)}")
@@ -30,6 +42,9 @@ def _dispatch_unit(params: dict[str, Any], city: CitySource, _devices: DeviceReg
     station_id = params.get("station_id")
     if station_id is not None and (not isinstance(station_id, str) or not station_id):
         raise ParamError("params.station_id must be a non-empty string, a station from the topology")
+    station_id, quarantined = _free_station(unit_type, station_id, city, devices)
+    if quarantined:
+        return {"status": "rejected", "reason": "station_quarantined", "unit_type": unit_type, "incident_id": incident_id}
     result = city.dispatch_unit(unit_type, incident_id, station_id)
     eta = result.pop("eta_seconds", None)
     if eta is not None:
@@ -110,7 +125,7 @@ ACTUATORS["dispatch_unit"] = {
                "zone_id": "string, optional (the incident's zone)",
                "station_id": "string, optional: only a unit of this station may go (stations are in GET /topology)"},
     "result": {"status": "dispatched | duplicate | rejected", "unit_id": "string", "eta_minutes": "number",
-               "reason": "string, only when rejected (unknown_incident, no_unit_available, unknown_unit_type, unknown_station)"},
+               "reason": "string, only when rejected (unknown_incident, no_unit_available, unknown_unit_type, unknown_station, station_quarantined)"},
     "params_schema": {
         "type": "object", "required": ["unit_type", "incident_id"], "additionalProperties": False,
         "properties": {"unit_type": {"enum": list(UNIT_TYPES)}, "incident_id": {"type": "string", "minLength": 1},
@@ -120,7 +135,8 @@ ACTUATORS["dispatch_unit"] = {
         "properties": {"status": {"enum": ["dispatched", "duplicate", "rejected"]}, "unit_id": {"type": "string"},
                        "eta_minutes": {"type": "number"}, "unit_type": {"enum": list(UNIT_TYPES)},
                        "incident_id": {"type": "string"},
-                       "reason": {"enum": ["unknown_incident", "no_unit_available", "unknown_unit_type", "unknown_station"]}}},
+                       "reason": {"enum": ["unknown_incident", "no_unit_available", "unknown_unit_type", "unknown_station",
+                                           "station_quarantined"]}}},
 }
 
 ACTUATORS["broadcast_alert"] = {
