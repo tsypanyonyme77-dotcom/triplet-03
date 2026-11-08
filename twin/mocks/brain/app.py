@@ -25,8 +25,8 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 CONTRACT_VERSION = "2026-09-17"
-TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8000").rstrip("/")
-GUARDIAN_URL = os.environ.get("GUARDIAN_URL", "http://localhost:8001").rstrip("/")
+TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8001").rstrip("/")
+GUARDIAN_URL = os.environ.get("GUARDIAN_URL", "http://localhost:8003").rstrip("/")
 TWIN_API_KEY = os.environ.get("TWIN_BRAIN_API_KEY", os.environ.get("TWIN_API_KEY", ""))
 UI_DIR = Path(os.environ.get("MOCK_UI_DIR", Path(__file__).parent / "ui"))
 LOG_DIR = os.environ.get("LOG_DIR", "")

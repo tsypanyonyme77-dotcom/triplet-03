@@ -4,7 +4,7 @@
     python3 scenarios/trigger.py t1 [--brain auto|operator] [--seed N] [--speed X]
 
 Exit code 0 when the scenario passes. The Twin writes logs/<id>-<UTC time>.log.
-TWIN_URL (default http://localhost:8000) and TWIN_OPERATOR_KEY say which Twin and how to reach it.
+TWIN_URL (default http://localhost:8001) and TWIN_OPERATOR_KEY say which Twin and how to reach it.
 """
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ import time
 import urllib.error
 import urllib.request
 
-TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8000").rstrip("/")
+TWIN_URL = os.environ.get("TWIN_URL", "http://localhost:8001").rstrip("/")
 OPERATOR_KEY = os.environ.get("TWIN_OPERATOR_KEY", "dev-only-operator-key")
 POLL_S = 1.0
 GIVE_UP_S = 3600.0

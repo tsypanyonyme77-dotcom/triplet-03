@@ -19,14 +19,26 @@ twin/
 
 ## Run the layer alone (R1)
 
-From the repository root, with its two mocks:
+From `twin/`, with its two mocks:
 
 ```
-docker compose up --build
+cd twin && docker compose up --build
 ```
 
-The addresses to open are in the [root README](../README.md).
+| Open | What |
+|---|---|
+| http://localhost:8080 | The city in 3D, live, with scenario buttons and city controls |
+| http://localhost:8080/timeline | The live timeline across the three layers (R3) |
+| http://localhost:8002 | Mock City Brain console: incidents, dispatch, road closures |
+| http://localhost:8003 | Mock Guardian console: stream with verdicts, quarantine |
+| http://localhost:8001/docs | The Twin's API |
+
 With no partners at all, `docker compose up --build twin viewer` still runs the city: deliveries fail softly, are logged as `delivery_failed`, and the timeline shows the layers as not reachable.
+
+## Run it with the real layers
+
+From the repository root, `docker compose up --build` starts the Twin with the real City Brain and Guardian (the root `docker-compose.yml`).
+The same image serves both: only the addresses and keys in the environment differ, and the Twin speaks each partner's own contract through `src/twin/partners/` (see [`INTERFACE.md`](INTERFACE.md)).
 
 ## The city
 
@@ -79,8 +91,8 @@ cd mocks/ui && npm ci && npm test            # the consoles (from twin/)
 ## Development without Docker
 
 ```
-cd twin && GUARDIAN_URL=http://127.0.0.1:8001 BRAIN_URL=http://127.0.0.1:8002 LOG_DIR=../logs uv run uvicorn twin.main:app --port 8000
-cd twin/src/viewer && npm run dev            # http://localhost:5173, proxies /twin to port 8000
+cd twin && GUARDIAN_URL=http://127.0.0.1:8003 GUARDIAN_DIALECT=twin BRAIN_URL=http://127.0.0.1:8002 LOG_DIR=../logs uv run uvicorn twin.main:app --port 8001
+cd twin/src/viewer && npm run dev            # http://localhost:5173, proxies /twin to port 8001
 ```
 
 ## Recordings

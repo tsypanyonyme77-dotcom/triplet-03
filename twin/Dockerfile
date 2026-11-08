@@ -8,5 +8,6 @@ RUN uv sync --frozen --no-install-project
 COPY src/twin ./src/twin
 RUN uv sync --locked --no-editable
 ENV PATH="/app/.venv/bin:$PATH"
-EXPOSE 8000
-CMD ["uvicorn", "twin.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# 8001: the Twin's port in the triplet (root docker-compose.yml, TWIN_URL=http://twin:8001)
+EXPOSE 8001
+CMD ["uvicorn", "twin.main:app", "--host", "0.0.0.0", "--port", "8001"]
