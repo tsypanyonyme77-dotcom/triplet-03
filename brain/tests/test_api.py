@@ -9,6 +9,7 @@ import pytest
 
 from brain.api import Hub, create_app
 from brain.config import ModelsConfig, PartnersConfig, Policy
+from brain.timeline import MemorySink
 
 MODELS = ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}})
 
@@ -285,3 +286,30 @@ async def test_the_model_status_can_be_read_and_the_scripted_team_chosen_and_han
         assert (await client.post("/api/llm/mode", json={"mode": "auto"})).json()["state"] == "live"
         assert (await client.post("/api/llm/mode", json={"mode": "nonsense"})).status_code == 422
         assert (await client.post("/api/llm/check")).json()["ok"] is None  # no Groq key or model here: only real calls are watched
+
+
+async def test_events_with_limit_answer_in_the_twins_timeline_format(api):
+    client, hub = api
+    hub.broadcaster.publish({"type": "brain.incident.opened", "time": "2026-11-08T22:48:49.832000Z", "subject": "inc-0001", "data": {"type": "accident"}})
+    hub.broadcaster.publish({"type": "brain.action.requested", "time": "2026-11-08T22:48:50.000Z", "subject": "dec-0001", "data": {"action": "dispatch_unit"}})
+    hub.broadcaster.publish({"type": "twin.unit_dispatched", "time": "2026-11-08T22:48:51.000Z", "data": {}})
+
+    events = (await client.get("/events", params={"limit": 10})).json()["events"]
+
+    assert [(e["kind"], e["ts"]) for e in events] == [("incident_reported", "2026-11-08T22:48:49.832Z"), ("actuator_called", "2026-11-08T22:48:50.000Z")]
+    assert events[1]["message"] == "dec-0001 dispatch_unit"
+
+
+async def test_a_twin_reset_closes_what_the_old_city_left_open(api):
+    client, hub = api
+    await client.post("/api/scenarios/t14/run", params={"speed": 0})
+    await hub.wait()
+    hub.service.triage.incidents["inc-0001"].status = "open"  # as if the old city's incident were still running
+    hub.service.timeline.sinks = [MemorySink(), hub.broadcaster]  # the run's log file is closed; a live Brain's never is
+
+    pushed = await client.post("/api/events", json={"specversion": "1.0", "id": "twin-1", "source": "twin", "type": "twin.live_reset", "subject": "run 2"})
+
+    assert pushed.status_code == 202
+    incident = hub.service.triage.incidents["inc-0001"]
+    assert (incident.status, incident.outcome) == ("closed", "twin_reset")
+    assert "brain.incident.closed" in [e["type"] for e in (await backlog(client))[-3:]]
