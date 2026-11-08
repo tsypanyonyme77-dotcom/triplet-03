@@ -1,10 +1,12 @@
 """The City Brain's carriers: readings by cursor, topology, capabilities, its signed actuator calls over
 HTTP and MCP, and the link between its incident ids and ours (brain/INTERFACE.md, brain/docs/TWIN-HANDOVER.md)."""
 import asyncio
+import json
 import uuid
 from datetime import datetime, timedelta, timezone
 
 import pytest
+import httpx
 from fastapi.testclient import TestClient
 from mcp import Client
 
@@ -12,6 +14,8 @@ from twin.city.two_blocks import TwoBlocksCity
 from twin.config import Settings
 from twin.main import create_app
 from twin.partners.brain_calls import brain_signature, signature_ok
+from twin.events import EventLog
+from twin.partners.brain_timeline import BrainTimeline
 from twin.partners.reading_log import ReadingLog
 
 SECRET = "brain-test-secret"
@@ -199,3 +203,59 @@ def test_mcp_checks_the_host_header(host, ok):
     with TestClient(app) as client:
         resp = client.post("/mcp", json=init, headers={"Host": host, "Accept": "application/json, text/event-stream"})
     assert (resp.status_code == 200) is ok, resp.text[:200]
+
+
+def _timeline(handler, token=""):
+    events = EventLog("twin")
+    return events, BrainTimeline("http://brain:8002/api/events", token, events), httpx.AsyncClient(transport=httpx.MockTransport(handler))
+
+
+def test_our_events_reach_the_brains_timeline_without_ground_truth_or_chatter():
+    seen = []
+
+    def brain(request):
+        seen.append((request.headers.get("authorization"), json.loads(request.content)))
+        return httpx.Response(202, json={"accepted": "x"})
+
+    events, timeline, client = _timeline(brain, token="tok")
+    events.emit("unit_dispatched", "dispatch_unit -> dispatched", action="dispatch_unit", result={"incident_id": "inc-0042"})
+    events.emit("sim_accident", "ground truth", truth="the car ran the light")
+    events.emit("reading_emitted", "chatter")
+    asyncio.run(timeline.flush(client))
+    ((auth, body),) = seen
+    assert auth == "Bearer tok" and body["type"] == "twin.unit_dispatched" and body["source"] == "twin" and body["specversion"] == "1.0"
+    assert body["subject"] == "inc-0042" and body["data"]["message"] == "dispatch_unit -> dispatched"
+
+
+def test_a_brain_that_is_down_is_reported_once_and_its_events_wait():
+    up = {"now": False}
+    got = []
+
+    def brain(request):
+        if not up["now"]:
+            raise httpx.ConnectError("down")
+        got.append(json.loads(request.content)["type"])
+        return httpx.Response(202, json={})
+
+    events, timeline, client = _timeline(brain)
+    events.emit("road_closed", "closed")
+    asyncio.run(timeline.flush(client))
+    asyncio.run(timeline.flush(client))
+    assert sum(e["kind"] == "delivery_failed" for e in events.recent(10)) == 1
+    up["now"] = True
+    asyncio.run(timeline.flush(client))
+    assert got == ["twin.road_closed"]
+
+
+def test_an_event_the_brain_refuses_is_not_sent_for_ever():
+    calls = []
+
+    def brain(request):
+        calls.append(1)
+        return httpx.Response(403, json={"error": "type_not_allowed"})
+
+    events, timeline, client = _timeline(brain)
+    events.emit("road_closed", "closed")
+    asyncio.run(timeline.flush(client))
+    asyncio.run(timeline.flush(client))
+    assert len(calls) == 1 and any(e["kind"] == "delivery_failed" for e in events.recent(10))

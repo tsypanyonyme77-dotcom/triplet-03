@@ -17,6 +17,9 @@ class Settings:
     # Guardian); "twin" = our own envelopes, one POST each (the mock Guardian in twin/mocks)
     guardian_dialect: str = "twin"
     guardian_push_api_key: str = ""   # the Twin's key on the Guardian (its TWIN_API_KEY)
+    # The City Brain's timeline screen takes our events here (R3); the token is its TWIN_PUSH_TOKEN, if it asks for one
+    brain_events_url: str = ""
+    brain_push_token: str = ""
     # Security. Each layer has its own key, so `requesting_layer` is checked and not just claimed.
     # All empty = auth disabled (tests only).
     hmac_key: str = "dev-only-hmac-key"
@@ -56,6 +59,7 @@ class Settings:
             raise ValueError(f"GUARDIAN_DIALECT must be 'guardian-v1' or 'twin', got {dialect!r}")
         ingest_path = "/v1/readings" if dialect == "guardian-v1" else "/ingest"
         hosts = os.environ.get("TWIN_MCP_ALLOWED_HOSTS")
+        events_url = os.environ.get("BRAIN_EVENTS_URL")
         return cls(
             guardian_url=guardian,
             brain_url=brain,
@@ -64,6 +68,9 @@ class Settings:
             brain_notify_url=os.environ.get("BRAIN_NOTIFY_URL", ""),
             guardian_dialect=dialect,
             guardian_push_api_key=os.environ.get("TWIN_API_KEY", ""),
+            # unset: the real City Brain's route; empty: off (the mock has no such route)
+            brain_events_url=(f"{brain}/api/events" if brain else "") if events_url is None else events_url,
+            brain_push_token=os.environ.get("TWIN_PUSH_TOKEN", ""),
             # one Twin signing key, under the name the triplet uses (TWIN_HMAC_SECRET) or the Guardian's (TWIN_HMAC_KEY)
             hmac_key=os.environ.get("TWIN_HMAC_SECRET") or os.environ.get("TWIN_HMAC_KEY") or cls.hmac_key,
             brain_api_key=os.environ.get("TWIN_BRAIN_API_KEY", ""),

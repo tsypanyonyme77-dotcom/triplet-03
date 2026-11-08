@@ -5,7 +5,7 @@ import json
 import logging
 from collections import deque
 from pathlib import Path
-from typing import Any
+from typing import Any, Callable
 
 from twin.contract import now_iso
 
@@ -21,13 +21,20 @@ class EventLog:
         self._events: deque[dict[str, Any]] = deque(maxlen=maxlen)
         self._file: Path | None = None
         self._file_failed = False  # report a failing log file once, not on every event
+        self._listeners: list[Callable[[dict[str, Any]], None]] = []
         if log_dir:
             Path(log_dir).mkdir(parents=True, exist_ok=True)
             self._file = Path(log_dir) / f"{layer}.ndjson"
 
+    def add_listener(self, listener: Callable[[dict[str, Any]], None]) -> None:
+        """Called with every event as it is emitted (it must not raise or block)."""
+        self._listeners.append(listener)
+
     def emit(self, kind: str, message: str, **data: Any) -> dict[str, Any]:
         event = {"ts": now_iso(), "layer": self.layer, "kind": kind, "message": message, "data": data}
         self._events.append(event)
+        for listener in self._listeners:
+            listener(event)
         if self._file:
             try:
                 with self._file.open("a", encoding="utf-8") as fh:
