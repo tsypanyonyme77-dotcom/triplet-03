@@ -14,14 +14,48 @@ x-partners: &partners
   GUARDIAN_TOKEN: ${GUARDIAN_TOKEN:-change-me}
   TWIN_HMAC_SECRET: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}
   BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-dev-only-brain-secret}
-  GUARDIAN_HMAC_KEY: ${GUARDIAN_HMAC_KEY:-dev-only-guardian-key}   # the Guardian signs verdicts, the Brain checks them
-  BRAIN_API_KEY: ${BRAIN_API_KEY:-dev-only-brain-api-key}          # the Brain's login on the Guardian (X-API-Key)
+  # Twin -> Guardian and City Brain -> Guardian: X-API-Key, and the key the Guardian signs its verdicts with
+  TWIN_API_KEY: ${TWIN_API_KEY:-dev-only-twin-key}
+  BRAIN_API_KEY: ${BRAIN_API_KEY:-dev-only-brain-key}
+  OPS_API_KEY: ${OPS_API_KEY:-dev-only-ops-key}
+  GUARDIAN_HMAC_KEY: ${GUARDIAN_HMAC_KEY:-dev-only-guardian-secret}
 
 services:
   twin:
     build: ./twin
-    environment: *partners
+    user: "${UID:-1000}:${GID:-1000}"
+    environment:
+      <<: *partners
+      LOG_DIR: /logs # scenario runs leave their log in the triplet's logs/ (R2)
+      GUARDIAN_EXTENDED_TYPES: cctv_anomaly,building_fire,unit_status # the Twin's sensors the Guardian has registered
+      TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-twin-brain-key}
+      TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-twin-guardian-key}
+      TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
+      TWIN_SCENARIO: ${TWIN_SCENARIO:-city}
+      TWIN_SEED: ${TWIN_SEED:-}
     ports: ["8001:8001"]
+    volumes: ["./logs:/logs"]
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request as u; u.urlopen('http://127.0.0.1:8001/health', timeout=2)",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 5s
+  # The city in 3D, with its scenario buttons: http://localhost:8080
+  viewer:
+    build: ./twin/src/viewer
+    environment:
+      TWIN_URL: http://twin:8001
+      TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
+    ports: ["${VIEWER_PORT:-8080}:80"]
+    depends_on:
+      twin: { condition: service_healthy }
   guardian:
     build: ./guardian
     environment: *partners
@@ -31,23 +65,38 @@ services:
   # writes its city graph to Neo4j and keeps its knowledge vectors in Qdrant (both below). Without them it runs from memory and says so.
   brain:
     build: ./brain
-    command: ["serve", "--host", "0.0.0.0", "--port", "8002", "--config", "deploy/compose/partners.compose.yaml"]
+    command: [
+        "serve",
+        "--live",
+        "--host",
+        "0.0.0.0",
+        "--port",
+        "8002",
+        "--config",
+        "deploy/compose/partners.compose.yaml",
+      ] # --live: the real partners, not in-process mocks
     environment:
       <<: *partners
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-citybrain-local-pw}
-      OTLP_ENDPOINT: ${OTLP_ENDPOINT:-}   # the obs profile's Jaeger: one span per timeline event
+      OTLP_ENDPOINT: ${OTLP_ENDPOINT:-} # the obs profile's Jaeger: one span per timeline event
     ports: ["127.0.0.1:8002:8002"]
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)",
+        ]
       interval: 5s
       timeout: 3s
       retries: 12
     volumes: [brain-state:/app/state, brain-logs:/app/logs]
     depends_on:
-      twin: {condition: service_started}
-      guardian: {condition: service_started}
-      neo4j: {condition: service_healthy}
-      qdrant: {condition: service_healthy}
+      twin: { condition: service_started }
+      guardian: { condition: service_started }
+      neo4j: { condition: service_healthy }
+      qdrant: { condition: service_healthy }
 
   # The Brain's two stores: Neo4j keeps the City Graph (explore it at http://127.0.0.1:7474), Qdrant the knowledge vectors.
   neo4j:
@@ -57,7 +106,7 @@ services:
       NEO4J_dbms_usage__report_enabled: "false"
     ports:
       - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
-      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"   # the Neo4j Browser connects to this from your browser
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687" # the Neo4j Browser connects to this from your browser
     volumes: [neo4j-data:/data]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:7474 || exit 1"]
