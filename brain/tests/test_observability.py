@@ -48,3 +48,13 @@ async def test_the_metrics_endpoint_requires_the_read_scope_off_loopback(monkeyp
         ok = await client.get("/metrics", headers={"Authorization": "Bearer read-token"})
 
     assert ok.status_code == 200 and "# TYPE brain_events_total counter" in ok.text
+
+
+def test_store_health_is_one_for_an_embedded_qdrant_and_zero_for_an_unreachable_neo4j():
+    from brain.config import GraphConfig
+    from brain.observability import Metrics, store_status
+
+    status = store_status(GraphConfig(backend="neo4j", uri="bolt://127.0.0.1:1", qdrant_location="state/qdrant"))
+
+    assert status == {"neo4j": 0, "qdrant": 1}
+    assert 'brain_store_up{store="neo4j"} 0' in Metrics().render(status)

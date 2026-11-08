@@ -1,0 +1,17 @@
+# Ships the log of every container in this Compose project to Loki, labelled by service. Needs read access to the Docker socket (mounted read-only).
+server: {http_listen_port: 9080, grpc_listen_port: 0}
+positions: {filename: /tmp/positions.yaml}
+clients: [{url: "http://loki:3100/loki/api/v1/push"}]
+scrape_configs:
+  - job_name: containers
+    docker_sd_configs: [{host: "unix:///var/run/docker.sock", refresh_interval: 5s}]
+    relabel_configs:
+      - {source_labels: [__meta_docker_container_label_com_docker_compose_service], target_label: service}
+      - {source_labels: [__meta_docker_container_label_com_docker_compose_project], target_label: project}
+      - {source_labels: [__meta_docker_container_label_com_docker_compose_project], regex: "", action: drop}   # not a Compose container
+    pipeline_stages:
+      - match:                       # Traefik writes JSON: make the status and the router searchable
+          selector: '{service="traefik"}'
+          stages:
+            - json: {expressions: {status: DownstreamStatus, router: RouterName, level: level}}
+            - labels: {status: , router: , level: }

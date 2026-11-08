@@ -1,5 +1,10 @@
 # Starts the whole city: docker compose up --build
 # Each layer must provide <layer>/Dockerfile. Partner addresses come from .env (see .env.example).
+# Optional: Traefik, Prometheus, Grafana, Loki, Promtail and Jaeger around the Brain (see brain/docs/OBSERVABILITY.md):
+#   OTLP_ENDPOINT=http://jaeger:4318 docker compose --profile obs up --build
+include:
+  - path: brain/deploy/compose/observability.yaml
+
 x-partners: &partners
   TWIN_URL: ${TWIN_URL:-http://twin:8001}
   BRAIN_URL: ${BRAIN_URL:-http://brain:8002}
@@ -28,6 +33,7 @@ services:
     environment:
       <<: *partners
       NEO4J_PASSWORD: ${NEO4J_PASSWORD:-citybrain-local-pw}
+      OTLP_ENDPOINT: ${OTLP_ENDPOINT:-}   # the obs profile's Jaeger: one span per timeline event
     ports: ["127.0.0.1:8002:8002"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)"]
@@ -49,6 +55,7 @@ services:
       NEO4J_dbms_usage__report_enabled: "false"
     ports:
       - "127.0.0.1:${NEO4J_HTTP_PORT:-7474}:7474"
+      - "127.0.0.1:${NEO4J_BOLT_PORT:-7687}:7687"   # the Neo4j Browser connects to this from your browser
     volumes: [neo4j-data:/data]
     healthcheck:
       test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:7474 || exit 1"]

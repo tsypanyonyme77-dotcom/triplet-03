@@ -146,6 +146,7 @@ flowchart LR
   brain_mind[brain.mind] --> brain_scenario[brain.scenario]
   brain_mind[brain.mind] --> brain_timeline[brain.timeline]
   brain_mind[brain.mind] --> brain_variants[brain.variants]
+  brain_observability[brain.observability] --> brain_config[brain.config]
   brain_observability[brain.observability] --> brain_contracts[brain.contracts]
   brain_perception[brain.perception] --> brain_clock[brain.clock]
   brain_perception[brain.perception] --> brain_config[brain.config]
@@ -268,10 +269,10 @@ flowchart LR
 
 ### brain.api
 
-- **`src/brain/api/__init__.py`** (294 lines): The Brain's HTTP surface: a live event stream for the timeline screen, and read-only views of what the Brain knows and decided.
+- **`src/brain/api/__init__.py`** (298 lines): The Brain's HTTP surface: a live event stream for the timeline screen, and read-only views of what the Brain knows and decided.
     - class `Broadcaster` `src/brain/api/__init__.py:50`: A timeline sink that keeps recent events and fans them out to connected screens. Methods: `__init__`, `publish`, `reset`, `stream`, `write`.
     - class `Hub` `src/brain/api/__init__.py:99`: Owns the running Brain behind the API: one scenario at a time, or a live connection. Methods: `__init__`, `_attach`, `_probe_target`, `_say`, `check_llm`, `folder`, `llm_report`, `narrator`, `run_live`, `start_scenario`, `start_sleep`, `wait`, `wait_sleep`, `watch_llm`.
-    - `create_app(hub)` `src/brain/api/__init__.py:261`
+    - `create_app(hub)` `src/brain/api/__init__.py:265`
 - **`src/brain/api/routes/__init__.py`** (1 lines): The Brain's HTTP routes, one module per kind. Each `register` adds its routes to the app; `brain.api.create_app` calls them all.
 - **`src/brain/api/routes/control.py`** (131 lines): What a person or a partner does to a running Brain: answer an approval, log in, start Sleep, take back a verdict, run a scenario.
     - `register(app, hub, service, security)` `src/brain/api/routes/control.py:28`
@@ -279,8 +280,8 @@ flowchart LR
     - `register(app, hub, service)` `src/brain/api/routes/events.py:18`
 - **`src/brain/api/routes/explain.py`** (59 lines): "Why was that done?": explanations of a decision, a held action or an incident, built from the run's own events.
     - `register(app, hub, service)` `src/brain/api/routes/explain.py:20`
-- **`src/brain/api/routes/pages.py`** (78 lines): The page, its scripts, and the discovery routes: the agent card, the keys, the metrics and the health check.
-    - `register(app, hub, service, tool_registry)` `src/brain/api/routes/pages.py:22`
+- **`src/brain/api/routes/pages.py`** (79 lines): The page, its scripts, and the discovery routes: the agent card, the keys, the metrics and the health check.
+    - `register(app, hub, service, tool_registry)` `src/brain/api/routes/pages.py:23`
 - **`src/brain/api/routes/views.py`** (83 lines): Read-only views of what the Brain holds: the city, incidents, decisions, and the contract schemas.
     - `register(app, hub, service)` `src/brain/api/routes/views.py:24`
 
@@ -394,43 +395,43 @@ flowchart LR
 
 ### brain.config
 
-- **`src/brain/config.py`** (539 lines): Configuration models. Defaults here equal the shipped YAML files in `config/`.
-    - class `ApprovalConfig` `src/brain/config.py:155`: High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.
-    - class `BrainConfig` `src/brain/config.py:82`
-    - class `DesksPolicy` `src/brain/config.py:392`: What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.
-    - class `Effect` `src/brain/config.py:300`: What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.
-    - class `EmbeddingsConfig` `src/brain/config.py:446`
-    - class `ExplainConfig` `src/brain/config.py:470`
-    - class `FieldProfile` `src/brain/config.py:20`: How to build a field the Brain expects from one the Twin sends: `canonical = twin_field * scale + offset`.
-    - class `ForwardPolicy` `src/brain/config.py:309`: How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.
-    - class `GatePolicy` `src/brain/config.py:224`
-    - class `GraphConfig` `src/brain/config.py:103`
-    - class `GuardianConfig` `src/brain/config.py:73`
-    - class `KeyConfig` `src/brain/config.py:136`: One signing key of a peer. The first key listed for a peer is its current one.
-    - class `KnowledgeConfig` `src/brain/config.py:451`: How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.
-    - class `LearningPolicy` `src/brain/config.py:346`: Sleep: what may be compiled from episodes into reflexes, and how much.
-    - class `MathConfig` `src/brain/config.py:372`: Estimators that look ahead of a threshold.
-    - class `McpConfig` `src/brain/config.py:148`: The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.
-    - class `ModelsConfig` `src/brain/config.py:488` Methods: `options_for`.
-    - class `MqttConfig` `src/brain/config.py:39`: The broker a Twin publishes readings to (adapter `mqtt`). Actions, topology and capabilities still go to `twin.url` over HTTP.
-    - class `ObservabilityConfig` `src/brain/config.py:164`: Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).
-    - class `OptimiserConfig` `src/brain/config.py:359`: Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.
-    - class `OrchestrationConfig` `src/brain/config.py:383`: The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.
-    - class `PartnersConfig` `src/brain/config.py:171`
-    - class `Policy` `src/brain/config.py:409`
-    - class `ScoringPolicy` `src/brain/config.py:187`
-    - class `SecurityConfig` `src/brain/config.py:117`: Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).
-    - class `TacticsPolicy` `src/brain/config.py:250`
-    - class `TeamConfig` `src/brain/config.py:423`
-    - class `TlsConfig` `src/brain/config.py:30`: Files for TLS. As a client: `ca` is the authority to trust, `cert` and `key` what we present for mutual TLS. As a server: `cert` and `key` are ours, and `ca` (if set) is the authority a client's certificate must come from.
-    - class `TriagePolicy` `src/brain/config.py:212`
-    - class `TwinConfig` `src/brain/config.py:52`
-    - class `Window` `src/brain/config.py:182`
-    - class `WorkspacePolicy` `src/brain/config.py:261`: Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.
-    - `fingerprint(*models)` `src/brain/config.py:536`: Short stable hash of the behaviour-defining config, stamped on every decision.
-    - `home()` `src/brain/config.py:517`: Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live.
-    - `load(name, path)` `src/brain/config.py:522`: Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults.
-    - `secret(env_name)` `src/brain/config.py:532`
+- **`src/brain/config.py`** (552 lines): Configuration models. Defaults here equal the shipped YAML files in `config/`.
+    - class `ApprovalConfig` `src/brain/config.py:156`: High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.
+    - class `BrainConfig` `src/brain/config.py:83`
+    - class `DesksPolicy` `src/brain/config.py:393`: What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.
+    - class `Effect` `src/brain/config.py:301`: What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.
+    - class `EmbeddingsConfig` `src/brain/config.py:447`
+    - class `ExplainConfig` `src/brain/config.py:471`
+    - class `FieldProfile` `src/brain/config.py:21`: How to build a field the Brain expects from one the Twin sends: `canonical = twin_field * scale + offset`.
+    - class `ForwardPolicy` `src/brain/config.py:310`: How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.
+    - class `GatePolicy` `src/brain/config.py:225`
+    - class `GraphConfig` `src/brain/config.py:104`
+    - class `GuardianConfig` `src/brain/config.py:74`
+    - class `KeyConfig` `src/brain/config.py:137`: One signing key of a peer. The first key listed for a peer is its current one.
+    - class `KnowledgeConfig` `src/brain/config.py:452`: How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.
+    - class `LearningPolicy` `src/brain/config.py:347`: Sleep: what may be compiled from episodes into reflexes, and how much.
+    - class `MathConfig` `src/brain/config.py:373`: Estimators that look ahead of a threshold.
+    - class `McpConfig` `src/brain/config.py:149`: The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.
+    - class `ModelsConfig` `src/brain/config.py:489` Methods: `options_for`.
+    - class `MqttConfig` `src/brain/config.py:40`: The broker a Twin publishes readings to (adapter `mqtt`). Actions, topology and capabilities still go to `twin.url` over HTTP.
+    - class `ObservabilityConfig` `src/brain/config.py:165`: Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).
+    - class `OptimiserConfig` `src/brain/config.py:360`: Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.
+    - class `OrchestrationConfig` `src/brain/config.py:384`: The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.
+    - class `PartnersConfig` `src/brain/config.py:172`
+    - class `Policy` `src/brain/config.py:410`
+    - class `ScoringPolicy` `src/brain/config.py:188`
+    - class `SecurityConfig` `src/brain/config.py:118`: Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).
+    - class `TacticsPolicy` `src/brain/config.py:251`
+    - class `TeamConfig` `src/brain/config.py:424`
+    - class `TlsConfig` `src/brain/config.py:31`: Files for TLS. As a client: `ca` is the authority to trust, `cert` and `key` what we present for mutual TLS. As a server: `cert` and `key` are ours, and `ca` (if set) is the authority a client's certificate must come from.
+    - class `TriagePolicy` `src/brain/config.py:213`
+    - class `TwinConfig` `src/brain/config.py:53`
+    - class `Window` `src/brain/config.py:183`
+    - class `WorkspacePolicy` `src/brain/config.py:262`: Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.
+    - `fingerprint(*models)` `src/brain/config.py:549`: Short stable hash of the behaviour-defining config, stamped on every decision.
+    - `home()` `src/brain/config.py:518`: Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live.
+    - `load(name, path)` `src/brain/config.py:523`: Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults.
+    - `secret(env_name)` `src/brain/config.py:545`
 
 ### brain.conformance
 
@@ -849,8 +850,9 @@ flowchart LR
 
 ### brain.observability
 
-- **`src/brain/observability.py`** (68 lines): Metrics in the Prometheus text format, computed from the timeline.
-    - class `Metrics` `src/brain/observability.py:19` Methods: `__init__`, `render`, `write`.
+- **`src/brain/observability.py`** (96 lines): Metrics in the Prometheus text format, computed from the timeline.
+    - class `Metrics` `src/brain/observability.py:46` Methods: `__init__`, `render`, `write`.
+    - `store_status(graph, timeout)` `src/brain/observability.py:23`: 1 for each configured store that answers right now: Neo4j on its bolt port, a Qdrant server on /readyz (an embedded folder is always up). Neo4j Community has no metrics endpoint of its own, so this is how Prometheus learns whether the City Graph is being kept.
 
 ### brain.onboard
 
@@ -1120,9 +1122,9 @@ flowchart LR
 | CLI | `brain variants` | `src/brain/cli.py:175` | run held-out variants of the Test Book (shifted, reseeded, decoyed); each must decide as its base does |
 | CLI | `brain verify-bundle` | `src/brain/cli.py:245` | check a signed explanation bundle offline: the signature, each log line's own hash, every step's line |
 | CLI | `brain verify-log` | `src/brain/cli.py:219` | check the temporal promises (trust before action, nothing after close, every unit home...) on saved logs or on every scenario |
-| HTTP (Brain API) | `GET /` | `src/brain/api/routes/pages.py:26` |  |
-| HTTP (Brain API) | `GET /.well-known/agent-card.json` | `src/brain/api/routes/pages.py:46` | Discovery for other agents: what this Brain offers, how to call it, how to authenticate. |
-| HTTP (Brain API) | `GET /.well-known/jwks.json` | `src/brain/api/routes/pages.py:59` | The Brain's public signing keys (EdDSA), so a partner can verify its calls without a shared secret. |
+| HTTP (Brain API) | `GET /` | `src/brain/api/routes/pages.py:27` |  |
+| HTTP (Brain API) | `GET /.well-known/agent-card.json` | `src/brain/api/routes/pages.py:47` | Discovery for other agents: what this Brain offers, how to call it, how to authenticate. |
+| HTTP (Brain API) | `GET /.well-known/jwks.json` | `src/brain/api/routes/pages.py:60` | The Brain's public signing keys (EdDSA), so a partner can verify its calls without a shared secret. |
 | HTTP (Brain API) | `GET /api/approvals` | `src/brain/api/routes/control.py:30` | High-impact calls waiting for a person (`approval.mode: human`). |
 | HTTP (Brain API) | `GET /api/decisions/{decision_id}` | `src/brain/api/routes/views.py:58` |  |
 | HTTP (Brain API) | `GET /api/decisions/{decision_id}/explanation` | `src/brain/api/routes/explain.py:39` |  |
@@ -1137,17 +1139,17 @@ flowchart LR
 | HTTP (Brain API) | `GET /api/scenarios` | `src/brain/api/routes/control.py:121` |  |
 | HTTP (Brain API) | `GET /api/sleep/last` | `src/brain/api/routes/control.py:96` |  |
 | HTTP (Brain API) | `GET /api/topology` | `src/brain/api/routes/views.py:26` |  |
-| HTTP (Brain API) | `GET /brainshell.js` | `src/brain/api/routes/pages.py:38` |  |
-| HTTP (Brain API) | `GET /canopy3d.js` | `src/brain/api/routes/pages.py:30` |  |
+| HTTP (Brain API) | `GET /brainshell.js` | `src/brain/api/routes/pages.py:39` |  |
+| HTTP (Brain API) | `GET /canopy3d.js` | `src/brain/api/routes/pages.py:31` |  |
 | HTTP (mock Guardian) | `GET /capabilities` | `mocks/twin/http_server.py:33` |  |
 | HTTP (Brain API) | `GET /events` | `src/brain/api/routes/events.py:20` |  |
-| HTTP (Brain API) | `GET /health` | `src/brain/api/routes/pages.py:71` |  |
-| HTTP (Brain API) | `GET /metrics` | `src/brain/api/routes/pages.py:66` | Prometheus text format, computed from the timeline (needs the read scope off loopback). |
+| HTTP (Brain API) | `GET /health` | `src/brain/api/routes/pages.py:72` |  |
+| HTTP (Brain API) | `GET /metrics` | `src/brain/api/routes/pages.py:67` | Prometheus text format, computed from the timeline (needs the read scope off loopback). |
 | HTTP (mock Guardian) | `GET /quarantine/{device_id}` | `mocks/guardian/server.py:38` |  |
 | HTTP (mock Guardian) | `GET /readings` | `mocks/twin/http_server.py:25` |  |
 | HTTP (Brain API) | `GET /schemas` | `src/brain/api/routes/views.py:74` |  |
 | HTTP (Brain API) | `GET /schemas/{name}` | `src/brain/api/routes/views.py:79` |  |
-| HTTP (Brain API) | `GET /story.js` | `src/brain/api/routes/pages.py:34` |  |
+| HTTP (Brain API) | `GET /story.js` | `src/brain/api/routes/pages.py:35` |  |
 | HTTP (mock Guardian) | `GET /topology` | `mocks/twin/http_server.py:29` |  |
 | HTTP (mock Guardian) | `POST /actuators/{action}` | `mocks/twin/http_server.py:37` |  |
 | HTTP (mock Guardian) | `POST /admin/actuator_log` | `mocks/twin/http_server.py:47` |  |
@@ -1225,7 +1227,7 @@ Every event the Brain emits, where it is emitted, whether the screen draws it, a
 | `brain.reading.received` | `src/brain/runtime.py:659` | yes | test_attention_report, test_conditions, test_explain, test_explain_render, test_forward_runtime, test_funnel, test_journal, test_observability, test_repro, test_telemetry |
 | `brain.reading.rejected` | `src/brain/runtime.py:651` | yes | test_restart |
 | `brain.recovered` | `src/brain/runtime.py:604` | yes |  |
-| `brain.scenario.failed` | `src/brain/api/__init__.py:221` | yes |  |
+| `brain.scenario.failed` | `src/brain/api/__init__.py:223` | yes |  |
 | `brain.scenario.finished` | `src/brain/scenario.py:506` | yes | test_replay |
 | `brain.scenario.started` | `src/brain/replay.py:138`, `src/brain/scenario.py:488` | yes |  |
 | `brain.session.reset` | `src/brain/api/__init__.py:77` | yes | test_api, test_security |
@@ -1275,9 +1277,9 @@ Playbook items (`src/brain/departments/playbooks/police.yaml`): `POL-PB-001` Pur
 
 Each file must equal its model's defaults (a test checks this): change both together.
 
-- `config/models.yaml` → `brain.config.ModelsConfig` (src/brain/config.py:488); loaded by `brain.commands.common`, `brain.envprint`
-- `config/partners.yaml` → `brain.config.PartnersConfig` (src/brain/config.py:171); loaded by `brain.commands.common`, `brain.commands.learning`, `brain.commands.run`, `brain.envprint`
-- `config/policy.yaml` → `brain.config.Policy` (src/brain/config.py:409); loaded by `brain.bench`, `brain.commands.evidence`, `brain.commands.learning`, `brain.commands.run`, `brain.commands.trust`
+- `config/models.yaml` → `brain.config.ModelsConfig` (src/brain/config.py:489); loaded by `brain.commands.common`, `brain.envprint`
+- `config/partners.yaml` → `brain.config.PartnersConfig` (src/brain/config.py:172); loaded by `brain.commands.common`, `brain.commands.learning`, `brain.commands.run`, `brain.envprint`, `tests.test_contracts`
+- `config/policy.yaml` → `brain.config.Policy` (src/brain/config.py:410); loaded by `brain.bench`, `brain.commands.evidence`, `brain.commands.learning`, `brain.commands.run`, `brain.commands.trust`
 
 ## Test Book scenarios
 
@@ -1534,13 +1536,18 @@ Imports: `brain.api`, `brain.config`, `brain.knowledge.communities`, `brain.know
 - `test_the_api_answers_a_global_question` `tests/test_communities.py:72`
 - `test_what_is_blocked_is_computed_from_the_gate_policy_and_the_actions_the_items_use` `tests/test_communities.py:38`
 
-### `tests/test_compose.py` (3 tests)
+### `tests/test_compose.py` (8 tests)
 
 The Compose file is the only deployment: keep its shape (profiles, loopback-only ports, the full config) from drifting.
 
+- `test_both_compose_files_include_the_observability_stack` `tests/test_compose.py:40`
+- `test_both_stores_start_with_the_core_profile` `tests/test_compose.py:10`
+- `test_every_dashboard_panel_reads_a_provisioned_datasource` `tests/test_compose.py:65`
 - `test_every_published_port_is_on_loopback` `tests/test_compose.py:17`
-- `test_full_profile_has_the_stores_and_core_does_not` `tests/test_compose.py:10`
+- `test_prometheus_scrapes_the_brain_where_it_listens_and_every_target_is_a_service` `tests/test_compose.py:46`
 - `test_the_full_config_reaches_both_stores_by_service_name` `tests/test_compose.py:23`
+- `test_the_observability_services_are_opt_in_and_on_loopback` `tests/test_compose.py:32`
+- `test_traefik_routes_every_screen_to_a_service_in_the_stack` `tests/test_compose.py:55`
 
 ### `tests/test_conditions.py` (13 tests)
 
@@ -1592,7 +1599,7 @@ Imports: `brain.api`, `brain.config`, `brain.knowledge.context`
 - `test_other_open_incidents_and_the_latest_verdict_of_each_sensor_are_part_of_it` `tests/test_context.py:69`
 - `test_the_api_serves_the_context_of_an_incident` `tests/test_context.py:89`
 
-### `tests/test_contracts.py` (6 tests)
+### `tests/test_contracts.py` (7 tests)
 
 Imports: `brain.commands.run`, `brain.config`, `brain.contracts`
 
@@ -1602,6 +1609,7 @@ Imports: `brain.commands.run`, `brain.config`, `brain.contracts`
 - `test_shipped_config_equals_built_in_defaults` `tests/test_contracts.py:63`
 - `test_signed_examples_verify_with_the_dev_secrets` `tests/test_contracts.py:73`
 - `test_the_topology_example_lists_every_zone_it_refers_to` `tests/test_contracts.py:82`
+- `test_the_triplets_partner_addresses_override_the_file` `tests/test_contracts.py:103`
 
 ### `tests/test_corpus.py` (8 tests)
 
@@ -2216,7 +2224,7 @@ Imports: `brain.backends`, `brain.citygraph.neo4j`, `brain.config`, `brain.knowl
 - `test_knowledge_is_embedded_once_and_retrieved_through_the_indexes` `tests/test_neo4j.py:55`
 - `test_knowledge_stays_in_qdrant_when_neo4j_is_unreachable` `tests/test_neo4j.py:45`
 
-### `tests/test_observability.py` (4 tests)
+### `tests/test_observability.py` (5 tests)
 
 Metrics from the timeline: counted by type and check, no ids or secrets in a label, readable only with the read scope.
 
@@ -2225,6 +2233,7 @@ Imports: `brain.api`, `brain.config`, `brain.contracts`, `brain.observability`
 - `test_events_are_counted_by_type_and_a_held_action_by_its_check` `tests/test_observability.py:15`
 - `test_no_id_or_secret_appears_in_a_metric_label` `tests/test_observability.py:36`
 - `test_open_incidents_units_and_degraded_components_move_both_ways` `tests/test_observability.py:25`
+- `test_store_health_is_one_for_an_embedded_qdrant_and_zero_for_an_unreachable_neo4j` `tests/test_observability.py:53`
 - `test_the_metrics_endpoint_requires_the_read_scope_off_loopback` `tests/test_observability.py:43`
 
 ### `tests/test_onboard.py` (6 tests)

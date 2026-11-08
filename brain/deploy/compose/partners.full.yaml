@@ -26,5 +26,7 @@ graph:
   database: neo4j
   qdrant_url: http://qdrant:6333
   qdrant_fusion: server
+observability:
+  dashboard_url: http://grafana.localhost:8000/d/city-brain   # the screen's Observe button (the Compose obs profile; the port is TRAEFIK_PORT)
 security:
   require: never

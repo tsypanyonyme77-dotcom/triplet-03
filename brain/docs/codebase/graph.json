@@ -143,7 +143,7 @@
   {
    "id": "class:brain.config.ApprovalConfig",
    "kind": "class",
-   "where": "src/brain/config.py:155",
+   "where": "src/brain/config.py:156",
    "summary": "High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.",
    "bases": [
     "BaseModel"
@@ -152,7 +152,7 @@
   {
    "id": "class:brain.config.BrainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:82",
+   "where": "src/brain/config.py:83",
    "bases": [
     "BaseModel"
    ]
@@ -160,7 +160,7 @@
   {
    "id": "class:brain.config.DesksPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:392",
+   "where": "src/brain/config.py:393",
    "summary": "What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.",
    "bases": [
     "BaseModel"
@@ -169,7 +169,7 @@
   {
    "id": "class:brain.config.Effect",
    "kind": "class",
-   "where": "src/brain/config.py:300",
+   "where": "src/brain/config.py:301",
    "summary": "What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.",
    "bases": [
     "BaseModel"
@@ -178,7 +178,7 @@
   {
    "id": "class:brain.config.EmbeddingsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:446",
+   "where": "src/brain/config.py:447",
    "bases": [
     "BaseModel"
    ]
@@ -186,7 +186,7 @@
   {
    "id": "class:brain.config.ExplainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:470",
+   "where": "src/brain/config.py:471",
    "bases": [
     "BaseModel"
    ]
@@ -194,7 +194,7 @@
   {
    "id": "class:brain.config.FieldProfile",
    "kind": "class",
-   "where": "src/brain/config.py:20",
+   "where": "src/brain/config.py:21",
    "summary": "How to build a field the Brain expects from one the Twin sends: `canonical = twin_field * scale + offset`.",
    "bases": [
     "BaseModel"
@@ -203,7 +203,7 @@
   {
    "id": "class:brain.config.ForwardPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:309",
+   "where": "src/brain/config.py:310",
    "summary": "How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.",
    "bases": [
     "BaseModel"
@@ -212,7 +212,7 @@
   {
    "id": "class:brain.config.GatePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:224",
+   "where": "src/brain/config.py:225",
    "bases": [
     "BaseModel"
    ]
@@ -220,7 +220,7 @@
   {
    "id": "class:brain.config.GraphConfig",
    "kind": "class",
-   "where": "src/brain/config.py:103",
+   "where": "src/brain/config.py:104",
    "bases": [
     "BaseModel"
    ]
@@ -228,7 +228,7 @@
   {
    "id": "class:brain.config.GuardianConfig",
    "kind": "class",
-   "where": "src/brain/config.py:73",
+   "where": "src/brain/config.py:74",
    "bases": [
     "BaseModel"
    ]
@@ -236,7 +236,7 @@
   {
    "id": "class:brain.config.KeyConfig",
    "kind": "class",
-   "where": "src/brain/config.py:136",
+   "where": "src/brain/config.py:137",
    "summary": "One signing key of a peer. The first key listed for a peer is its current one.",
    "bases": [
     "BaseModel"
@@ -245,7 +245,7 @@
   {
    "id": "class:brain.config.KnowledgeConfig",
    "kind": "class",
-   "where": "src/brain/config.py:451",
+   "where": "src/brain/config.py:452",
    "summary": "How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.",
    "bases": [
     "BaseModel"
@@ -254,7 +254,7 @@
   {
    "id": "class:brain.config.LearningPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:346",
+   "where": "src/brain/config.py:347",
    "summary": "Sleep: what may be compiled from episodes into reflexes, and how much.",
    "bases": [
     "BaseModel"
@@ -263,7 +263,7 @@
   {
    "id": "class:brain.config.MathConfig",
    "kind": "class",
-   "where": "src/brain/config.py:372",
+   "where": "src/brain/config.py:373",
    "summary": "Estimators that look ahead of a threshold.",
    "bases": [
     "BaseModel"
@@ -272,7 +272,7 @@
   {
    "id": "class:brain.config.McpConfig",
    "kind": "class",
-   "where": "src/brain/config.py:148",
+   "where": "src/brain/config.py:149",
    "summary": "The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.",
    "bases": [
     "BaseModel"
@@ -281,7 +281,7 @@
   {
    "id": "class:brain.config.ModelsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:488",
+   "where": "src/brain/config.py:489",
    "bases": [
     "BaseModel"
    ]
@@ -289,7 +289,7 @@
   {
    "id": "class:brain.config.MqttConfig",
    "kind": "class",
-   "where": "src/brain/config.py:39",
+   "where": "src/brain/config.py:40",
    "summary": "The broker a Twin publishes readings to (adapter `mqtt`). Actions, topology and capabilities still go to `twin.url` over HTTP.",
    "bases": [
     "BaseModel"
@@ -298,7 +298,7 @@
   {
    "id": "class:brain.config.ObservabilityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:164",
+   "where": "src/brain/config.py:165",
    "summary": "Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).",
    "bases": [
     "BaseModel"
@@ -307,7 +307,7 @@
   {
    "id": "class:brain.config.OptimiserConfig",
    "kind": "class",
-   "where": "src/brain/config.py:359",
+   "where": "src/brain/config.py:360",
    "summary": "Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.",
    "bases": [
     "BaseModel"
@@ -316,7 +316,7 @@
   {
    "id": "class:brain.config.OrchestrationConfig",
    "kind": "class",
-   "where": "src/brain/config.py:383",
+   "where": "src/brain/config.py:384",
    "summary": "The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.",
    "bases": [
     "BaseModel"
@@ -325,7 +325,7 @@
   {
    "id": "class:brain.config.PartnersConfig",
    "kind": "class",
-   "where": "src/brain/config.py:171",
+   "where": "src/brain/config.py:172",
    "bases": [
     "BaseModel"
    ]
@@ -333,7 +333,7 @@
   {
    "id": "class:brain.config.Policy",
    "kind": "class",
-   "where": "src/brain/config.py:409",
+   "where": "src/brain/config.py:410",
    "bases": [
     "BaseModel"
    ]
@@ -341,7 +341,7 @@
   {
    "id": "class:brain.config.ScoringPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:187",
+   "where": "src/brain/config.py:188",
    "bases": [
     "BaseModel"
    ]
@@ -349,7 +349,7 @@
   {
    "id": "class:brain.config.SecurityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:117",
+   "where": "src/brain/config.py:118",
    "summary": "Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).",
    "bases": [
     "BaseModel"
@@ -358,7 +358,7 @@
   {
    "id": "class:brain.config.TacticsPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:250",
+   "where": "src/brain/config.py:251",
    "bases": [
     "BaseModel"
    ]
@@ -366,7 +366,7 @@
   {
    "id": "class:brain.config.TeamConfig",
    "kind": "class",
-   "where": "src/brain/config.py:423",
+   "where": "src/brain/config.py:424",
    "bases": [
     "BaseModel"
    ]
@@ -374,7 +374,7 @@
   {
    "id": "class:brain.config.TlsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:30",
+   "where": "src/brain/config.py:31",
    "summary": "Files for TLS. As a client: `ca` is the authority to trust, `cert` and `key` what we present for mutual TLS. As a server: `cert` and `key` are ours, and `ca` (if set) is the authority a client's certificate must come from.",
    "bases": [
     "BaseModel"
@@ -383,7 +383,7 @@
   {
    "id": "class:brain.config.TriagePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:212",
+   "where": "src/brain/config.py:213",
    "bases": [
     "BaseModel"
    ]
@@ -391,7 +391,7 @@
   {
    "id": "class:brain.config.TwinConfig",
    "kind": "class",
-   "where": "src/brain/config.py:52",
+   "where": "src/brain/config.py:53",
    "bases": [
     "BaseModel"
    ]
@@ -399,7 +399,7 @@
   {
    "id": "class:brain.config.Window",
    "kind": "class",
-   "where": "src/brain/config.py:182",
+   "where": "src/brain/config.py:183",
    "bases": [
     "BaseModel"
    ]
@@ -407,7 +407,7 @@
   {
    "id": "class:brain.config.WorkspacePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:261",
+   "where": "src/brain/config.py:262",
    "summary": "Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.",
    "bases": [
     "BaseModel"
@@ -1450,7 +1450,7 @@
   {
    "id": "class:brain.observability.Metrics",
    "kind": "class",
-   "where": "src/brain/observability.py:19"
+   "where": "src/brain/observability.py:46"
   },
   {
    "id": "class:brain.onboard.Proposal",
@@ -2138,20 +2138,20 @@
    "id": "endpoint:GET /",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:26"
+   "where": "src/brain/api/routes/pages.py:27"
   },
   {
    "id": "endpoint:GET /.well-known/agent-card.json",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:46",
+   "where": "src/brain/api/routes/pages.py:47",
    "summary": "Discovery for other agents: what this Brain offers, how to call it, how to authenticate."
   },
   {
    "id": "endpoint:GET /.well-known/jwks.json",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:59",
+   "where": "src/brain/api/routes/pages.py:60",
    "summary": "The Brain's public signing keys (EdDSA), so a partner can verify its calls without a shared secret."
   },
   {
@@ -2246,13 +2246,13 @@
    "id": "endpoint:GET /brainshell.js",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:38"
+   "where": "src/brain/api/routes/pages.py:39"
   },
   {
    "id": "endpoint:GET /canopy3d.js",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:30"
+   "where": "src/brain/api/routes/pages.py:31"
   },
   {
    "id": "endpoint:GET /capabilities",
@@ -2270,13 +2270,13 @@
    "id": "endpoint:GET /health",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:71"
+   "where": "src/brain/api/routes/pages.py:72"
   },
   {
    "id": "endpoint:GET /metrics",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:66",
+   "where": "src/brain/api/routes/pages.py:67",
    "summary": "Prometheus text format, computed from the timeline (needs the read scope off loopback)."
   },
   {
@@ -2307,7 +2307,7 @@
    "id": "endpoint:GET /story.js",
    "kind": "endpoint",
    "served_by": "Brain API",
-   "where": "src/brain/api/routes/pages.py:34"
+   "where": "src/brain/api/routes/pages.py:35"
   },
   {
    "id": "endpoint:GET /topology",
@@ -2727,7 +2727,7 @@
   {
    "id": "function:brain.api.create_app",
    "kind": "function",
-   "where": "src/brain/api/__init__.py:261",
+   "where": "src/brain/api/__init__.py:265",
    "signature": "create_app(hub)"
   },
   {
@@ -2758,7 +2758,7 @@
   {
    "id": "function:brain.api.routes.pages.register",
    "kind": "function",
-   "where": "src/brain/api/routes/pages.py:22",
+   "where": "src/brain/api/routes/pages.py:23",
    "signature": "register(app, hub, service, tool_registry)"
   },
   {
@@ -3193,30 +3193,37 @@
    "summary": "Mint a short-lived token, or revoke one by id. The static tokens in the environment keep working."
   },
   {
+   "id": "function:brain.config._with_partner_addresses",
+   "kind": "function",
+   "where": "src/brain/config.py:535",
+   "signature": "_with_partner_addresses(partners)",
+   "summary": "`TWIN_URL` and `GUARDIAN_URL` (the triplet's root `.env`) override the addresses in the file, so one stack-wide variable points the Brain at a partner. A bare `http://host:port` for an MCP Twin means the MCP endpoint at `/mcp`."
+  },
+  {
    "id": "function:brain.config.fingerprint",
    "kind": "function",
-   "where": "src/brain/config.py:536",
+   "where": "src/brain/config.py:549",
    "signature": "fingerprint(*models)",
    "summary": "Short stable hash of the behaviour-defining config, stamped on every decision."
   },
   {
    "id": "function:brain.config.home",
    "kind": "function",
-   "where": "src/brain/config.py:517",
+   "where": "src/brain/config.py:518",
    "signature": "home()",
    "summary": "Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live."
   },
   {
    "id": "function:brain.config.load",
    "kind": "function",
-   "where": "src/brain/config.py:522",
+   "where": "src/brain/config.py:523",
    "signature": "load(name, path)",
    "summary": "Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults."
   },
   {
    "id": "function:brain.config.secret",
    "kind": "function",
-   "where": "src/brain/config.py:532",
+   "where": "src/brain/config.py:545",
    "signature": "secret(env_name)"
   },
   {
@@ -4750,8 +4757,15 @@
   {
    "id": "function:brain.observability._labels",
    "kind": "function",
-   "where": "src/brain/observability.py:15",
+   "where": "src/brain/observability.py:19",
    "signature": "_labels()"
+  },
+  {
+   "id": "function:brain.observability.store_status",
+   "kind": "function",
+   "where": "src/brain/observability.py:23",
+   "signature": "store_status(graph, timeout)",
+   "summary": "1 for each configured store that answers right now: Neo4j on its bolt port, a Qdrant server on /readyz (an embedded folder is always up). Neo4j Community has no metrics endpoint of its own, so this is how Prometheus learns whether the City Graph is being kept."
   },
   {
    "id": "function:brain.onboard._match_fields",
@@ -7071,7 +7085,7 @@
   {
    "id": "method:brain.api.Hub._attach",
    "kind": "method",
-   "where": "src/brain/api/__init__.py:228",
+   "where": "src/brain/api/__init__.py:230",
    "signature": "_attach(service)"
   },
   {
@@ -7115,7 +7129,7 @@
   {
    "id": "method:brain.api.Hub.run_live",
    "kind": "method",
-   "where": "src/brain/api/__init__.py:231",
+   "where": "src/brain/api/__init__.py:233",
    "signature": "async run_live()",
    "summary": "Connect to the configured partners and stay connected (the `--live` mode)."
   },
@@ -7135,7 +7149,7 @@
   {
    "id": "method:brain.api.Hub.wait",
    "kind": "method",
-   "where": "src/brain/api/__init__.py:256",
+   "where": "src/brain/api/__init__.py:260",
    "signature": "async wait()"
   },
   {
@@ -7698,7 +7712,7 @@
   {
    "id": "method:brain.config.ModelsConfig.options_for",
    "kind": "method",
-   "where": "src/brain/config.py:503",
+   "where": "src/brain/config.py:504",
    "signature": "options_for(role)",
    "summary": "Explicit options win; otherwise each provider gets the settings that suit it."
   },
@@ -9199,19 +9213,19 @@
   {
    "id": "method:brain.observability.Metrics.__init__",
    "kind": "method",
-   "where": "src/brain/observability.py:20",
+   "where": "src/brain/observability.py:47",
    "signature": "__init__()"
   },
   {
    "id": "method:brain.observability.Metrics.render",
    "kind": "method",
-   "where": "src/brain/observability.py:53",
-   "signature": "render()"
+   "where": "src/brain/observability.py:80",
+   "signature": "render(stores)"
   },
   {
    "id": "method:brain.observability.Metrics.write",
    "kind": "method",
-   "where": "src/brain/observability.py:29",
+   "where": "src/brain/observability.py:56",
    "signature": "write(event)"
   },
   {
@@ -10555,7 +10569,7 @@
    "kind": "module",
    "path": "src/brain/api/__init__.py",
    "summary": "The Brain's HTTP surface: a live event stream for the timeline screen, and read-only views of what the Brain knows and decided.",
-   "lines": 294
+   "lines": 298
   },
   {
    "id": "module:brain.api.routes",
@@ -10590,7 +10604,7 @@
    "kind": "module",
    "path": "src/brain/api/routes/pages.py",
    "summary": "The page, its scripts, and the discovery routes: the agent card, the keys, the metrics and the health check.",
-   "lines": 78
+   "lines": 79
   },
   {
    "id": "module:brain.api.routes.views",
@@ -10722,7 +10736,7 @@
    "kind": "module",
    "path": "src/brain/config.py",
    "summary": "Configuration models. Defaults here equal the shipped YAML files in `config/`.",
-   "lines": 539
+   "lines": 552
   },
   {
    "id": "module:brain.conformance",
@@ -11230,7 +11244,7 @@
    "kind": "module",
    "path": "src/brain/observability.py",
    "summary": "Metrics in the Prometheus text format, computed from the timeline.",
-   "lines": 68
+   "lines": 96
   },
   {
    "id": "module:brain.onboard",
@@ -11616,7 +11630,7 @@
    "kind": "module",
    "path": "tests/test_compose.py",
    "summary": "The Compose file is the only deployment: keep its shape (profiles, loopback-only ports, the full config) from drifting.",
-   "lines": 25
+   "lines": 71
   },
   {
    "id": "module:tests.test_conditions",
@@ -11643,7 +11657,7 @@
    "id": "module:tests.test_contracts",
    "kind": "module",
    "path": "tests/test_contracts.py",
-   "lines": 100
+   "lines": 116
   },
   {
    "id": "module:tests.test_corpus",
@@ -11936,7 +11950,7 @@
    "kind": "module",
    "path": "tests/test_observability.py",
    "summary": "Metrics from the timeline: counted by type and check, no ids or secrets in a label, readable only with the read scope.",
-   "lines": 50
+   "lines": 60
   },
   {
    "id": "module:tests.test_onboard",
@@ -13231,22 +13245,52 @@
    "signature": "test_what_is_blocked_is_computed_from_the_gate_policy_and_the_actions_the_items_use()"
   },
   {
+   "id": "test:tests.test_compose.test_both_compose_files_include_the_observability_stack",
+   "kind": "test",
+   "where": "tests/test_compose.py:40",
+   "signature": "test_both_compose_files_include_the_observability_stack()"
+  },
+  {
+   "id": "test:tests.test_compose.test_both_stores_start_with_the_core_profile",
+   "kind": "test",
+   "where": "tests/test_compose.py:10",
+   "signature": "test_both_stores_start_with_the_core_profile()"
+  },
+  {
+   "id": "test:tests.test_compose.test_every_dashboard_panel_reads_a_provisioned_datasource",
+   "kind": "test",
+   "where": "tests/test_compose.py:65",
+   "signature": "test_every_dashboard_panel_reads_a_provisioned_datasource()"
+  },
+  {
    "id": "test:tests.test_compose.test_every_published_port_is_on_loopback",
    "kind": "test",
    "where": "tests/test_compose.py:17",
    "signature": "test_every_published_port_is_on_loopback()"
   },
   {
-   "id": "test:tests.test_compose.test_full_profile_has_the_stores_and_core_does_not",
+   "id": "test:tests.test_compose.test_prometheus_scrapes_the_brain_where_it_listens_and_every_target_is_a_service",
    "kind": "test",
-   "where": "tests/test_compose.py:10",
-   "signature": "test_full_profile_has_the_stores_and_core_does_not()"
+   "where": "tests/test_compose.py:46",
+   "signature": "test_prometheus_scrapes_the_brain_where_it_listens_and_every_target_is_a_service()"
   },
   {
    "id": "test:tests.test_compose.test_the_full_config_reaches_both_stores_by_service_name",
    "kind": "test",
    "where": "tests/test_compose.py:23",
    "signature": "test_the_full_config_reaches_both_stores_by_service_name()"
+  },
+  {
+   "id": "test:tests.test_compose.test_the_observability_services_are_opt_in_and_on_loopback",
+   "kind": "test",
+   "where": "tests/test_compose.py:32",
+   "signature": "test_the_observability_services_are_opt_in_and_on_loopback()"
+  },
+  {
+   "id": "test:tests.test_compose.test_traefik_routes_every_screen_to_a_service_in_the_stack",
+   "kind": "test",
+   "where": "tests/test_compose.py:55",
+   "signature": "test_traefik_routes_every_screen_to_a_service_in_the_stack()"
   },
   {
    "id": "test:tests.test_conditions.test_a_fire_needs_two_independent_sources_before_a_unit_is_sent",
@@ -13459,6 +13503,12 @@
    "kind": "test",
    "where": "tests/test_contracts.py:82",
    "signature": "test_the_topology_example_lists_every_zone_it_refers_to()"
+  },
+  {
+   "id": "test:tests.test_contracts.test_the_triplets_partner_addresses_override_the_file",
+   "kind": "test",
+   "where": "tests/test_contracts.py:103",
+   "signature": "test_the_triplets_partner_addresses_override_the_file(monkeypatch, tmp_path)"
   },
   {
    "id": "test:tests.test_corpus.test_a_police_search_never_returns_another_departments_procedure",
@@ -15473,6 +15523,12 @@
    "kind": "test",
    "where": "tests/test_observability.py:25",
    "signature": "test_open_incidents_units_and_degraded_components_move_both_ways()"
+  },
+  {
+   "id": "test:tests.test_observability.test_store_health_is_one_for_an_embedded_qdrant_and_zero_for_an_unreachable_neo4j",
+   "kind": "test",
+   "where": "tests/test_observability.py:53",
+   "signature": "test_store_health_is_one_for_an_embedded_qdrant_and_zero_for_an_unreachable_neo4j()"
   },
   {
    "id": "test:tests.test_observability.test_the_metrics_endpoint_requires_the_read_scope_off_loopback",
@@ -21342,7 +21398,7 @@
    "source": "module:brain.api",
    "label": "emits",
    "target": "event:brain.scenario.failed",
-   "where": "src/brain/api/__init__.py:221"
+   "where": "src/brain/api/__init__.py:223"
   },
   {
    "source": "module:brain.api",
@@ -21645,6 +21701,11 @@
    "source": "module:brain.api.routes.pages",
    "label": "imports",
    "target": "module:brain.contracts.keyring"
+  },
+  {
+   "source": "module:brain.api.routes.pages",
+   "label": "imports",
+   "target": "module:brain.observability"
   },
   {
    "source": "module:brain.api.routes.pages",
@@ -23141,6 +23202,11 @@
    "source": "module:brain.config",
    "label": "defines",
    "target": "class:brain.config.WorkspacePolicy"
+  },
+  {
+   "source": "module:brain.config",
+   "label": "defines",
+   "target": "function:brain.config._with_partner_addresses"
   },
   {
    "source": "module:brain.config",
@@ -26489,6 +26555,16 @@
   },
   {
    "source": "module:brain.observability",
+   "label": "defines",
+   "target": "function:brain.observability.store_status"
+  },
+  {
+   "source": "module:brain.observability",
+   "label": "imports",
+   "target": "module:brain.config"
+  },
+  {
+   "source": "module:brain.observability",
    "label": "imports",
    "target": "module:brain.contracts"
   },
@@ -29424,17 +29500,42 @@
   {
    "source": "module:tests.test_compose",
    "label": "defines",
+   "target": "test:tests.test_compose.test_both_compose_files_include_the_observability_stack"
+  },
+  {
+   "source": "module:tests.test_compose",
+   "label": "defines",
+   "target": "test:tests.test_compose.test_both_stores_start_with_the_core_profile"
+  },
+  {
+   "source": "module:tests.test_compose",
+   "label": "defines",
+   "target": "test:tests.test_compose.test_every_dashboard_panel_reads_a_provisioned_datasource"
+  },
+  {
+   "source": "module:tests.test_compose",
+   "label": "defines",
    "target": "test:tests.test_compose.test_every_published_port_is_on_loopback"
   },
   {
    "source": "module:tests.test_compose",
    "label": "defines",
-   "target": "test:tests.test_compose.test_full_profile_has_the_stores_and_core_does_not"
+   "target": "test:tests.test_compose.test_prometheus_scrapes_the_brain_where_it_listens_and_every_target_is_a_service"
   },
   {
    "source": "module:tests.test_compose",
    "label": "defines",
    "target": "test:tests.test_compose.test_the_full_config_reaches_both_stores_by_service_name"
+  },
+  {
+   "source": "module:tests.test_compose",
+   "label": "defines",
+   "target": "test:tests.test_compose.test_the_observability_services_are_opt_in_and_on_loopback"
+  },
+  {
+   "source": "module:tests.test_compose",
+   "label": "defines",
+   "target": "test:tests.test_compose.test_traefik_routes_every_screen_to_a_service_in_the_stack"
   },
   {
    "source": "module:tests.test_conditions",
@@ -29803,6 +29904,11 @@
   },
   {
    "source": "module:tests.test_contracts",
+   "label": "defines",
+   "target": "test:tests.test_contracts.test_the_triplets_partner_addresses_override_the_file"
+  },
+  {
+   "source": "module:tests.test_contracts",
    "label": "imports",
    "target": "module:brain.commands.run"
   },
@@ -29815,6 +29921,18 @@
    "source": "module:tests.test_contracts",
    "label": "imports",
    "target": "module:brain.contracts"
+  },
+  {
+   "source": "module:tests.test_contracts",
+   "label": "loads",
+   "target": "config:config/partners.yaml",
+   "where": "tests/test_contracts.py:111"
+  },
+  {
+   "source": "module:tests.test_contracts",
+   "label": "loads",
+   "target": "config:config/partners.yaml",
+   "where": "tests/test_contracts.py:116"
   },
   {
    "source": "module:tests.test_corpus",
@@ -32992,6 +33110,11 @@
    "source": "module:tests.test_observability",
    "label": "defines",
    "target": "test:tests.test_observability.test_open_incidents_units_and_degraded_components_move_both_ways"
+  },
+  {
+   "source": "module:tests.test_observability",
+   "label": "defines",
+   "target": "test:tests.test_observability.test_store_health_is_one_for_an_embedded_qdrant_and_zero_for_an_unreachable_neo4j"
   },
   {
    "source": "module:tests.test_observability",

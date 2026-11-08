@@ -1,0 +1,91 @@
+# Traefik, Prometheus, Grafana, Loki, Promtail and Jaeger around the Brain and its two stores. Included by this folder's docker-compose.yml and by the
+# triplet's root file; every service is in the `obs` profile, so it starts only with:   docker compose --profile obs up -d   (or `make obs`).
+# How the pieces connect (docs/OBSERVABILITY.md):
+#   browser -> Traefik -> brain, neo4j, qdrant, grafana, prometheus, jaeger          (one door, JSON access log, request metrics)
+#   Prometheus scrapes brain, traefik, qdrant, loki  -> Grafana                       (metrics)
+#   Promtail reads every container's log             -> Loki -> Grafana               (logs)
+#   brain spans (OTLP_ENDPOINT=http://jaeger:4318)   -> Jaeger -> Grafana             (traces)
+# Every host port is on 127.0.0.1 and comes from an environment variable.
+services:
+  traefik:
+    image: traefik:v3.2.3
+    profiles: ["obs"]
+    restart: unless-stopped
+    command:
+      - --providers.file.filename=/etc/traefik/dynamic.yml
+      - --api=true
+      - --entrypoints.web.address=:80
+      - --entrypoints.metrics.address=:8082
+      - --metrics.prometheus=true
+      - --metrics.prometheus.entrypoint=metrics
+      - --metrics.prometheus.addServicesLabels=true
+      - --accesslog=true
+      - --accesslog.format=json
+      - --log.format=json
+      - --global.checknewversion=false
+      - --global.sendanonymoususage=false
+    ports:
+      - "127.0.0.1:${TRAEFIK_PORT:-8000}:80"
+    volumes:
+      - ../traefik/dynamic.yml:/etc/traefik/dynamic.yml:ro
+
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ../grafana/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+
+  loki:
+    image: grafana/loki:3.2.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    command: ["-config.file=/etc/loki/loki.yml"]
+    volumes:
+      - ../loki/loki.yml:/etc/loki/loki.yml:ro
+      - loki-data:/loki
+
+  # Reads the other containers' logs through the Docker socket, mounted read-only: the one place in the stack that can see Docker.
+  promtail:
+    image: grafana/promtail:3.2.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    user: "0:0"
+    command: ["-config.file=/etc/promtail/promtail.yml"]
+    volumes:
+      - ../promtail/promtail.yml:/etc/promtail/promtail.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on: [loki]
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.62.0
+    profiles: ["obs"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${JAEGER_UI_PORT:-16686}:16686"
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+
+  # The "City Brain" and "City Brain stack" dashboards over Prometheus, Loki and Jaeger, provisioned at start-up; read-only without a login.
+  grafana:
+    image: grafana/grafana:11.3.1
+    profiles: ["obs"]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${GRAFANA_PORT:-3000}:3000"
+    environment:
+      GF_SERVER_ROOT_URL: http://grafana.localhost:${TRAEFIK_PORT:-8000}/
+      GF_AUTH_ANONYMOUS_ENABLED: "true"
+      GF_AUTH_ANONYMOUS_ORG_ROLE: Viewer
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:-citybrain-local-pw}
+      GF_ANALYTICS_REPORTING_ENABLED: "false"
+      GF_ANALYTICS_CHECK_FOR_UPDATES: "false"
+    volumes:
+      - ../grafana/provisioning:/etc/grafana/provisioning:ro
+      - ../grafana/dashboards:/var/lib/grafana/dashboards:ro
+    depends_on: [prometheus, loki]
+
+volumes:
+  loki-data:

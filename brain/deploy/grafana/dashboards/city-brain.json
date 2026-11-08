@@ -1,0 +1,891 @@
+{
+ "uid": "city-brain",
+ "title": "City Brain",
+ "tags": [
+  "city-brain"
+ ],
+ "schemaVersion": 39,
+ "version": 2,
+ "refresh": "5s",
+ "time": {
+  "from": "now-15m",
+  "to": "now"
+ },
+ "description": "The top row is the whole system at a glance: anything red needs a look. Open a row for the detail.",
+ "links": [
+  {
+   "title": "City Brain screen",
+   "type": "link",
+   "icon": "external link",
+   "url": "http://brain.localhost:8000/",
+   "targetBlank": true,
+   "tooltip": "The timeline screen: run a scenario, watch it happen"
+  },
+  {
+   "title": "Traces",
+   "type": "link",
+   "icon": "external link",
+   "url": "http://jaeger.localhost:8000/search?service=city-brain&lookback=1h&limit=20",
+   "targetBlank": true,
+   "tooltip": "Jaeger: one trace per scenario, reading to action"
+  },
+  {
+   "title": "City Graph: latest decision",
+   "type": "link",
+   "icon": "external link",
+   "url": "http://neo4j.localhost:8000/browser/?cmd=edit&arg=MATCH%20%28d%3ADecision%29%20WITH%20d%20ORDER%20BY%20d.run_id%20DESC%2C%20d.id%20DESC%20LIMIT%201%20MATCH%20p%20%3D%20%28d%29-%5B%3ACITES%5D-%3E%28c%29%20OPTIONAL%20MATCH%20q%20%3D%20%28d%29-%5B%3AISSUED%5D-%3E%28%3AAction%29%20RETURN%20p%2C%20q",
+   "targetBlank": true,
+   "tooltip": "Neo4j Browser: the latest decision, what it cited and the action it caused (log in with neo4j and NEO4J_PASSWORD)"
+  }
+ ],
+ "panels": [
+  {
+   "id": 1,
+   "type": "stat",
+   "title": "Stores",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "(min(brain_store_up)) or vector(0)"
+    }
+   ],
+   "description": "Neo4j (the City Graph) and Qdrant (the knowledge vectors) both answer. Open 'Stores & traffic' to see which.",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [
+      {
+       "type": "value",
+       "options": {
+        "0": {
+         "text": "DOWN",
+         "color": "red"
+        },
+        "1": {
+         "text": "OK",
+         "color": "green"
+        }
+       }
+      }
+     ],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "red",
+        "value": null
+       },
+       {
+        "color": "green",
+        "value": 1
+       }
+      ]
+     },
+     "noValue": "0"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 2,
+   "type": "stat",
+   "title": "Services",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "(min(up)) or vector(0)"
+    }
+   ],
+   "description": "Every scrape target (Brain, Traefik, Qdrant, Loki, Prometheus) is reachable.",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [
+      {
+       "type": "value",
+       "options": {
+        "0": {
+         "text": "DOWN",
+         "color": "red"
+        },
+        "1": {
+         "text": "OK",
+         "color": "green"
+        }
+       }
+      }
+     ],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "red",
+        "value": null
+       },
+       {
+        "color": "green",
+        "value": 1
+       }
+      ]
+     },
+     "noValue": "0"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 3,
+   "type": "stat",
+   "title": "Fallbacks active",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "max(brain_degraded) or vector(0)"
+    }
+   ],
+   "description": "1 while a component is answering from its in-memory fallback.",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [
+      {
+       "type": "value",
+       "options": {
+        "0": {
+         "text": "none",
+         "color": "green"
+        },
+        "1": {
+         "text": "ACTIVE",
+         "color": "red"
+        }
+       }
+      }
+     ],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "red",
+        "value": 1
+       }
+      ]
+     },
+     "noValue": "0"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 4,
+   "type": "stat",
+   "title": "Log errors (5m)",
+   "datasource": {
+    "type": "loki",
+    "uid": "loki"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "loki",
+      "uid": "loki"
+     },
+     "expr": "sum(count_over_time({project=~\".+\", service!~\"loki|grafana\"} |~ \"(?i)error|fail|unavailable|degraded\" [5m]))",
+     "queryType": "instant"
+    }
+   ],
+   "description": "Warnings and errors in the logs of the last 5 minutes, for every service except Loki and Grafana (their logs repeat the dashboard's own queries, which would count themselves). Open 'Logs' to read them.",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "green",
+        "value": null
+       },
+       {
+        "color": "orange",
+        "value": 1
+       },
+       {
+        "color": "red",
+        "value": 20
+       }
+      ]
+     },
+     "noValue": "0"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 5,
+   "type": "stat",
+   "title": "Open incidents",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "brain_open_incidents"
+    }
+   ],
+   "description": "Incidents the Brain is handling now.",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "blue",
+        "value": null
+       }
+      ]
+     },
+     "noValue": "0"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 6,
+   "type": "stat",
+   "title": "Held by the gate (5m)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prometheus"
+   },
+   "gridPos": {
+    "x": 20,
+    "y": 0,
+    "w": 4,
+    "h": 4
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "expr": "sum(increase(brain_gate_decisions_total{allowed=\"false\"}[5m]))"
+    }
+   ],
+   "description": "Actions the Safety gate refused in the last 5 minutes: working as designed, but each one has a reason (open 'Decisions').",
+   "options": {
+    "colorMode": "background",
+    "graphMode": "none",
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "textMode": "value"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "mappings": [],
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "blue",
+        "value": null
+       }
+      ]
+     },
+     "noValue": "0",
+     "unit": "none"
+    },
+    "overrides": []
+   }
+  },
+  {
+   "id": 10,
+   "type": "row",
+   "title": "Decisions: what the Brain did and what the gate held",
+   "collapsed": true,
+   "gridPos": {
+    "x": 0,
+    "y": 4,
+    "w": 24,
+    "h": 1
+   },
+   "panels": [
+    {
+     "id": 7,
+     "type": "timeseries",
+     "title": "Gate: passed and held, by the check that decided",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 5,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "sum by (allowed, check) (rate(brain_gate_decisions_total[1m]))",
+       "legendFormat": "allowed={{allowed}} {{check}}"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    },
+    {
+     "id": 8,
+     "type": "timeseries",
+     "title": "Events per second, by type",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 8,
+      "y": 5,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "topk(6, sum by (type) (rate(brain_events_total[1m])))",
+       "legendFormat": "{{type}}"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    },
+    {
+     "id": 9,
+     "type": "timeseries",
+     "title": "Solver time per run (s) and units out",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 16,
+      "y": 5,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "sum by (outcome) (brain_solver_seconds_sum) / sum by (outcome) (brain_solver_seconds_count)",
+       "legendFormat": "solver {{outcome}}"
+      },
+      {
+       "refId": "B",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "brain_units_out",
+       "legendFormat": "units out"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "type": "row",
+   "title": "Stores and traffic",
+   "collapsed": true,
+   "gridPos": {
+    "x": 0,
+    "y": 5,
+    "w": 24,
+    "h": 1
+   },
+   "panels": [
+    {
+     "id": 11,
+     "type": "timeseries",
+     "title": "Stores: 1 = answering",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 6,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "brain_store_up",
+       "legendFormat": "{{store}}"
+      },
+      {
+       "refId": "B",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "up",
+       "legendFormat": "target {{job}}"
+      }
+     ],
+     "description": "brain_store_up is measured by the Brain; the targets are Prometheus's own view.",
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    },
+    {
+     "id": 12,
+     "type": "timeseries",
+     "title": "Traefik: requests per second, by service",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 8,
+      "y": 6,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "sum by (service) (rate(traefik_service_requests_total[1m]))",
+       "legendFormat": "{{service}}"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    },
+    {
+     "id": 13,
+     "type": "timeseries",
+     "title": "Traefik: 5xx per second and p95 time (s)",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 16,
+      "y": 6,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "sum(rate(traefik_service_requests_total{code=~\"5..\"}[1m])) or vector(0)",
+       "legendFormat": "5xx/s"
+      },
+      {
+       "refId": "B",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "histogram_quantile(0.95, sum by (le) (rate(traefik_service_request_duration_seconds_bucket[1m])))",
+       "legendFormat": "p95 s"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    },
+    {
+     "id": 14,
+     "type": "timeseries",
+     "title": "Qdrant: vectors and resident memory",
+     "datasource": {
+      "type": "prometheus",
+      "uid": "prometheus"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 13,
+      "w": 8,
+      "h": 7
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "collections_vector_total",
+       "legendFormat": "vectors"
+      },
+      {
+       "refId": "B",
+       "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+       },
+       "expr": "memory_resident_bytes/1e6",
+       "legendFormat": "resident MB"
+      }
+     ],
+     "fieldConfig": {
+      "defaults": {},
+      "overrides": []
+     },
+     "options": {
+      "legend": {
+       "displayMode": "list",
+       "placement": "bottom"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "type": "row",
+   "title": "Logs",
+   "collapsed": true,
+   "gridPos": {
+    "x": 0,
+    "y": 6,
+    "w": 24,
+    "h": 1
+   },
+   "panels": [
+    {
+     "id": 16,
+     "type": "logs",
+     "title": "Warnings and errors, any service",
+     "datasource": {
+      "type": "loki",
+      "uid": "loki"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 7,
+      "w": 24,
+      "h": 8
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "loki",
+        "uid": "loki"
+       },
+       "expr": "{project=~\".+\", service!~\"loki|grafana\"} |~ \"(?i)error|warn|unavailable|degraded|fail\"",
+       "queryType": "range"
+      }
+     ],
+     "options": {
+      "showTime": true,
+      "wrapLogMessage": true,
+      "sortOrder": "Descending",
+      "enableLogDetails": true
+     }
+    },
+    {
+     "id": 17,
+     "type": "logs",
+     "title": "Brain",
+     "datasource": {
+      "type": "loki",
+      "uid": "loki"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 15,
+      "w": 12,
+      "h": 8
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "loki",
+        "uid": "loki"
+       },
+       "expr": "{service=\"brain\"}",
+       "queryType": "range"
+      }
+     ],
+     "options": {
+      "showTime": true,
+      "wrapLogMessage": true,
+      "sortOrder": "Descending",
+      "enableLogDetails": true
+     }
+    },
+    {
+     "id": 18,
+     "type": "logs",
+     "title": "Neo4j, Qdrant and Traefik",
+     "datasource": {
+      "type": "loki",
+      "uid": "loki"
+     },
+     "gridPos": {
+      "x": 12,
+      "y": 15,
+      "w": 12,
+      "h": 8
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "loki",
+        "uid": "loki"
+       },
+       "expr": "{service=~\"neo4j|qdrant|traefik\"}",
+       "queryType": "range"
+      }
+     ],
+     "options": {
+      "showTime": true,
+      "wrapLogMessage": true,
+      "sortOrder": "Descending",
+      "enableLogDetails": true
+     }
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "type": "row",
+   "title": "Traces",
+   "collapsed": true,
+   "gridPos": {
+    "x": 0,
+    "y": 7,
+    "w": 24,
+    "h": 1
+   },
+   "panels": [
+    {
+     "id": 20,
+     "type": "table",
+     "title": "Recent traces (open one to follow a reading to its action)",
+     "datasource": {
+      "type": "jaeger",
+      "uid": "jaeger"
+     },
+     "gridPos": {
+      "x": 0,
+      "y": 8,
+      "w": 24,
+      "h": 8
+     },
+     "targets": [
+      {
+       "refId": "A",
+       "datasource": {
+        "type": "jaeger",
+        "uid": "jaeger"
+       },
+       "expr": "",
+       "queryType": "search",
+       "service": "city-brain",
+       "limit": 20
+      }
+     ],
+     "options": {
+      "showHeader": true
+     }
+    }
+   ]
+  }
+ ]
+}

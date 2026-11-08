@@ -15,5 +15,5 @@ if [ "${2:-}" = obs ]; then
   extra=(--profile obs)
 fi
 docker compose --profile "$profile" "${extra[@]}" up -d --wait
-[ "${2:-}" = obs ] && echo "Traces http://127.0.0.1:${JAEGER_UI_PORT:-16686}/   Metrics http://127.0.0.1:${PROMETHEUS_PORT:-9090}/   Dashboard http://127.0.0.1:${GRAFANA_PORT:-3000}/"
+[ "${2:-}" = obs ] && echo "Everything behind Traefik: http://brain.localhost:${TRAEFIK_PORT:-8000}/  grafana.  prometheus.  jaeger.  neo4j.  qdrant.  traefik.  (same port, see docs/OBSERVABILITY.md)"
 echo "City Brain: http://127.0.0.1:${BRAIN_PORT:-8080}/   (number keys run scenarios, C opens the canopy)"

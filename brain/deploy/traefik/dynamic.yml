@@ -1,0 +1,18 @@
+# One door for every screen. Each hostname ends in .localhost, which a browser resolves to this machine: http://brain.localhost:8000/
+# Traefik reads this file, not the Docker socket, so it needs no access to Docker. It also writes a JSON access log and exposes request metrics for Prometheus.
+http:
+  routers:
+    brain:      {rule: "Host(`brain.localhost`)",      entryPoints: [web], service: brain}       # the timeline screen, its API, /metrics and the event stream
+    grafana:    {rule: "Host(`grafana.localhost`)",    entryPoints: [web], service: grafana}     # dashboards over Prometheus, Loki and Jaeger
+    prometheus: {rule: "Host(`prometheus.localhost`)", entryPoints: [web], service: prometheus}
+    jaeger:     {rule: "Host(`jaeger.localhost`)",     entryPoints: [web], service: jaeger}      # one trace per scenario: reading, verdict, decision, action
+    neo4j:      {rule: "Host(`neo4j.localhost`)",      entryPoints: [web], service: neo4j}       # the City Graph browser (it connects to bolt on 127.0.0.1:7687)
+    qdrant:     {rule: "Host(`qdrant.localhost`)",     entryPoints: [web], service: qdrant}      # the knowledge vectors, at /dashboard
+    traefik:    {rule: "Host(`traefik.localhost`)",    entryPoints: [web], service: api@internal}
+  services:
+    brain:      {loadBalancer: {servers: [{url: "http://brain:8002"}]}}
+    grafana:    {loadBalancer: {servers: [{url: "http://grafana:3000"}]}}
+    prometheus: {loadBalancer: {servers: [{url: "http://prometheus:9090"}]}}
+    jaeger:     {loadBalancer: {servers: [{url: "http://jaeger:16686"}]}}
+    neo4j:      {loadBalancer: {servers: [{url: "http://neo4j:7474"}]}}
+    qdrant:     {loadBalancer: {servers: [{url: "http://qdrant:6333"}]}}

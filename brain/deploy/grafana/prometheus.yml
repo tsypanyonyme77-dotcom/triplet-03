@@ -1,7 +1,16 @@
-# Scrape the Brain. With tokens on, add:  authorization: {credentials_file: /etc/prometheus/brain-read-token}
+# What Prometheus scrapes. With tokens on, add to the brain job:  authorization: {credentials_file: /etc/prometheus/brain-read-token}
+global:
+  scrape_interval: 5s
 scrape_configs:
-  - job_name: city-brain
-    scrape_interval: 5s
+  - job_name: city-brain          # events, gate decisions, solver time, incidents, and brain_store_up for Neo4j and Qdrant
     metrics_path: /metrics
-    static_configs:
-      - targets: ["brain:8080"]
+    static_configs: [{targets: ["brain:8002"]}]
+  - job_name: traefik             # requests and latency per service, status codes
+    static_configs: [{targets: ["traefik:8082"]}]
+  - job_name: qdrant              # the vector store's own metrics (Neo4j Community has none: see brain_store_up)
+    metrics_path: /metrics
+    static_configs: [{targets: ["qdrant:6333"]}]
+  - job_name: loki
+    static_configs: [{targets: ["loki:3100"]}]
+  - job_name: prometheus
+    static_configs: [{targets: ["localhost:9090"]}]

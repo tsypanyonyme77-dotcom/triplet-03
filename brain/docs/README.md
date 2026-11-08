@@ -39,6 +39,7 @@ The City Brain team's documents. The triplet's shared report, pitch and diagrams
 | [SECURITY.md](SECURITY.md) | Threats and the test that proves each |
 | [SECURITY-MITRE.md](SECURITY-MITRE.md) | MITRE ATT&CK (ICS and Enterprise) and ATLAS mapping, residual risks |
 | [KEYS.md](KEYS.md) | Signing keys and how to rotate them |
+| [OBSERVABILITY.md](OBSERVABILITY.md) | Traefik, Prometheus, Grafana, Loki and Jaeger around the Brain, Neo4j and Qdrant: what is connected to what, and the limits |
 | [security/](security/) | The dated evidence report (`brain security-report`) |
 | [sbom.cdx.json](sbom.cdx.json) | The dependency list (CycloneDX) |
 

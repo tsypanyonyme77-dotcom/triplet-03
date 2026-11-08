@@ -166,6 +166,7 @@ class ObservabilityConfig(BaseModel):
     """Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`)."""
 
     otlp_endpoint: str | None = None  # an OTLP/HTTP collector, e.g. http://jaeger:4318; null sends nothing
+    dashboard_url: str | None = None  # where the screen's "Observe" button goes (the Grafana dashboard); null hides the button
     service_name: str = "city-brain"
 
 

@@ -211,6 +211,21 @@ async def test_health_reports_the_configured_default_view(tmp_path):
         assert (await client.get("/health")).json()["default_view"] == "canopy"
 
 
+async def test_the_screen_offers_the_dashboard_only_when_one_is_configured(tmp_path):
+    from brain.config import ObservabilityConfig
+
+    async def health(partners):
+        hub = Hub(partners, Policy(), MODELS, mocks="inproc", log_dir=tmp_path)
+        async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app(hub)), base_url="http://brain") as client:
+            return (await client.get("/health")).json()["dashboard"], (await client.get("/")).text
+
+    none, page = await health(PartnersConfig())
+    url, _ = await health(PartnersConfig(observability=ObservabilityConfig(dashboard_url="http://grafana.localhost:8000/d/city-brain")))
+
+    assert none is None and url == "http://grafana.localhost:8000/d/city-brain"
+    assert 'id="observe"' in page and "hidden" in page.split('id="observe"')[1].split(">")[0]
+
+
 def test_an_unknown_default_view_is_refused_by_the_config():
     from pydantic import ValidationError
 

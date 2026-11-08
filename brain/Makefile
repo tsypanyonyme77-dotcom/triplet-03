@@ -126,7 +126,7 @@ full: image ## the Brain, mock Twin and Guardian, Neo4j (city graph) and Qdrant 
 > scripts/up.sh full
 > @docker compose ps --format 'table {{.Service}}\t{{.Status}}'
 
-obs: image ## `make full` plus Jaeger (traces), Prometheus and Grafana (the City Brain dashboard): http://127.0.0.1:3000
+obs: image ## `make full` plus Traefik, Prometheus, Grafana, Loki and Jaeger (docs/OBSERVABILITY.md): http://brain.localhost:8000 and http://grafana.localhost:8000
 > scripts/up.sh full obs
 
 full-scenario: ## run one scenario inside the full stack and print its verdict: make full-scenario S=d4 (FLAGS="--llm --speed 0.5" for real models)

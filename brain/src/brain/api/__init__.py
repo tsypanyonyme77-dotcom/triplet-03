@@ -207,6 +207,8 @@ class Hub:
             context = runner.inproc_partners() if self.mocks == "inproc" else runner.spawned_partners(self.partners)
             try:
                 async with open_backends(self.partners.graph, self.models, run_id) as backends:
+                    if backends.note:
+                        logging.getLogger("brain.api").warning("%s", backends.note)  # a store is away: the log and brain_store_up say so
                     result = await runner.run_scenario(
                         definition, context, partners=self.partners, policy=self.policy, models=self.models,
                         store=backends.store, kb=backends.kb, speed=speed, log_dir=self.log_dir,
@@ -244,6 +246,8 @@ class Hub:
             sinks.append(JsonlSink(log_path, resume=resumed))
         self.watch_llm()
         async with open_backends(self.partners.graph, self.models, f"live-{stamp}") as backends:
+            if backends.note:
+                logging.getLogger("brain.api").warning("%s", backends.note)
             async with guardian_client(self.partners.guardian.url, self.partners.guardian.tls) as client:
                 async with open_twin(self.partners.twin) as twin:
                     service = BrainService(self.partners, self.policy, twin, RestGuardianAdapter("", client),

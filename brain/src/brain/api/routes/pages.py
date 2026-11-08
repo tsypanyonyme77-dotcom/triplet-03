@@ -11,6 +11,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from fastapi.staticfiles import StaticFiles
 
 from brain.contracts import CONTRACT_VERSION
+from brain.observability import store_status
 from brain.runtime import BrainService
 
 if TYPE_CHECKING:
@@ -65,7 +66,7 @@ def register(app: FastAPI, hub: Hub, service: Callable[[], BrainService], tool_r
     @app.get("/metrics", response_class=PlainTextResponse)
     def metrics() -> PlainTextResponse:
         """Prometheus text format, computed from the timeline (needs the read scope off loopback)."""
-        return PlainTextResponse(hub.broadcaster.metrics.render(), media_type="text/plain; version=0.0.4; charset=utf-8")
+        return PlainTextResponse(hub.broadcaster.metrics.render(store_status(hub.partners.graph)), media_type="text/plain; version=0.0.4; charset=utf-8")
 
     @app.get("/health")
     def health() -> dict[str, Any]:
@@ -74,5 +75,5 @@ def register(app: FastAPI, hub: Hub, service: Callable[[], BrainService], tool_r
             "running": hub.running, "default_view": hub.partners.brain.default_view, "graph_backend": hub.partners.graph.backend,
             "team": "llm" if hub.models.team.llm else ("scripted" if hub.models.team.enabled else "off"),
             "departments": hub.models.team.departments,  # on: Fire, Ambulance and medical, Traffic control, Disaster response and Utilities have agent desks (Police has its own team)
-            "events_buffered": len(hub.broadcaster.buffer),
+            "events_buffered": len(hub.broadcaster.buffer), "dashboard": hub.partners.observability.dashboard_url,
         }
