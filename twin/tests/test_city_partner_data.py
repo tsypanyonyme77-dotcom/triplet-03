@@ -54,3 +54,46 @@ def test_a_public_alert_is_kept_for_the_run():
     assert [a["zone_id"] for a in city.alerts] == ["zone-02"]
     city.reset()
     assert city.alerts == []
+
+
+def _hit_with(kind):
+    city = TwoBlocksCity("ped-hit")
+    city.step(60.0)
+    (incident,) = city.open_incidents()
+    unit = city.dispatch_unit(kind, incident["incident_id"])["unit_id"]
+    return city, incident["incident_id"], unit
+
+
+def test_a_recalled_unit_drives_home_and_can_be_sent_again():
+    city, incident, unit = _hit_with("police")
+    city.step(3.0)
+    assert city.recall_unit(unit) == {"status": "recalled", "unit_id": unit}
+    assert city.recall_unit(unit)["status"] == "duplicate"     # already on its way home
+    assert city.sim.units[unit].status in ("returning", "idle")
+    for _ in range(600):
+        city.step(1.0)
+        if city.sim.units[unit].status == "idle":
+            break
+    assert city.sim.units[unit].status == "idle" and city.sim.units[unit].incident_id is None
+    assert city.dispatch_unit("police", incident)["status"] == "dispatched"
+
+
+def test_a_recall_of_a_police_car_at_the_scene_lifts_its_road_closure():
+    city, _, unit = _hit_with("police")
+    for _ in range(200):
+        city.step(1.0)
+        if city.sim.units[unit].status == "on_scene":
+            break
+    assert city.sim.closed_edges
+    assert city.recall_unit(unit)["status"] == "recalled"
+    assert not city.sim.closed_edges
+
+
+def test_a_unit_at_real_work_is_not_recalled_and_an_unknown_one_is_named():
+    city, _, unit = _hit_with("ambulance")
+    for _ in range(200):
+        city.step(1.0)
+        if "crew" in next(iter(city.sim.responses.values())):
+            break
+    assert city.recall_unit(unit) == {"status": "rejected", "reason": "unit_busy", "unit_id": unit}
+    assert city.recall_unit("nobody") == {"status": "rejected", "reason": "unknown_unit", "unit_id": "nobody"}

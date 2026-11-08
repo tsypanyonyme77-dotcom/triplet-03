@@ -92,7 +92,7 @@ def test_topology_names_zones_exits_stations_and_sensors():
 
 def test_capabilities_are_only_what_this_city_can_do():
     _, client, _ = _app()
-    assert set(client.get("/capabilities").json()) == {"dispatch_unit", "broadcast_alert", "set_pump_state", "set_barrier_state"}
+    assert set(client.get("/capabilities").json()) == {"dispatch_unit", "recall_unit", "broadcast_alert", "set_pump_state", "set_barrier_state"}
 
 
 def test_a_brain_dispatch_goes_from_its_station_to_our_incident_and_the_unit_reports_the_brains_incident():
@@ -151,6 +151,16 @@ def test_a_quarantined_station_sends_no_unit():
     assert client.post("/actuators/dispatch_unit", json=body).json()["reason"] == "station_quarantined"
 
 
+def test_a_recall_goes_to_the_station_that_sent_the_unit():
+    _, client, city = _app()
+    sent = client.post("/actuators/dispatch_unit", json=_signed("dispatch_unit", "dispatch-police-station", {
+        "unit_type": "police", "zone_id": "zone-03", "incident_id": "inc-0042"})).json()
+    back = client.post("/actuators/recall_unit", json=_signed("recall_unit", "dispatch-police-station", {
+        "unit_id": sent["unit_id"], "incident_id": "inc-0042"})).json()
+    assert back == {"status": "recalled", "unit_id": sent["unit_id"]}
+    assert city.sim.units[sent["unit_id"]].status in ("returning", "idle")
+
+
 def test_an_alert_by_zone_actuator_id():
     _, client, city = _app()
     body = _signed("broadcast_alert", "broadcast-alert-zone-02", {"zone_id": "zone-02", "channel": "siren", "message": "Stay indoors."})
@@ -173,7 +183,8 @@ def test_the_same_operations_as_mcp_tools():
             return tools, page, topo, sent, forged
 
     tools, page, topo, sent, forged = asyncio.run(session())
-    assert tools == {"get_topology", "list_readings", "dispatch_unit", "broadcast_alert", "set_pump_state", "set_barrier_state"}
+    assert tools == {"get_topology", "list_readings", "dispatch_unit", "recall_unit", "broadcast_alert", "set_pump_state",
+                     "set_barrier_state"}
     assert len(page["readings"]) == 3 and page["next_cursor"] == 3 and page["stream_id"] == app.state.reading_log.stream_id
     assert topo["exits"] == ["zone-03"]
     assert sent["status"] == "dispatched" and sent["incident_id"] == "inc-0009" and city.sim.units["amb1"].status == "dispatched"

@@ -27,11 +27,12 @@ from twin.contract import ActuatorCall
 from twin.events import EventLog
 from twin.partners import partner_dispatch
 from twin.partners.incident_links import IncidentLinks
+from twin.partners.topology import station_of
 
 UNSIGNED_FIELDS = ("provenance", "trust")
 CLOCK_SKEW_S = 30.0
 # what the City Brain may call here: the actuators that do something in this city and that it is allowed to use
-OFFERED = ("dispatch_unit", "broadcast_alert", "set_pump_state", "set_barrier_state")
+OFFERED = ("dispatch_unit", "recall_unit", "broadcast_alert", "set_pump_state", "set_barrier_state")
 
 
 def _canonical(obj: Any) -> bytes:
@@ -134,6 +135,8 @@ class BrainDoor:
 
     def _check_actuator_id(self, action: str, actuator_id: Any) -> None:
         ours = ACTUATORS[action]["actuator_id"]
+        if action == "recall_unit" and isinstance(actuator_id, str) and station_of(self.city, actuator_id):
+            return   # a recall goes to the station the unit came from
         zones = {z["zone_id"] for z in self.city.zones()}
         named = {ours} | {f"{action.replace('_', '-')}-{z}" for z in zones}
         if actuator_id not in named:

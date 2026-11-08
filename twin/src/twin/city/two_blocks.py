@@ -149,6 +149,10 @@ class TwoBlocksCity:
         (idempotent per incident and type)."""
         return self.sim.dispatch_unit(unit_type, incident_id, station_id)
 
+    def recall_unit(self, unit_id: str) -> dict[str, Any]:
+        """The recall_unit actuator: stand a unit down (idempotent; a unit at real work refuses)."""
+        return self.sim.recall_unit(unit_id)
+
     def broadcast_alert(self, zone_id: str, channel: str, message: str) -> dict[str, Any]:
         """The broadcast_alert actuator: a public alert to everyone in a zone. Recorded and shown on the
         timeline; the simulated people do not react to it yet."""

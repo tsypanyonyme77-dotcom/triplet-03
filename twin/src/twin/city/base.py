@@ -37,6 +37,9 @@ class CitySource(Protocol):
     def dispatch_unit(self, unit_type: str, incident_id: str, station_id: str | None = None) -> dict[str, Any]:
         """Send a unit to an incident, from `station_id` when given. Idempotent per incident and unit type."""
 
+    def recall_unit(self, unit_id: str) -> dict[str, Any]:
+        """Stand a unit down: it drives home. Idempotent; a unit at real work refuses."""
+
     def broadcast_alert(self, zone_id: str, channel: str, message: str) -> dict[str, Any]:
         """A public alert to everyone in a zone."""
 

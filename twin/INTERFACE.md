@@ -52,7 +52,7 @@ Each station is a facility a dispatch is addressed to: `dispatch-hospital` (ambu
 
 ## Actuator calls (what the Twin receives)
 
-**From the City Brain**: MCP tool `<action>(call=<envelope>)` at `/mcp`, or `POST /actuators/{action}` with the envelope; `GET /capabilities` and the tool list say what it may call: `dispatch_unit`, `broadcast_alert`, `set_pump_state`, `set_barrier_state`.
+**From the City Brain**: MCP tool `<action>(call=<envelope>)` at `/mcp`, or `POST /actuators/{action}` with the envelope; `GET /capabilities` and the tool list say what it may call: `dispatch_unit`, `recall_unit`, `broadcast_alert`, `set_pump_state`, `set_barrier_state`.
 Authenticated by `provenance.hmac` with `BRAIN_HMAC_SECRET` (its form, whole-number floats as integers, and the older one), or `X-Api-Key`.
 A call stamped more than 30 s from now is refused; its `nonce` is the idempotency key, so a resent call runs once and gets the first answer.
 
@@ -94,7 +94,7 @@ Read endpoints: `GET /health`, `/zones`, `/sensors`, `/units`, `/responses`, `/q
 
 ## Known limits
 
-The city is two blocks with one unit per station; no valves, grid switches, power meters or recall of a unit yet.
+The city is two blocks with one unit per station; no valves, grid switches or power meters yet.
 The Twin cannot yet emit falsified readings, replays, silence or call floods, which the Guardian's scenarios need.
 Some honest readings jump faster than the Guardian's rate-of-change limits (a downpour, smoke from a fire, camera congestion) and clean air never wobbles, so they can be judged suspect or untrusted.
 Read endpoints have no authentication.

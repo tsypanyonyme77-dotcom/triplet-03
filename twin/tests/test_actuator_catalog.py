@@ -33,7 +33,7 @@ def _call(action, params, key=None, actuator_id=None):
 
 def test_the_catalog_lists_every_action_with_schemas(city_after_hit):
     acts = {a["action"]: a for a in _client(city_after_hit).get("/actuators").json()["actuators"]}
-    assert set(acts) == {"dispatch_unit", "set_barrier_state", "set_pump_state", "broadcast_alert", "quarantine_device",
+    assert set(acts) == {"dispatch_unit", "recall_unit", "set_barrier_state", "set_pump_state", "broadcast_alert", "quarantine_device",
                          "isolate_sensor", "clear_quarantine"}
     dispatch, barrier = acts["dispatch_unit"], acts["set_barrier_state"]
     assert dispatch["params_schema"]["properties"]["unit_type"]["enum"] == ["police", "ambulance", "fire"]
