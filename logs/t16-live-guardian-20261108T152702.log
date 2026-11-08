@@ -1,0 +1,6 @@
+{"ts": "2026-11-08T15:27:02.770789+00:00", "scenario": "T16", "step": "verdict", "status": "trusted", "verdict_id": "verdict-ae7a88fb4afc"}
+{"ts": "2026-11-08T15:27:02.781727+00:00", "scenario": "T16", "step": "call while quarantined", "status": "rejected", "reason": "device_quarantined"}
+{"ts": "2026-11-08T15:27:02.788091+00:00", "scenario": "T16", "step": "check", "what": "quarantined", "passed": true}
+{"ts": "2026-11-08T15:27:02.788121+00:00", "scenario": "T16", "step": "check", "what": "call refused: device_quarantined", "passed": true}
+{"ts": "2026-11-08T15:27:02.788131+00:00", "scenario": "T16", "step": "check", "what": "released", "passed": true}
+{"ts": "2026-11-08T15:27:02.788139+00:00", "scenario": "T16", "step": "end", "passed": true}
