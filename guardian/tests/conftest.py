@@ -83,7 +83,7 @@ class Harness:
         return await self.client.request(method, path, headers={"X-API-Key": key}, **kw)
 
     def events(self) -> list[dict[str, Any]]:
-        return [json.loads(line) for p in sorted((self.tmp / "logs").glob("t5-guardian-*.log"))
+        return [json.loads(line) for p in sorted((self.tmp / "logs").glob("guardian-audit-*.log"))
                 for line in p.read_text().splitlines() if line.strip()]
 
     async def close(self) -> None:

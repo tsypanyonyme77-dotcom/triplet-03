@@ -1,5 +1,5 @@
 """Scenario CLI (R2): `python -m scenarios.run T1` triggers a Test Book scenario against the running stack
-(docker compose up) and writes logs/t5-scenario-T1-<ts>.log. Exit code 0 = expected behaviour observed."""
+(docker compose up) and writes logs/t1-guardian-<ts>.log. Exit code 0 = expected behaviour observed."""
 
 from __future__ import annotations
 
@@ -232,7 +232,7 @@ async def run(sid: str) -> bool:
     r.log("end", passed=r.ok)
     out = Path(os.environ.get("LOG_DIR", "logs"))
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"t5-scenario-{sid}-{datetime.now(UTC):%Y%m%dT%H%M%S}.log"
+    path = out / f"{sid.lower()}-guardian-{datetime.now(UTC):%Y%m%dT%H%M%S}.log"
     path.write_text("".join(json.dumps(x, default=str) + "\n" for x in r.lines))
     print(f"{sid}: {'PASS' if r.ok else 'FAIL'} -> {path}")
     return r.ok

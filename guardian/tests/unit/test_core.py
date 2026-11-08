@@ -90,13 +90,13 @@ async def test_audit_logger_writes_jsonl_and_timeline(tmp_path: Path) -> None:
     clock = FakeClock()
     em = TimelineEmitter(queue_size=2)
     q = em.subscribe("timeline")
-    log = AuditLogger(tmp_path, "t5-guardian", clock, em)
+    log = AuditLogger(tmp_path, "guardian-audit", clock, em)
     token = scenario_id_var.set("T1")
     log.emit("verdict", "hello", sensor_id="s1", zone_id="z", data={"kind": "verdict"})
     scenario_id_var.reset(token)
     log.emit("system", "two", extra=1)
     log.emit("system", "three")
-    lines = [json.loads(x) for x in (tmp_path / "t5-guardian-20261102.log").read_text().splitlines()]
+    lines = [json.loads(x) for x in (tmp_path / "guardian-audit-20261102.log").read_text().splitlines()]
     assert lines[0]["scenario_id"] == "T1" and lines[0]["sensor_id"] == "s1"
     assert lines[1]["data"] == {"extra": 1} and lines[1]["scenario_id"] is None
     assert q.qsize() == 2 and (await q.get())["summary"] == "two"  # oldest dropped for slow consumer
@@ -104,5 +104,27 @@ async def test_audit_logger_writes_jsonl_and_timeline(tmp_path: Path) -> None:
     assert em.subscribers("timeline") == 0
     clock.advance(86400)
     log.emit("system", "next day")
-    assert (tmp_path / "t5-guardian-20261103.log").exists()
+    assert (tmp_path / "guardian-audit-20261103.log").exists()
     log.close()
+
+
+def test_listen_port_and_triplet_env_names(monkeypatch: pytest.MonkeyPatch) -> None:
+    from guardian.config import Settings
+
+    for name in ("GUARDIAN_PORT", "GUARDIAN_URL", "TWIN_URL", "TWIN_BASE_URL", "TWIN_HMAC_KEY", "TWIN_HMAC_SECRET"):
+        monkeypatch.delenv(name, raising=False)
+    assert Settings(_env_file=None).listen_port(8100) == 8100
+    # root triplet compose: our own address and the Twin's come as GUARDIAN_URL / TWIN_URL, its HMAC as *_SECRET
+    monkeypatch.setenv("GUARDIAN_URL", "http://guardian:8003")
+    monkeypatch.setenv("TWIN_URL", "http://twin:8001")
+    monkeypatch.setenv("TWIN_HMAC_SECRET", "s3cret")
+    s = Settings(_env_file=None)
+    assert s.listen_port(8100) == 8003
+    assert s.twin_base_url == "http://twin:8001"
+    assert s.twin_hmac_key == "s3cret"
+    # the Guardian's own names win
+    monkeypatch.setenv("GUARDIAN_PORT", "9000")
+    monkeypatch.setenv("TWIN_BASE_URL", "http://localhost:8101")
+    monkeypatch.setenv("TWIN_HMAC_KEY", "own")
+    s = Settings(_env_file=None)
+    assert (s.listen_port(8100), s.twin_base_url, s.twin_hmac_key) == (9000, "http://localhost:8101", "own")

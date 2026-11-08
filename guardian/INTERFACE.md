@@ -20,7 +20,7 @@ Twin ◀──audited actuator calls + containment── Guardian ◀──actua
 | Guardian → Twin actuator/containment calls | `POST {twin}/tools/{action}` with the actuator-call JSON | MCP tool `{action}`; MQTT `city/tools/{action}`, reply on `city/tools/{action}/reply/{call_id}` |
 | Brain → Guardian | REST (below) | — |
 | Guardian → Brain push | `WS /v1/ws/verdicts` (verdicts + alerts) | — |
-| Guardian → timeline (R3) | `WS /v1/ws/timeline` (every audit event) | JSONL files `t5-guardian-YYYYMMDD.log` |
+| Guardian → timeline (R3) | `WS /v1/ws/timeline` (every audit event) | JSONL files `guardian-audit-YYYYMMDD.log` |
 
 Repointing to real partners: edit `twin.base_url` / `twin.transport` / `twin.mode` in `config/guardian.yaml` (or
 `TWIN_BASE_URL`, `TWIN_TRANSPORT`, `TWIN_MODE` in `.env`) and the keys in `.env`. No code changes.
@@ -279,7 +279,7 @@ Types: `replay`, `spoofing`, `coordinated_spoofing`, `flood_dos`, `tampering`, `
 
 ### 4.5 Timeline event (R3)
 
-On `WS /v1/ws/timeline` and one JSON line per event in `${LOG_DIR}/t5-guardian-YYYYMMDD.log`.
+On `WS /v1/ws/timeline` and one JSON line per event in `${LOG_DIR}/guardian-audit-YYYYMMDD.log`.
 `type` is one of `reading | verdict | decision | action | alert | containment | error | system`; `data.kind` is the
 precise event (`reading`, `verdict`, `actuator_call`, `effect_verification`, `isolate_sensor`, `quarantine_device`,
 `clear_quarantine`, `threat_level`, `sensor_stale`, `sequence_reset`, ...).

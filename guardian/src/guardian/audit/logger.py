@@ -1,4 +1,4 @@
-"""Audit logger: every event goes to ${LOG_DIR}/t5-guardian-<YYYYMMDD>.log as one JSON line and to the timeline."""
+"""Audit logger: every event goes to ${LOG_DIR}/guardian-audit-<YYYYMMDD>.log as one JSON line and to the timeline."""
 
 from __future__ import annotations
 

@@ -4,9 +4,10 @@ from __future__ import annotations
 
 from pathlib import Path
 from typing import Any, Literal
+from urllib.parse import urlparse
 
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, ValidationError, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -67,7 +68,7 @@ class StorageCfg(_M):
 
 class AuditCfg(_M):
     log_dir: str = "./logs"
-    file_prefix: str = "t5-guardian"
+    file_prefix: str = "guardian-audit"
 
 
 class BackgroundCfg(_M):
@@ -324,16 +325,28 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     guardian_hmac_key: str = Field(default="", alias="GUARDIAN_HMAC_KEY")
-    twin_hmac_key: str = Field(default="", alias="TWIN_HMAC_KEY")
+    twin_hmac_key: str = Field(default="", validation_alias=AliasChoices("TWIN_HMAC_KEY", "TWIN_HMAC_SECRET"))
     brain_api_key: str = Field(default="", alias="BRAIN_API_KEY")
     twin_api_key: str = Field(default="", alias="TWIN_API_KEY")
     ops_api_key: str = Field(default="", alias="OPS_API_KEY")
     config_dir: str = Field(default="./config", alias="GUARDIAN_CONFIG_DIR")
     log_dir: str | None = Field(default=None, alias="LOG_DIR")
     db_path: str | None = Field(default=None, alias="GUARDIAN_DB_PATH")
-    twin_base_url: str | None = Field(default=None, alias="TWIN_BASE_URL")
+    twin_base_url: str | None = Field(default=None, validation_alias=AliasChoices("TWIN_BASE_URL", "TWIN_URL"))
     twin_transport: str | None = Field(default=None, alias="TWIN_TRANSPORT")
     twin_mode: str | None = Field(default=None, alias="TWIN_MODE")
+    guardian_port: int | None = Field(default=None, alias="GUARDIAN_PORT")
+    guardian_url: str | None = Field(default=None, alias="GUARDIAN_URL")
+
+    def listen_port(self, default: int) -> int:
+        """GUARDIAN_PORT, else the port of our own GUARDIAN_URL (root triplet compose), else guardian.yaml."""
+        if self.guardian_port:
+            return self.guardian_port
+        if self.guardian_url:
+            port = urlparse(self.guardian_url).port
+            if port:
+                return port
+        return default
 
     def api_keys(self) -> dict[str, str]:
         """API key -> caller identity."""

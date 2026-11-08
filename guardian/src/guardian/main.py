@@ -205,7 +205,7 @@ def run() -> None:
     except ConfigError as e:
         print(f"guardian: refusing to start: {e}", file=sys.stderr)
         raise SystemExit(2) from None
-    uvicorn.run(app, host=cfg.guardian.service.host, port=cfg.guardian.service.port)
+    uvicorn.run(app, host=cfg.guardian.service.host, port=settings.listen_port(cfg.guardian.service.port))
 
 
 if __name__ == "__main__":

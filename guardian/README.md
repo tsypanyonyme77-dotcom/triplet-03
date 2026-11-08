@@ -50,6 +50,8 @@ audit log (R2) and streamed to a timeline WebSocket (R3).
 
 The wire contract (messages, HMAC rules, auth, fail-safe rule) is in **[INTERFACE.md](INTERFACE.md)**.
 
+**Team:** black box (Guardian layer, triplet-03).
+
 ## Quick start (Guardian alone, with mocks)
 
 ```bash
@@ -76,7 +78,7 @@ follow one chain of cause and effect.
 
 Each scenario has an in-process test (`tests/scenarios/test_tXX_*.py`, simulated time, asserts the API outcome
 **and** the ordered audit events) and a live trigger against the running stack that writes
-`logs/t5-scenario-TX-<ts>.log`:
+`logs/tX-guardian-<ts>.log`:
 
 ```bash
 make scenario T=T1        # or: python -m scenarios.run T1 | all
@@ -128,6 +130,21 @@ Change `config/guardian.yaml` (`twin.base_url`, `twin.transport`, `twin.mode`) o
 `src/guardian/adapters/` knows partner formats. Install `.[mcp]` or `.[mqtt]` for those transports. Set
 `LOG_DIR=../logs` to write into the triplet's root `logs/`.
 
+### Running inside the triplet (root `docker-compose.yml`)
+
+The root compose builds this folder and passes the shared triplet variables. The Guardian accepts them as
+fallbacks for its own names, so nothing in this folder has to change:
+
+| Triplet variable | Used as | Default when absent |
+|---|---|---|
+| `GUARDIAN_URL` (e.g. `http://guardian:8003`) | listen port (`GUARDIAN_PORT` wins if set) | `service.port` in `guardian.yaml` (8100) |
+| `TWIN_URL` | `TWIN_BASE_URL` | `twin.base_url` in `guardian.yaml` |
+| `TWIN_HMAC_SECRET` | `TWIN_HMAC_KEY` | none (required) |
+
+`GUARDIAN_HMAC_KEY` and at least one API key (`BRAIN_API_KEY`, `TWIN_API_KEY`, `OPS_API_KEY`) have no triplet
+equivalent yet. The Guardian refuses to start without them, so the root compose must pass them to the `guardian`
+service.
+
 ## Scoring in one paragraph
 
 L1 (schema, `contract_version`, HMAC) and L2 (sequence, ±30 s skew) are hard gates: failing either gives
@@ -154,7 +171,7 @@ Every API error uses one model:
 config/            YAML config (see above)
 src/guardian/      adapters/ ingest/ detectors/ trust/ actuator_watch/ threat/ containment/ audit/
 mocks/             twin_mock (city sim, physics, injector, tools), brain_mock, common signing
-scenarios/run.py   live scenario triggers → logs/t5-scenario-*.log
+scenarios/run.py   live scenario triggers → logs/t*-guardian-*.log
 tests/             unit/ integration/ scenarios/ fixtures/ (fixtures are embedded in INTERFACE.md)
 ```
 

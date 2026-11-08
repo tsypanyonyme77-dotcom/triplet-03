@@ -30,7 +30,7 @@ storage:
   history_size: 500
 audit:
   log_dir: ./logs                   # override with LOG_DIR (e.g. the triplet root logs/)
-  file_prefix: t5-guardian
+  file_prefix: guardian-audit
 background:
   tick_s: 1.0
 ml:
