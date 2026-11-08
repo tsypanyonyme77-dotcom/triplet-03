@@ -14,6 +14,7 @@ from twin.config import Settings
 from twin.devices import DeviceRegistry
 from twin.contract import CONTRACT_VERSION, build_reading, now_iso
 from twin.events import EventLog
+from twin.partners.brain_timeline import BrainTimeline
 from twin.partners.guardian_push import GuardianPush
 from twin.partners.reading_log import ReadingLog
 
@@ -21,10 +22,13 @@ from twin.partners.reading_log import ReadingLog
 class Emitter:
     def __init__(self, settings: Settings, city: CitySource, events: EventLog, step_city: bool = True,
                  devices: DeviceRegistry | None = None, log: ReadingLog | None = None,
-                 guardian: GuardianPush | None = None, view: Callable[[dict[str, Any]], dict[str, Any]] | None = None) -> None:
+                 guardian: GuardianPush | None = None, view: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
+                 timeline: BrainTimeline | None = None) -> None:
         """`log`: where readings are kept for readers that poll. `guardian`: the push in the Guardian's
         contract (else our own envelopes go to guardian_ingest_url). `view`: applied to each reading before
-        it is signed (unit_status as the partner that sent the unit knows it)."""
+        it is signed (unit_status as the partner that sent the unit knows it). `timeline`: our events on the
+        City Brain's screen."""
+        self.timeline = timeline
         self.settings = settings
         self.step_city = step_city  # False in live mode: the LiveRunner advances the city
         self.city = city
@@ -90,6 +94,8 @@ class Emitter:
         else:
             await self._push_to_guardian(readings)
         await self._notify_brain(len(readings))
+        if self.timeline is not None and self.client is not None:
+            await self.timeline.flush(self.client)
         return readings
 
     async def _push_to_guardian(self, readings: list[dict[str, Any]]) -> None:

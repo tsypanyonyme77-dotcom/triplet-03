@@ -34,6 +34,7 @@ from twin.live import LiveRunner
 from twin.partners.brain_calls import BrainDoor
 from twin.partners.brain_http import brain_router
 from twin.partners.brain_mcp import brain_mcp_server, mcp_app
+from twin.partners.brain_timeline import BrainTimeline
 from twin.partners.guardian_dialect import GuardianDialect
 from twin.partners.guardian_push import GuardianPush
 from twin.partners.guardian_tools import GuardianDoor, guardian_router
@@ -63,8 +64,9 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
     reading_log = ReadingLog()
     guardian_push = (GuardianPush(settings.guardian_ingest_url, settings.guardian_push_api_key, GuardianDialect(settings.hmac_key), events)
                      if settings.guardian_dialect == "guardian-v1" else None)
+    brain_timeline = BrainTimeline(settings.brain_events_url, settings.brain_push_token, events) if settings.brain_events_url else None
     emitter = Emitter(settings, city, events, step_city=live is None, devices=devices, log=reading_log, guardian=guardian_push,
-                      view=links.partner_view)
+                      view=links.partner_view, timeline=brain_timeline)
     partners = {"guardian": settings.guardian_url, "city_brain": settings.brain_url}
     actuation = Actuation(city, devices, events)
     brain_door = BrainDoor(actuation, city, links, events, hmac_secret=settings.brain_hmac_secret, api_key=settings.brain_api_key)
