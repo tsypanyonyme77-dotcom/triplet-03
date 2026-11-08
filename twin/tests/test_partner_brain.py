@@ -85,7 +85,9 @@ def test_a_full_log_drops_the_oldest_and_keeps_the_cursor_absolute():
 def test_topology_names_zones_exits_stations_and_sensors():
     _, client, _ = _app()
     topo = client.get("/topology").json()
-    assert {z["id"] for z in topo["zones"]} == {"zone-01", "zone-02", "zone-03"} and topo["exits"] == ["zone-03"]
+    ids = {z["id"] for z in topo["zones"]}
+    assert {"zone-01", "zone-02", "zone-03", "zone-dip-2-3"} <= ids and topo["exits"] == ["zone-03"]
+    assert all(s["zone_id"] in ids for s in topo["sensors"]) and all(f["zone_id"] in ids for f in topo["facilities"])
     assert ["zone-01", "zone-02"] in topo["adjacency"] and ["zone-01", "zone-03"] in topo["adjacency"]
     stations = {f["type"]: f for f in topo["facilities"] if f["type"] != "drainage_pump"}
     assert {t: f["actuator_id"] for t, f in stations.items()} == {

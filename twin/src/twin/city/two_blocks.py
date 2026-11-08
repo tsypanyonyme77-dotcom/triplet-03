@@ -3,7 +3,8 @@
 What the Twin sees of the engine, as readings (sensor_readings, signed by the emitter):
   emergency_call   one reading per call a witness makes (call centre: twin/engine/emergency_calls.py),
                    sensor "ecall-<zone>", department from the caller's category
-  traffic_camera   one reading per camera per emit tick: congestion, count, mean speed
+  traffic_camera   one reading per camera per emit tick: congestion, count, mean speed. Also a pole
+                   camera inside each block (cam-zone-01, cam-zone-02), which sees no road and watches for smoke
   cctv_anomaly     per camera, while it flags something: collision | stopped_vehicle
   building_fire    per burning building once its smoke sensor trips, every emit tick, then once more
                    with smoke_detected false when the fire is out: smoke, temperature and CO2
@@ -11,7 +12,7 @@ What the Twin sees of the engine, as readings (sensor_readings, signed by the em
                    (and a quarter as much in the others); the cameras' smoke_detected flag is true
                    within 60 m of a burning building, so the three tell the same story
   water_level      one reading per flood zone per emit tick: depth at its low point, outflow
-  rainfall         one rain gauge per flood zone per emit tick: intensity in mm/h over that street
+  rainfall         one rain gauge per flood zone per emit tick: the rain over the map, in mm/h
   unit_status      one reading per emergency unit each time its state changes while it is out:
                    en_route, on_scene, returning (what a dispatcher needs to close an incident)
 The engine's ground truth (which accident a call is about, true positions) stays here: it is
@@ -20,6 +21,10 @@ in `timeline()` for the Twin's own logs, never in a reading.
 Zones (a Twin decision, docs/data-dictionary.md section 6): one per block plus one for the
 streets. A point on the asphalt, or outside the two blocks (the outer sidewalks, the
 stations), is in zone-03; a point on a block's sidewalk or in its buildings is in that block's zone.
+The water level and pump at each street's drain have a small zone of their own, zone-dip-<u>-<v>, adjacent to
+the streets and to each other: a partner closes a flood when a gauge in its zone reads dry, and a dry street must
+not close a flooded one. Rain gauges stay in zone-03: one cloud, and the Guardian takes several small zones failing
+a check at once (as gauges cross its line one by one in a batch) for a compromised Twin.
 """
 from __future__ import annotations
 
@@ -44,6 +49,13 @@ UNIT_STATE = {"dispatched": "en_route", "on_scene": "on_scene", "cleaning": "on_
               "returning": "returning"}
 UNIT_DEPARTMENT = {"ambulance": "medical", "police": "police", "fire": "fire"}
 ALERT_CHANNELS = ("sms", "siren", "app")
+STREETS_ZONE = "zone-03"
+BLOCK_CAMERA_ZONES = ("zone-01", "zone-02")
+
+
+def drain_zone(flood_zone_id: str) -> str:
+    """The zone of a street's drain: `dip-2-3` -> `zone-dip-2-3`."""
+    return f"zone-{flood_zone_id}"
 
 
 class TwoBlocksCity:
@@ -130,7 +142,21 @@ class TwoBlocksCity:
         facilities: dict[str, list[str]] = {z: [] for z in ZONES}
         for st in self.sim.stations_geometry()["stations"]:
             facilities[self.zone_of(*st["front"])].append(STATION_DEPARTMENT[st["kind"]])
-        return [{"zone_id": z, **ZONES[z], "adjacent": ADJACENT[z], "facilities": sorted(set(facilities[z]))} for z in ZONES]
+        drains = [drain_zone(z.id) for z in self.sim.flood_zones]
+        blocks = [{"zone_id": z, **ZONES[z], "adjacent": ADJACENT[z] + (drains if z == STREETS_ZONE else []),
+                   "facilities": sorted(set(facilities[z]))} for z in ZONES]
+        return blocks + [self._drain_zone_entry(z, drains) for z in self.sim.flood_zones]
+
+    @staticmethod
+    def _drain_zone_entry(fz, drains: list[str]) -> dict[str, Any]:
+        cx, cy = fz.centre_xy
+        half = fz.half_length_m
+        return {"zone_id": drain_zone(fz.id), "name": f"drain of street {fz.street[0]}-{fz.street[1]}", "exit": False,
+                "bounds_m": {"x_min": round(cx - half, 1), "x_max": round(cx + half, 1), "y_min": round(cy - half, 1), "y_max": round(cy + half, 1)},
+                "adjacent": [STREETS_ZONE] + [d for d in drains if d != drain_zone(fz.id)], "facilities": []}
+
+    def _zone_ids(self) -> set[str]:
+        return set(ZONES) | {drain_zone(z.id) for z in self.sim.flood_zones}
 
     def step(self, dt_s: float) -> list[dict[str, Any]]:
         """Advances the engine by dt_s and returns its new ground-truth timeline entries as events."""
@@ -156,7 +182,7 @@ class TwoBlocksCity:
     def broadcast_alert(self, zone_id: str, channel: str, message: str) -> dict[str, Any]:
         """The broadcast_alert actuator: a public alert to everyone in a zone. Recorded and shown on the
         timeline; the simulated people do not react to it yet."""
-        if zone_id not in ZONES:
+        if zone_id not in self._zone_ids():
             return {"status": "rejected", "reason": "unknown_zone", "zone_id": zone_id}
         if channel not in ALERT_CHANNELS:
             return {"status": "rejected", "reason": "unknown_channel", "channel": channel}
@@ -177,7 +203,7 @@ class TwoBlocksCity:
 
     def pumps(self) -> list[dict[str, Any]]:
         """The drainage pumps, one per street's low point: pump id, flood zone, city zone."""
-        return [{"pump_id": z.pump_id, "flood_zone_id": z.id, "zone_id": self.zone_of(*z.centre_xy)} for z in self.sim.flood_zones]
+        return [{"pump_id": z.pump_id, "flood_zone_id": z.id, "zone_id": drain_zone(z.id)} for z in self.sim.flood_zones]
 
     def sensors(self) -> list[dict[str, Any]]:
         """Every sensor that can send a reading, with its type and zone (the topology a partner reads at start)."""
@@ -187,9 +213,10 @@ class TwoBlocksCity:
             zone = self.zone_of(cam.x, cam.y)
             out += [{"sensor_id": cam.id, "type": "traffic_camera", "zone_id": zone},
                     {"sensor_id": f"{cam.id}-cctv", "type": "cctv_anomaly", "zone_id": zone}]
+        out += [{"sensor_id": f"cam-{z}", "type": "traffic_camera", "zone_id": z} for z in BLOCK_CAMERA_ZONES]
         for fz in self.sim.flood_zones:
-            zone = self.zone_of(*fz.centre_xy)
-            out += [{"sensor_id": f"rain-{fz.id}", "type": "rainfall", "zone_id": zone},
+            zone = drain_zone(fz.id)
+            out += [{"sensor_id": f"rain-{fz.id}", "type": "rainfall", "zone_id": STREETS_ZONE},
                     {"sensor_id": f"wl-{fz.id}", "type": "water_level", "zone_id": zone}]
         out += [{"sensor_id": f"fire-{b.id}", "type": "building_fire", "zone_id": self.zone_of(b.x, b.y)}
                 for b in self.sim.buildings.values()]
@@ -230,7 +257,7 @@ class TwoBlocksCity:
         return self.sim.flood_state()
 
     def device_ids(self) -> set[str]:
-        zones = {f"ecall-{z}" for z in ZONES} | {f"aq-{z}" for z in ZONES}
+        zones = {f"ecall-{z}" for z in ZONES} | {f"aq-{z}" for z in ZONES} | {f"cam-{z}" for z in BLOCK_CAMERA_ZONES}
         water = {f"wl-{z.id}" for z in self.sim.flood_zones} | {f"rain-{z.id}" for z in self.sim.flood_zones}
         stations = {station_actuator_id(st.id) for st in self.sim.stations}   # a quarantined station sends no unit
         units = {f"unit-{u}" for u in self.sim.units}
@@ -266,16 +293,26 @@ class TwoBlocksCity:
                                       "incident_id": anomaly.get("incident_id"),
                                       "confidence": anomaly["confidence"], "location": {"x": anomaly["x"], "y": anomaly["y"]},
                                       "since_sim_s": anomaly["since_t"], "sim_time_s": t, "run_id": self.run_id}})
-        for zone in self.sim.flood_zones:  # a rain gauge and a water level at every street's drain
+        # a rain gauge and a water level at every street's drain. A cloud covers the whole two-block map, so every gauge
+        # reads the same rain (the Guardian checks a gauge against its neighbours); the water stays where the drain is blocked
+        rain = max((self.sim.rain_at(z) for z in self.sim.flood_zones), default=0.0)
+        for zone in self.sim.flood_zones:
             cx, cy = zone.centre_xy
-            out.append({"sensor_id": f"rain-{zone.id}", "type": "rainfall", "zone_id": self.zone_of(cx, cy), "department": "water",
-                        "value": {"mm_per_hr": round(self.sim.rain_at(zone), 1), "location": {"x": round(cx, 1), "y": round(cy, 1)},
+            out.append({"sensor_id": f"rain-{zone.id}", "type": "rainfall", "zone_id": STREETS_ZONE, "department": "water",
+                        "value": {"mm_per_hr": round(rain, 1), "location": {"x": round(cx, 1), "y": round(cy, 1)},
                                   "sim_time_s": t}})
-            out.append({"sensor_id": f"wl-{zone.id}", "type": "water_level", "zone_id": self.zone_of(cx, cy), "department": "water",
+            out.append({"sensor_id": f"wl-{zone.id}", "type": "water_level", "zone_id": drain_zone(zone.id), "department": "water",
                         "value": {"level_m": round(zone.depth_m, 3), "flow_rate_m3s": round(zone.outflow_m3s, 3),
                                   "pump_id": zone.pump_id, "pump_on": zone.pump_on, "location": {"x": round(cx, 1), "y": round(cy, 1)},
                                   "sim_time_s": t}})
-        return out + self._fire_readings(t) + self._unit_readings(t)
+        return out + self._block_camera_readings(t) + self._fire_readings(t) + self._unit_readings(t)
+
+    def _block_camera_readings(self, t: float) -> list[dict[str, Any]]:
+        """The pole camera inside a block: no road in view, only whether a building of its block smokes."""
+        smoking = {self.zone_of(b.x, b.y) for b in (self.sim.buildings[f["building_id"]] for f in self.sim.fire.open() if f.get("smoke_t") is not None)}
+        return [{"sensor_id": f"cam-{z}", "type": "traffic_camera", "zone_id": z, "department": "police",
+                 "value": {"congestion_score": 0.0, "vehicle_count": 0, "avg_speed_kmh": 0.0, "smoke_detected": z in smoking, "sim_time_s": t}}
+                for z in BLOCK_CAMERA_ZONES]
 
     def _unit_readings(self, t: float) -> list[dict[str, Any]]:
         """A unit_status reading for each unit whose state (or incident) changed since the last one."""
@@ -310,21 +347,18 @@ class TwoBlocksCity:
                                   "incident_id": fire["incident_id"], "location": {"x": fire["x"], "y": fire["y"]},
                                   "sim_time_s": t, "run_id": self.run_id}})
         load = dict.fromkeys(ZONES, 0.0)
-        smoky: set[str] = set()   # zones with a building whose smoke sensor has tripped and whose fire still burns
         for fire in self.sim.fires_state():
             b = self.sim.buildings[fire["building_id"]]
             load[self.zone_of(b.x, b.y)] += fire["intensity"]
-        for fire in self.sim.fire.open():
-            if fire.get("smoke_t") is not None:
-                b = self.sim.buildings[fire["building_id"]]
-                smoky.add(self.zone_of(b.x, b.y))
+        # a fire smokes over the whole of a two-block map (the Guardian checks a smoke flag against the neighbours)
+        smoky = any(fire.get("smoke_t") is not None for fire in self.sim.fire.open())
         for zone in ZONES:
             effective = load[zone] + NEIGHBOUR_SHARE * (sum(load.values()) - load[zone])
             aqi = min(500, round(AQI_CLEAN + AQI_PER_FIRE * effective))
             pm25 = round(aqi * 0.35, 1)
             out.append({"sensor_id": f"aq-{zone}", "type": "air_quality", "zone_id": zone,
                         "value": {"aqi": aqi, "pm25_ugm3": pm25, "pm10_ugm3": round(pm25 * 1.8, 1),
-                                  "smoke_detected": zone in smoky, "sim_time_s": t}})
+                                  "smoke_detected": smoky, "sim_time_s": t}})
         return out
 
     def timeline(self) -> list[dict[str, Any]]:
