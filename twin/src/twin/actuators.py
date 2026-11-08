@@ -10,7 +10,9 @@ DISPATCH_ACTUATOR_ID = "dispatch-centre-01"
 BARRIER_ACTUATOR_ID = "road-barriers-01"
 DEVICE_ACTUATOR_ID = "device-control-01"
 PUMP_ACTUATOR_ID = "drainage-pumps-01"
+ALERT_ACTUATOR_ID = "public-alerts-01"
 UNIT_TYPES = ("police", "ambulance", "fire")
+ALERT_CHANNELS = ("sms", "siren", "app")
 ROAD_STATES = ("closed", "open")
 PUMP_STATES = ("on", "off")
 
@@ -25,7 +27,10 @@ def _dispatch_unit(params: dict[str, Any], city: CitySource, _devices: DeviceReg
         raise ParamError(f"params.unit_type must be one of {list(UNIT_TYPES)}")
     if not isinstance(incident_id, str) or not incident_id:
         raise ParamError("params.incident_id is required: the incident_id of an emergency_call or cctv_anomaly reading")
-    result = city.dispatch_unit(unit_type, incident_id)
+    station_id = params.get("station_id")
+    if station_id is not None and (not isinstance(station_id, str) or not station_id):
+        raise ParamError("params.station_id must be a non-empty string, a station from the topology")
+    result = city.dispatch_unit(unit_type, incident_id, station_id)
     eta = result.pop("eta_seconds", None)
     if eta is not None:
         result["eta_minutes"] = round(eta / 60.0, 2)
@@ -54,6 +59,17 @@ def _set_pump_state(params: dict[str, Any], city: CitySource, _devices: DeviceRe
         if value is not None and (not isinstance(value, str) or not value):
             raise ParamError(f"params.{name} must be a non-empty string")
     return city.set_pump_state(state, pump_id=pump_id, incident_id=incident_id)
+
+
+def _broadcast_alert(params: dict[str, Any], city: CitySource, _devices: DeviceRegistry) -> dict[str, Any]:
+    zone_id, channel, message = params.get("zone_id"), params.get("channel"), params.get("message")
+    if not isinstance(zone_id, str) or not zone_id:
+        raise ParamError("params.zone_id is required: the zone to alert")
+    if channel not in ALERT_CHANNELS:
+        raise ParamError(f"params.channel must be one of {list(ALERT_CHANNELS)}")
+    if not isinstance(message, str) or not 1 <= len(message) <= 280:
+        raise ParamError("params.message must be a string of 1 to 280 characters")
+    return city.broadcast_alert(zone_id, channel, message)
 
 
 def _device_id(params: dict[str, Any], city: CitySource) -> tuple[str, bool]:
@@ -91,19 +107,39 @@ ACTUATORS["dispatch_unit"] = {
     "description": "Send a police car, ambulance or fire truck from its station to an incident. Idempotent per incident and "
                    "unit type: a second call returns 'duplicate' with the unit already sent. Draft dictionary action.",
     "params": {"unit_type": "police | ambulance | fire", "incident_id": "string, from an emergency_call or cctv_anomaly reading",
-               "zone_id": "string, optional (the incident's zone)"},
+               "zone_id": "string, optional (the incident's zone)",
+               "station_id": "string, optional: only a unit of this station may go (stations are in GET /topology)"},
     "result": {"status": "dispatched | duplicate | rejected", "unit_id": "string", "eta_minutes": "number",
-               "reason": "string, only when rejected (unknown_incident, no_unit_available, unknown_unit_type)"},
+               "reason": "string, only when rejected (unknown_incident, no_unit_available, unknown_unit_type, unknown_station)"},
     "params_schema": {
         "type": "object", "required": ["unit_type", "incident_id"], "additionalProperties": False,
         "properties": {"unit_type": {"enum": list(UNIT_TYPES)}, "incident_id": {"type": "string", "minLength": 1},
-                       "zone_id": {"type": "string"}}},
+                       "zone_id": {"type": "string"}, "station_id": {"type": "string", "minLength": 1}}},
     "result_schema": {
         "type": "object", "required": ["status"],
         "properties": {"status": {"enum": ["dispatched", "duplicate", "rejected"]}, "unit_id": {"type": "string"},
                        "eta_minutes": {"type": "number"}, "unit_type": {"enum": list(UNIT_TYPES)},
                        "incident_id": {"type": "string"},
-                       "reason": {"enum": ["unknown_incident", "no_unit_available", "unknown_unit_type"]}}},
+                       "reason": {"enum": ["unknown_incident", "no_unit_available", "unknown_unit_type", "unknown_station"]}}},
+}
+
+ACTUATORS["broadcast_alert"] = {
+    "handler": _broadcast_alert,
+    "actuator_id": ALERT_ACTUATOR_ID,
+    "department": "civil_protection",
+    "description": "Send a public alert to everyone in a zone (sms, siren or app). Recorded on the timeline; the simulated "
+                   "people do not react to it yet. Extended dictionary action.",
+    "params": {"zone_id": "string, a zone from GET /zones", "channel": "sms | siren | app", "message": "string, 1 to 280 characters"},
+    "result": {"status": "broadcast | rejected", "alert_id": "string", "zone_id": "string", "channel": "string",
+               "reason": "string, only when rejected (unknown_zone)"},
+    "params_schema": {
+        "type": "object", "required": ["zone_id", "channel", "message"], "additionalProperties": False,
+        "properties": {"zone_id": {"type": "string", "minLength": 1}, "channel": {"enum": list(ALERT_CHANNELS)},
+                       "message": {"type": "string", "minLength": 1, "maxLength": 280}}},
+    "result_schema": {
+        "type": "object", "required": ["status"],
+        "properties": {"status": {"enum": ["broadcast", "rejected"]}, "alert_id": {"type": "string"}, "zone_id": {"type": "string"},
+                       "channel": {"enum": list(ALERT_CHANNELS)}, "reason": {"enum": ["unknown_zone", "unknown_channel"]}}},
 }
 
 ACTUATORS["set_barrier_state"] = {

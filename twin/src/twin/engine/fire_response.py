@@ -151,10 +151,11 @@ class FireResponse:
         else:
             response.setdefault("looked_round", {})[unit.id] = self._sim_time
 
-    def _fastest_lane_position(self, kind: str, x: float, y: float):
-        """Where a unit of `kind` stops for a fire at (x, y): of the lane positions in front of it (a
-        street has a lane each way, and a car cannot turn round), the one it reaches soonest.
-        Returns (edge, distance along it, best unit as _best_unit gives it), the last None if no unit can go."""
+    def _fastest_lane_position(self, kind: str, x: float, y: float, station_id: str | None = None):
+        """Where a unit of `kind` (of `station_id` when given) stops for a fire at (x, y): of the lane
+        positions in front of it (a street has a lane each way, and a car cannot turn round), the one it
+        reaches soonest. Returns (edge, distance along it, best unit as _best_unit gives it), the last
+        None if no unit can go."""
         spots = []
         for u, v in self.graph.edges():
             if self.edge_length(u, v) < 30.0:
@@ -167,7 +168,7 @@ class FireResponse:
         spots.sort()
         best = None
         for _, edge, along in spots:
-            found = self._best_unit(kind, edge, along)
+            found = self._best_unit(kind, edge, along, station_id)
             if found is not None and (best is None or found[2] < best[2][2]):
                 best = (edge, along, found)
         if best is None:
