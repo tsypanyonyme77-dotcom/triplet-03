@@ -14,7 +14,7 @@ from pydantic import BaseModel, ValidationError
 from brain import clock
 from brain.config import FieldProfile
 from brain.contracts import VALUE_MODELS, SensorReading
-from brain.contracts.signing import verify
+from brain.contracts.signing import hmac_hex, verify
 
 # Their incident types in our emergency categories (the Data Dictionary has five; they have `accident` and `crime`).
 EMERGENCY_CATEGORY = {"fire": "fire", "medical": "medical", "flood": "flood", "crime": "police", "accident": "other"}
@@ -148,9 +148,7 @@ class Perception:
                 if self.require_signature:
                     raise ContractError("signature_missing", f"{raw.get('sensor_id')}#{raw.get('sequence_no')}: hmac is required")
             else:
-                from brain.adapters.guardian_v1 import sign
-
-                if not hmac.compare_digest(sign({k: v for k, v in raw.items() if k != "hmac"}, self.twin_secret), str(raw["hmac"])):
+                if not hmac.compare_digest(hmac_hex({k: v for k, v in raw.items() if k != "hmac"}, self.twin_secret), str(raw["hmac"])):
                     raise ContractError("signature_invalid", f"{raw.get('sensor_id')}#{raw.get('sequence_no')}: hmac does not match the payload")
         ours = {k: v for k, v in raw.items() if k not in ("hmac", "sensor_type", "sequence_reset")}
         ours["type"] = raw["sensor_type"]

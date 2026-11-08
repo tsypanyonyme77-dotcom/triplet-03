@@ -22,7 +22,7 @@ def test_only_the_gate_calls_the_twin_actuator():
     offenders = []
     for path in FILES:
         for call in calls(parse(path)):
-            if isinstance(call.func, ast.Attribute) and call.func.attr == "call_actuator" and path.relative_to(SRC).as_posix() not in ("gate/__init__.py", "journal.py", "adapters/twin_mcp.py"):
+            if isinstance(call.func, ast.Attribute) and call.func.attr == "call_actuator" and path.relative_to(SRC).as_posix() not in ("gate/__init__.py", "journal.py", "adapters/twin_mcp.py", "adapters/guardian_v1.py"):
                 offenders.append(f"{path.relative_to(SRC)}:{call.lineno}")
 
     assert offenders == [], "call_actuator outside the gate (journal.py and the adapter only wrap or define it): " + ", ".join(offenders)

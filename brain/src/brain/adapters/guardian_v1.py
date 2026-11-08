@@ -24,6 +24,7 @@ import httpx
 from pydantic import ValidationError
 
 from brain.contracts import ActuatorCall, ActuatorResult, TrustVerdict
+from brain.contracts.signing import hmac_hex
 from brain.ports import GuardianUnavailable, TwinError
 
 STATUS = {"trusted": "trusted", "suspect": "suspicious", "untrusted": "untrusted"}  # "unknown" is no verdict: see get_verdict
@@ -34,8 +35,7 @@ def canonical(body: dict[str, Any]) -> bytes:
     return json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
 
 
-def sign(body: dict[str, Any], secret: str) -> str:
-    return hmac.new(secret.encode(), canonical(body), hashlib.sha256).hexdigest()
+sign = hmac_hex
 
 
 def to_verdict(raw: dict[str, Any]) -> TrustVerdict:

@@ -52,3 +52,8 @@ def verify(envelope: dict[str, Any], secret: str) -> bool:
         hmac.compare_digest(provided, hmac.new(secret.encode(), body, hashlib.sha256).hexdigest())
         for body in dict.fromkeys(payloads(envelope))
     )
+
+
+def hmac_hex(body: dict[str, Any], secret: str) -> str:
+    """HMAC-SHA256 of the plain canonical form, no field left out and no float rewritten: how the Guardian team's contract 1.0 signs (the caller drops the signature field)."""
+    return hmac.new(secret.encode(), canonical_json(body), hashlib.sha256).hexdigest()
