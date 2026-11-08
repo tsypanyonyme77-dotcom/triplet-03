@@ -89,7 +89,7 @@ async def test_the_brain_loads_the_overlay_at_start_and_says_so(tmp_path):
     save_overlay(tmp_path, {"forward.z_threshold": 4.5}, "a test")
     held = {}
 
-    result = await play(load_scenario("d3"), partners=PartnersConfig(brain=BrainConfig(tuned_dir=str(tmp_path))),
+    result = await play(load_scenario("t14"), partners=PartnersConfig(brain=BrainConfig(tuned_dir=str(tmp_path))),
                         on_service=lambda service: held.update(service=service))
 
     assert held["service"].policy.forward.z_threshold == 4.5
@@ -98,7 +98,7 @@ async def test_the_brain_loads_the_overlay_at_start_and_says_so(tmp_path):
 
 
 async def test_a_brain_without_an_overlay_is_untuned_and_says_so():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     started = result.sink.of("brain.started")[0].data
     assert started["tuned"] == {} and started["tuned_problem"] is None

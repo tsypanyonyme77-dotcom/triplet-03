@@ -22,7 +22,7 @@ async def hub_after_b2(tmp_path, **partners):
     for name, value in DEV_SECRETS.items():
         os.environ.setdefault(name, value)
     hub = Hub(PartnersConfig.model_validate(partners), Policy(), MODELS, mocks="inproc", log_dir=tmp_path)
-    await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, extra_sinks=[hub.broadcaster],
+    await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, extra_sinks=[hub.broadcaster],
                        on_service=lambda service: setattr(hub, "service", service))
     return hub
 

@@ -61,7 +61,7 @@ async def build_knowledge_base(embedder: Embedder, options: KnowledgeConfig | No
     else:
         kb = MemoryKnowledgeBase(embedder, options)
     hashing = ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}})  # only the knowledge base's own embedder matters here
-    await run_scenario(load_scenario("d1"), inproc_partners(), models=hashing, speed=0, timeout_s=30, kb=kb)
+    await run_scenario(load_scenario("t12"), inproc_partners(), models=hashing, speed=0, timeout_s=30, kb=kb)
     return kb
 
 

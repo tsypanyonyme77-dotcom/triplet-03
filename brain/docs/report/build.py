@@ -502,7 +502,7 @@ def fig_stack() -> str:
 
 def fig_failures() -> str:
     cards = [
-        ("shield", GOOD, "Guardian silent", "degraded mode: only low-impact calls pass; a score built on unvouched evidence is damped", "d4"),
+        ("shield", GOOD, "Guardian silent", "degraded mode: only low-impact calls pass; a score built on unvouched evidence is damped", "t15"),
         ("city", MUTED, "Twin goes away", "one degraded, state kept, nothing sent twice, one recovered", "unit test"),
         ("key", BAD, "Model outage", "named at the first failure; scripted team answers at once", "llm-check"),
         ("alert", WARN, "Unknown alarm", "no incident, a person is asked once", "unit test"),

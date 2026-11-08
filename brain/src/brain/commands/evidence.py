@@ -82,7 +82,7 @@ def cmd_attention(args: argparse.Namespace) -> int:
         os.environ.setdefault(name, value)
     policy = policy_with(args.set or [])
     rows = []
-    for scenario_id in args.ids or ["d3", "d4"]:
+    for scenario_id in args.ids or ["t14", "t15"]:
         result = asyncio.run(run_scenario(load_scenario(scenario_id), inproc_partners(), policy=policy, models=baseline.MODELS, speed=0, timeout_s=30))
         report = attention_report(result.sink.events)
         rows.append({"scenario": scenario_id, **{k: v for k, v in report.items() if k != "incidents"}})

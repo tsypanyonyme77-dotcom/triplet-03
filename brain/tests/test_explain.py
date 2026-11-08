@@ -25,17 +25,17 @@ async def events_of(scenario_id: str) -> list[dict]:
 
 @pytest.fixture
 async def b2() -> list[dict]:
-    return await events_of("d3")
+    return await events_of("t14")
 
 
 @pytest.fixture
 async def b3() -> list[dict]:
-    return await events_of("d2")
+    return await events_of("t13")
 
 
 @pytest.fixture
 async def b11() -> list[dict]:
-    return await events_of("d4")
+    return await events_of("t15")
 
 
 def types(e) -> list[str]:
@@ -134,7 +134,7 @@ async def test_an_explanation_carries_no_demographic_field(b2, b3):
 
 
 async def test_an_explanation_builds_from_a_saved_log_with_no_live_graph(tmp_path):
-    result = await run("d3", log_dir=tmp_path)
+    result = await run("t14", log_dir=tmp_path)
     saved = read_log(result.log_path)
 
     live = explain_decision([e.model_dump(mode="json") for e in result.sink.events], "dec-0001")

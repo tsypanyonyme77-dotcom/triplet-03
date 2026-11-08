@@ -73,7 +73,7 @@ async def test_the_api_answers_a_global_question(api):
     client, hub = api
     assert (await client.get("/api/knowledge/global", params={"question": "flooding"})).status_code == 404  # no run yet
 
-    await client.post("/api/scenarios/d1/run", params={"speed": 0})
+    await client.post("/api/scenarios/t12/run", params={"speed": 0})
     await hub.wait()
 
     body = (await client.get("/api/knowledge/global", params={"question": "What can the Brain do about flooding, and what is blocked?", "k": 1})).json()

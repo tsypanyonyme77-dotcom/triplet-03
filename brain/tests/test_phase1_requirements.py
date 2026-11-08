@@ -66,13 +66,13 @@ def test_running_a_scenario_leaves_a_log_file_next_to_its_journal(tmp_path):
 
     for name, value in DEV_SECRETS.items():
         os.environ.setdefault(name, value)
-    result = asyncio.run(run_scenario(load_scenario("d1"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=tmp_path))
+    result = asyncio.run(run_scenario(load_scenario("t12"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=tmp_path))
 
     assert result.log_path.is_file() and result.log_path.with_name(result.log_path.stem + ".inputs.jsonl").is_file()
 
 
 def test_logs_are_not_ignored_by_git():
-    out = subprocess.run(["git", "check-ignore", "-q", "logs/d3-x.jsonl"], cwd=ROOT)
+    out = subprocess.run(["git", "check-ignore", "-q", "logs/t14-x.jsonl"], cwd=ROOT)
 
     assert out.returncode == 1  # 1: not ignored
 
@@ -80,7 +80,7 @@ def test_logs_are_not_ignored_by_git():
 def test_the_readme_names_a_one_command_start():
     readme = (ROOT / "README.md").read_text()
 
-    assert "uv run brain serve" in readme and "uv run brain scenario d3" in readme
+    assert "uv run brain serve" in readme and "uv run brain scenario t14" in readme
 
 
 def test_the_layout_files_the_phase_1_text_requires_exist_or_are_listed_as_triplet_owned():

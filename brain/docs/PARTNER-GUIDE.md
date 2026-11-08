@@ -41,7 +41,7 @@ Readings and calls carry an HMAC-SHA256 over canonical JSON in `provenance.hmac`
 
 ## 6. Run a scenario together
 
-`uv run brain scenario d3 --no-spawn` plays a Test Book scenario against the partners in `config/partners.yaml`. Inside Compose: `make full-scenario S=d3`. `docs/TESTBOOK-brain.md` lists every scenario with what each layer should do.
+`uv run brain scenario t14 --no-spawn` plays a Test Book scenario against the partners in `config/partners.yaml`. Inside Compose: `make full-scenario S=t14`. `docs/TESTBOOK-brain.md` lists every scenario with what each layer should do.
 
 ## If something fails
 

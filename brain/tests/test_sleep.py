@@ -13,10 +13,10 @@ from brain.timeline import MemorySink, Timeline
 from tests.test_learned_plans import decisions
 from tests.test_scenarios import play
 
-SUITE = ["d1", "d3", "d4"]  # a small suite keeps the tests quick; the default is d1 to d4
+SUITE = ["t12", "t14", "t15"]  # a small suite keeps the tests quick; the default is d1 to d4
 
 
-async def record(folder, scenario_id="d3", runs=2):
+async def record(folder, scenario_id="t14", runs=2):
     partners = PartnersConfig(brain=BrainConfig(episodes_dir=str(folder)))
     for _ in range(runs):
         await play(load_scenario(scenario_id), partners=partners)
@@ -25,7 +25,7 @@ async def record(folder, scenario_id="d3", runs=2):
 def room(tmp_path, **policy):
     sink = MemorySink()
     sleeper = Sleeper(tmp_path / "episodes", tmp_path / "learned", Policy.model_validate(policy), Timeline([sink]),
-                      suite=SUITE, held_out=["d4"])
+                      suite=SUITE, held_out=["t15"])
     return sleeper, sink
 
 
@@ -51,8 +51,8 @@ async def test_a_promoted_reflex_replaces_the_team_run_with_the_same_decisions(t
     await room(tmp_path)[0].run()
     partners = PartnersConfig(brain=BrainConfig(learned_dir=str(tmp_path / "learned")))
 
-    taught = await play(load_scenario("d3"), partners=partners)
-    team = await play(load_scenario("d3"))
+    taught = await play(load_scenario("t14"), partners=partners)
+    team = await play(load_scenario("t14"))
 
     assert decisions(taught) == decisions(team)
     assert "brain.deliberation.started" not in taught.sink.types() and taught.sink.of("brain.plan.compiled")
@@ -88,7 +88,7 @@ async def test_a_rule_that_changes_a_decision_elsewhere_is_rejected(tmp_path):
 
     moved = await sleeper.check_suite(broad().rule, [])
 
-    assert "d3" in moved
+    assert "t14" in moved
 
 
 async def test_the_size_cap_stops_a_flood_of_lessons(tmp_path):
@@ -106,7 +106,7 @@ async def test_rollback_removes_the_rule_and_restores_the_teams_plan(tmp_path):
     partners = PartnersConfig(brain=BrainConfig(learned_dir=str(tmp_path / "learned")))
 
     gone = rollback(tmp_path / "learned", "all")
-    after = await play(load_scenario("d3"), partners=partners)
+    after = await play(load_scenario("t14"), partners=partners)
 
     assert gone == ["LRN-1"] and load_learned_rules(tmp_path / "learned", "POLICE") == []
     assert "brain.deliberation.started" in after.sink.types() and after.sink.of("brain.plan.compiled") == []
@@ -193,7 +193,7 @@ async def test_a_run_answered_by_a_learned_plan_is_recorded_as_using_it(tmp_path
     await room(tmp_path)[0].run()
     partners = PartnersConfig(brain=BrainConfig(episodes_dir=str(tmp_path / "episodes"), learned_dir=str(tmp_path / "learned")))
 
-    await play(load_scenario("d3"), partners=partners)
+    await play(load_scenario("t14"), partners=partners)
 
     episodes, _ = EpisodeStore(tmp_path / "episodes").all()
     assert episodes[-1].lessons_used == ["LRN-1"] and episodes[-1].plans == []

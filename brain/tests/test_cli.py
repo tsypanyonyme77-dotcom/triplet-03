@@ -23,22 +23,22 @@ def test_serve_without_the_flags_keeps_what_the_config_says():
 
 
 def test_repro_takes_a_scenario_runs_and_processes():
-    args = build_parser().parse_args(["repro", "d3", "--runs", "3", "--processes"])
+    args = build_parser().parse_args(["repro", "t14", "--runs", "3", "--processes"])
 
-    assert (args.id, args.runs, args.processes) == ("d3", 3, True)
-    assert build_parser().parse_args(["repro", "d3"]).runs == 5
+    assert (args.id, args.runs, args.processes) == ("t14", 3, True)
+    assert build_parser().parse_args(["repro", "t14"]).runs == 5
 
 
 def test_repro_and_scenario_take_a_deterministic_flag():
-    assert build_parser().parse_args(["repro", "d3", "--deterministic"]).deterministic is True
-    assert build_parser().parse_args(["scenario", "d3", "--deterministic"]).deterministic is True
-    assert build_parser().parse_args(["scenario", "d3"]).deterministic is False
+    assert build_parser().parse_args(["repro", "t14", "--deterministic"]).deterministic is True
+    assert build_parser().parse_args(["scenario", "t14", "--deterministic"]).deterministic is True
+    assert build_parser().parse_args(["scenario", "t14"]).deterministic is False
 
 
 def test_deterministic_without_inproc_is_refused_because_spawned_mocks_use_the_real_clock(capsys):
     from brain.cli import cmd_scenario
 
-    args = build_parser().parse_args(["scenario", "d3", "--deterministic"])
+    args = build_parser().parse_args(["scenario", "t14", "--deterministic"])
 
     assert cmd_scenario(args) == 2
     assert "--inproc" in capsys.readouterr().err

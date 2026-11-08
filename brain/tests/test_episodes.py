@@ -13,13 +13,13 @@ def recording(folder) -> PartnersConfig:
 
 
 async def test_a_closed_incident_becomes_an_episode_without_identities(tmp_path):
-    result = await play(load_scenario("d3"), partners=recording(tmp_path))
+    result = await play(load_scenario("t14"), partners=recording(tmp_path))
     assert result.passed, failed(result)
 
     episodes, bad = EpisodeStore(tmp_path).all()
 
     (episode,) = episodes
-    assert bad == 0 and episode.incident.type == "crime" and episode.scenario_id == "d3"
+    assert bad == 0 and episode.incident.type == "crime" and episode.scenario_id == "t14"
     text = json.dumps(episode.model_dump(mode="json"))
     for forbidden in ("cit-88213", "cit-10021", "cit-30577", "wealth", '"age"', "target_id", "unit-p-"):
         assert forbidden not in text, forbidden
@@ -31,7 +31,7 @@ async def test_a_closed_incident_becomes_an_episode_without_identities(tmp_path)
 
 
 async def test_an_episode_keeps_the_guardians_verdict_on_each_reading(tmp_path):
-    await play(load_scenario("d3"), partners=recording(tmp_path))
+    await play(load_scenario("t14"), partners=recording(tmp_path))
 
     (episode,), _ = EpisodeStore(tmp_path).all()
 
@@ -42,7 +42,7 @@ async def test_an_episode_keeps_the_guardians_verdict_on_each_reading(tmp_path):
 
 
 async def test_the_same_person_keeps_one_alias_inside_an_episode(tmp_path):
-    await play(load_scenario("d3"), partners=recording(tmp_path))
+    await play(load_scenario("t14"), partners=recording(tmp_path))
 
     (episode,), _ = EpisodeStore(tmp_path).all()
 
@@ -52,7 +52,7 @@ async def test_the_same_person_keeps_one_alias_inside_an_episode(tmp_path):
 
 
 async def test_a_corrupt_episode_line_is_skipped_and_counted(tmp_path):
-    await play(load_scenario("d3"), partners=recording(tmp_path))
+    await play(load_scenario("t14"), partners=recording(tmp_path))
     with (tmp_path / "episodes.jsonl").open("a") as file:
         file.write("{not json\n")
         file.write('{"episode_id": "x"}\n')
@@ -63,6 +63,6 @@ async def test_a_corrupt_episode_line_is_skipped_and_counted(tmp_path):
 
 
 async def test_a_run_with_no_episodes_dir_records_nothing(tmp_path):
-    await play(load_scenario("d3"))
+    await play(load_scenario("t14"))
 
     assert not list(tmp_path.iterdir())

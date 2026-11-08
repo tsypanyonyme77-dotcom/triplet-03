@@ -1,6 +1,6 @@
 # Graph queries for the demo
 
-Neo4j holds the City Graph by default (Qdrant holds the knowledge vectors). Start the database with `make neo4j` (or the whole stack with `scripts/up.sh`), run a scenario into it with `uv run brain scenario d3`, and open the Neo4j Browser at <http://127.0.0.1:7474> (user `neo4j`, password `NEO4J_PASSWORD` from `.env`, or `citybrain-local-pw` when it is unset). Every run is kept apart by its `run_id`; the queries below use the latest run. Each returns a graph the Browser draws, so they are meant to be pasted one at a time.
+Neo4j holds the City Graph by default (Qdrant holds the knowledge vectors). Start the database with `make neo4j` (or the whole stack with `scripts/up.sh`), run a scenario into it with `uv run brain scenario t14`, and open the Neo4j Browser at <http://127.0.0.1:7474> (user `neo4j`, password `NEO4J_PASSWORD` from `.env`, or `citybrain-local-pw` when it is unset). Every run is kept apart by its `run_id`; the queries below use the latest run. Each returns a graph the Browser draws, so they are meant to be pasted one at a time.
 
 ## 1. Why was this unit sent?
 

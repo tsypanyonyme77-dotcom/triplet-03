@@ -20,7 +20,7 @@ async def play(scenario_id, transport):
     return await run_scenario(load_scenario(scenario_id), inproc_partners(transport=transport), models=MODELS, speed=0, timeout_s=30)
 
 
-@pytest.mark.parametrize("scenario_id", ["d3", "d2", "d4"])
+@pytest.mark.parametrize("scenario_id", ["t14", "t13", "t15"])
 async def test_the_city_over_http_decides_as_over_mcp(scenario_id):
     over_mcp, over_http = await play(scenario_id, "mcp"), await play(scenario_id, "http")
 

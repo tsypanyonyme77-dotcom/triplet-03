@@ -82,7 +82,7 @@ async def test_a_scenario_decides_the_same_with_the_index_down():
     models = ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}})
 
     async def decisions(kb):
-        result = await run_scenario(load_scenario("d3"), inproc_partners(), models=models, speed=0, timeout_s=30, kb=kb)
+        result = await run_scenario(load_scenario("t14"), inproc_partners(), models=models, speed=0, timeout_s=30, kb=kb)
         return result.passed, sorted(str(e.data["params"]) for e in result.sink.of("brain.decision.made"))
 
     primary, down = build([])

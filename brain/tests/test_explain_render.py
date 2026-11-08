@@ -80,7 +80,7 @@ async def test_the_api_explains_a_decision_a_held_action_and_an_incident(api):
     client, hub = api
     assert (await client.get("/api/decisions/dec-0001/explanation")).status_code == 404  # no run yet
 
-    await client.post("/api/scenarios/d3/run", params={"speed": 0})
+    await client.post("/api/scenarios/t14/run", params={"speed": 0})
     await hub.wait()
 
     body = (await client.get("/api/decisions/dec-0001/explanation")).json()
@@ -94,7 +94,7 @@ async def test_the_api_explains_a_decision_a_held_action_and_an_incident(api):
     assert (await client.get("/api/incidents/inc-9999/explanation")).status_code == 404
     assert (await client.get("/api/held/not-an-event/explanation")).status_code == 404
 
-    await client.post("/api/scenarios/d4/run", params={"speed": 0})
+    await client.post("/api/scenarios/t15/run", params={"speed": 0})
     await hub.wait()
     blocked = next(json.loads(line[6:]) for line in (await client.get("/events", params={"once": True})).text.splitlines()
                    if line.startswith("data: ") and '"brain.action.blocked"' in line)
@@ -103,7 +103,7 @@ async def test_the_api_explains_a_decision_a_held_action_and_an_incident(api):
 
 
 async def test_the_cli_explains_a_saved_log(tmp_path, capsys, monkeypatch):
-    result = await run("d3", log_dir=tmp_path)
+    result = await run("t14", log_dir=tmp_path)
 
     def command(*words):
         monkeypatch.setattr(sys, "argv", ["brain", "explain", str(result.log_path), *words])

@@ -90,7 +90,7 @@ async def test_the_api_serves_the_context_of_an_incident(api):
     client, hub = api
     assert (await client.get("/api/incidents/inc-0001/context")).status_code == 404
 
-    await client.post("/api/scenarios/d3/run", params={"speed": 0})
+    await client.post("/api/scenarios/t14/run", params={"speed": 0})
     await hub.wait()
 
     body = (await client.get("/api/incidents/inc-0001/context", params={"hops": 1})).json()

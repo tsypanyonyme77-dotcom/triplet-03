@@ -2,8 +2,8 @@
 
     uv run python scripts/gen_triggers.py
 
-Each script is a single command: `./scenarios/triggers/d3.sh` runs the scenario and leaves its log in logs/.
-Extra arguments pass through: `./scenarios/triggers/d3.sh --inproc --speed 0`.
+Each script is a single command: `./scenarios/triggers/t14.sh` runs the scenario and leaves its log in logs/.
+Extra arguments pass through: `./scenarios/triggers/t14.sh --inproc --speed 0`.
 """
 
 from pathlib import Path

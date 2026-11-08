@@ -232,7 +232,7 @@ class Hub:
 
     async def run_live(self) -> None:
         """Connect to the configured partners and stay connected (the `--live` mode)."""
-        from brain.adapters import RestGuardianAdapter
+        from brain.adapters import open_guardian, with_gateway
 
         stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
         sinks: list[Any] = [self.broadcaster]
@@ -250,7 +250,8 @@ class Hub:
                 logging.getLogger("brain.api").warning("%s", backends.note)
             async with guardian_client(self.partners.guardian.url, self.partners.guardian.tls) as client:
                 async with open_twin(self.partners.twin) as twin:
-                    service = BrainService(self.partners, self.policy, twin, RestGuardianAdapter("", client),
+                    guardian = open_guardian(self.partners.guardian, client)
+                    service = BrainService(self.partners, self.policy, with_gateway(twin, guardian, self.partners.guardian), guardian,
                                            Timeline(sinks), self.models, store=backends.store, kb=backends.kb, state=state,
                                            llm_health=self.llm_health)
                     await service.start()

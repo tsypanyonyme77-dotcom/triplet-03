@@ -11,7 +11,7 @@ KEY = "audit-key"
 
 
 async def bundle_of(tmp_path):
-    result = await run("d3", log_dir=tmp_path)
+    result = await run("t14", log_dir=tmp_path)
     events = read_log(result.log_path)
     return make_bundle(explain_decision(events, "dec-0003"), events, KEY)
 

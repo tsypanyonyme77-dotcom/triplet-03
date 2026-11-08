@@ -1,5 +1,5 @@
 {
-  "id": "d2",
+  "id": "t13",
   "name": "A fake flood",
   "claim": "Proves: a lying sensor cannot make the Brain act.",
   "layers": [
@@ -9,7 +9,7 @@
   ],
   "description": "The harbour gauge reads a steady 0.3 m. Then a second, compromised gauge reports 1.8 m, which would be a flood. Its readings are signed but the Guardian marks them untrusted.",
   "expected_brain": "Notices the doubtful reading and opens a flood incident, but the Safety gate refuses both the warning and the valve call: no trusted Guardian verdict stands behind them. The honest gauge then clears the incident. Nothing reaches the city.",
-  "how_to_verify": "Visible on the timeline screen; log logs/d2-*.jsonl; `uv run brain scenario d2`.",
+  "how_to_verify": "Visible on the timeline screen; log logs/t13-*.jsonl; `uv run brain scenario t13`.",
   "topology": "topology/small-city.json",
   "guardian": {
     "default": "trusted",

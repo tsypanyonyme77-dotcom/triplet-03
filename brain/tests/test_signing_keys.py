@@ -103,7 +103,7 @@ def test_the_brain_publishes_its_public_key_at_jwks_and_never_the_private_one():
     from brain.api import Hub, create_app
 
     seed, public = _keypair()
-    partners = PartnersConfig.model_validate({"security": {"keys": {"brain": [{"kid": "d1", "alg": "EdDSA", "public_key": public}]}}})
+    partners = PartnersConfig.model_validate({"security": {"keys": {"brain": [{"kid": "t12", "alg": "EdDSA", "public_key": public}]}}})
     hub = Hub(partners, Policy(), ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}}), mocks="inproc")
 
     async def get():
@@ -113,7 +113,7 @@ def test_the_brain_publishes_its_public_key_at_jwks_and_never_the_private_one():
     import asyncio
 
     body = asyncio.run(get()).json()
-    assert body["keys"][0]["kid"] == "d1" and body["keys"][0]["x"] == public and "d" not in body["keys"][0] and seed not in str(body)
+    assert body["keys"][0]["kid"] == "t12" and body["keys"][0]["x"] == public and "d" not in body["keys"][0] and seed not in str(body)
 
 
 # ---- signed actuator calls: time and a one-time number

@@ -98,7 +98,7 @@ def default_steps(root: Path, quick: bool) -> dict[str, Step]:
             from brain.config import Policy
 
             with tempfile.TemporaryDirectory(prefix="bench-curve-") as workdir:
-                rows = await learning_curve("d3", 3, Path(workdir), config.load(Policy, "policy"))
+                rows = await learning_curve("t14", 3, Path(workdir), config.load(Policy, "policy"))
             return {"team_runs_first_to_last": f"{rows[0]['team_runs']} to {rows[-1]['team_runs']}", "same_decisions": all(r["decisions_equal_to_run_1"] for r in rows)}
 
         steps |= {"variants": variant_run, "learning_curve": curve}

@@ -106,8 +106,8 @@ async def test_the_topic_is_routing_and_the_signed_body_is_the_identity():
 
 
 async def test_the_d3_city_over_mqtt_decides_as_d3():
-    over_mcp = await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30)
-    over_mqtt = await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30)
+    over_mcp = await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30)
+    over_mqtt = await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30)
 
     assert over_mqtt.passed and over_mcp.passed
     assert decisions(over_mqtt) == decisions(over_mcp)
@@ -155,7 +155,7 @@ async def test_the_b2_city_over_a_real_broker_decides_as_b2():
     from mocks.twin.mqtt_publisher import drive
 
     url = urlparse(os.environ["MQTT_URL"])
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     async with inproc_partners(transport="http") as (twin_http, guardian):
         await guardian.post("/admin/config", json=scenario.get("guardian", {}))
         # The adapter subscribes first, then the publisher starts: a broker holds nothing for a subscriber that is not there yet.

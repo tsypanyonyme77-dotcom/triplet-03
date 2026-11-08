@@ -45,7 +45,7 @@ async def test_a_read_token_cannot_push_run_or_approve(tmp_path, monkeypatch):
     async with make(tmp_path, monkeypatch) as client:
         assert (await client.get("/api/scenarios", headers=bearer("BRAIN_TOKEN_READ"))).status_code == 200
         assert (await client.post("/api/events", json=event("twin.x"), headers=bearer("BRAIN_TOKEN_READ"))).status_code == 403
-        assert (await client.post("/api/scenarios/d3/run", headers=bearer("BRAIN_TOKEN_READ"))).status_code == 403
+        assert (await client.post("/api/scenarios/t14/run", headers=bearer("BRAIN_TOKEN_READ"))).status_code == 403
         assert (await client.post("/api/sleep", headers=bearer("BRAIN_TOKEN_READ"))).status_code == 403
 
 

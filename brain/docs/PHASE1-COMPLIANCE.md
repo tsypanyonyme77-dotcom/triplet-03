@@ -7,7 +7,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 | Part | Met by |
 | --- | --- |
 | Mocks of the two other layers | `mocks/twin/` (MCP server), `mocks/guardian/` (REST server); `--inproc` runs them in process |
-| Runs alone | `README.md`: `uv run brain serve`, `uv run brain scenario d3 --inproc --speed 0`, or `scripts/up.sh` in containers |
+| Runs alone | `README.md`: `uv run brain serve`, `uv run brain scenario t14 --inproc --speed 0`, or `scripts/up.sh` in containers |
 | One-page Interface Card | `INTERFACE.md`: what the Brain receives and sends, one example of each message, how to point it at a different partner, how it authenticates (a test fails if it grows past one page or loses an example) |
 | Configuration, never hard-coded | `config/partners.yaml` (or `--config`); secrets from the environment |
 
@@ -15,7 +15,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 
 | Part | Met by |
 | --- | --- |
-| One command per scenario | `scenarios/triggers/d1.sh` to `d4.sh` (`uv run brain scenario <id>`); on the screen, number keys `1` to `4` or `POST /api/scenarios/{id}/run` |
+| One command per scenario | `scenarios/triggers/t12.sh` to `t15.sh` (`uv run brain scenario <id>`); on the screen, number keys `1` to `4` or `POST /api/scenarios/{id}/run` |
 | A log per run, in the repository | `logs/<id>-<time>.jsonl`, hash-chained, with its input journal; `logs/` is not git-ignored |
 | Checkable after the event | `logs/canonical/`: one verified log per scenario, replayable with `brain replay`; `brain verify-log` checks the temporal promises (trust before action, nothing after close) |
 
@@ -32,7 +32,7 @@ Against *Phase 1 City Brain Convergence* (the three required rules R1 to R3, the
 | `brain/src/` | `src/brain/` |
 | `brain/mocks/`: twin + guardian | `mocks/twin/`, `mocks/guardian/` |
 | `brain/tests/` | `tests/` |
-| Root `INTEGRATION.md`, `TESTBOOK.md`, `docker-compose.yml`, `scenarios/`, `logs/`, `docs/` | Shared by the triplet. Our input: `docs/TESTBOOK-brain.md` (the Test Book fields for `d1` to `d4`), `docker-compose.yml` here (written to be included by the root file), our scenario triggers and logs, `docs/report/` |
+| Root `INTEGRATION.md`, `TESTBOOK.md`, `docker-compose.yml`, `scenarios/`, `logs/`, `docs/` | Shared by the triplet. Our input: `docs/TESTBOOK-brain.md` (the Test Book fields for `t12` to `t15`), `docker-compose.yml` here (written to be included by the root file), our scenario triggers and logs, `docs/report/` |
 
 ## Report, Part 2: The City Brain
 

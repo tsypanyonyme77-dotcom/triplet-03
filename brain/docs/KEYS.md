@@ -10,7 +10,7 @@ Two algorithms: `HS256` (a shared secret, as today) and `EdDSA` (Ed25519: the ch
 openssl rand -hex 32                                # 1. a new secret; give it to the partner over a channel you trust
 export TWIN_HMAC_SECRET_2026_12=<the new secret>    # 2. next to the old one, which stays in TWIN_HMAC_SECRET
 $EDITOR config/partners.yaml                        # 3. put the new key first, give the old one an end date (below)
-uv run brain scenario d3 --inproc --speed 0         # 4. check nothing broke; restart the Brain
+uv run brain scenario t14 --inproc --speed 0         # 4. check nothing broke; restart the Brain
 ```
 
 ```yaml

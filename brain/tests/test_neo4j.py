@@ -99,7 +99,7 @@ async def test_a_scenario_leaves_its_whole_provenance_chain_in_neo4j():
 
     async with open_backends(GRAPH, models, run_id) as backends:
         assert backends.kb is not None, backends.note
-        result = await run_scenario(load_scenario("d3"), inproc_partners(), models=models, speed=0, timeout_s=30,
+        result = await run_scenario(load_scenario("t14"), inproc_partners(), models=models, speed=0, timeout_s=30,
                                     store=backends.store, kb=backends.kb)
         mirror = backends.store.mirror
         await mirror.flush()
@@ -141,7 +141,7 @@ async def test_every_cited_id_of_a_decision_resolves_in_neo4j():
 
     async with open_backends(GRAPH, models, run_id) as backends:
         assert backends.kb is not None, backends.note
-        result = await run_scenario(load_scenario("d3"), inproc_partners(), models=models, speed=0, timeout_s=30,
+        result = await run_scenario(load_scenario("t14"), inproc_partners(), models=models, speed=0, timeout_s=30,
                                     store=backends.store, kb=backends.kb)
         mirror = backends.store.mirror
         await mirror.flush()

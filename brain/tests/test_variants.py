@@ -14,7 +14,7 @@ def test_train_and_held_out_seeds_do_not_overlap():
 
 
 def test_shift_time_moves_every_event_and_stream_and_nothing_else():
-    base = load_raw("d2")
+    base = load_raw("t13")
 
     moved = shift_time(base, 1000)
 
@@ -24,11 +24,11 @@ def test_shift_time_moves_every_event_and_stream_and_nothing_else():
     assert moved["streams"][0]["from_ms"] == base["streams"][0]["from_ms"] + delta
     assert moved["streams"][0]["to_ms"] == base["streams"][0]["to_ms"] + delta
     assert {k: v for k, v in moved.items() if k not in ("events", "streams")} == {k: v for k, v in base.items() if k not in ("events", "streams")}
-    assert base == load_raw("d2"), "the transform must not touch its input"
+    assert base == load_raw("t13"), "the transform must not touch its input"
 
 
 def test_reseed_changes_only_stream_seeds():
-    base = load_raw("d2")
+    base = load_raw("t13")
 
     changed = reseed(base, 1003)
 
@@ -38,11 +38,11 @@ def test_reseed_changes_only_stream_seeds():
 
 
 def test_reseed_changes_nothing_in_a_scenario_without_streams():
-    assert reseed(load_raw("d3"), 1000) == load_raw("d3")
+    assert reseed(load_raw("t14"), 1000) == load_raw("t14")
 
 
 def test_a_decoy_stream_is_calm_and_in_an_untouched_zone():
-    base = load_raw("d3")
+    base = load_raw("t14")
     used = {e["zone_id"] for e in base["events"]}
 
     changed = decoy(base, 1002)
@@ -55,13 +55,13 @@ def test_a_decoy_stream_is_calm_and_in_an_untouched_zone():
 
 
 def test_variants_skip_a_transform_that_changes_nothing_and_label_the_rest():
-    found = variants(load_raw("d3"), [1000])
+    found = variants(load_raw("t14"), [1000])
 
     assert {v["transform"] for v in found} == {"shift_time", "decoy"}  # b2 has no streams to reseed
-    assert all(v["variant_of"] == "d3" and v["seed"] == 1000 for v in found)
+    assert all(v["variant_of"] == "t14" and v["seed"] == 1000 for v in found)
 
 
-@pytest.mark.parametrize("scenario_id", ["d3", "d2"])
+@pytest.mark.parametrize("scenario_id", ["t14", "t13"])
 async def test_every_transform_keeps_the_scenario_valid_and_the_base_decisions(scenario_id):
     rows = await check([scenario_id], [1000])
 
@@ -70,10 +70,10 @@ async def test_every_transform_keeps_the_scenario_valid_and_the_base_decisions(s
 
 
 async def test_check_reports_a_row_per_variant():
-    rows = await check(["d2"], [1000, 1001])
+    rows = await check(["t13"], [1000, 1001])
 
     assert len(rows) == 2 * len(TRANSFORMS)
-    assert {row["scenario"] for row in rows} == {"d2"}
+    assert {row["scenario"] for row in rows} == {"t13"}
     assert {row["seed"] for row in rows} == {1000, 1001}
 
 
@@ -83,7 +83,7 @@ async def test_a_transform_that_changes_decisions_is_reported():
         broken["guardian"] = {"down": True}
         return broken
 
-    rows = await check(["d3"], [1000], {"break_it": break_it})
+    rows = await check(["t14"], [1000], {"break_it": break_it})
 
     (row,) = rows
     assert row["transform"] == "break_it" and not row["same_decisions"]
@@ -91,10 +91,10 @@ async def test_a_transform_that_changes_decisions_is_reported():
 
 
 def test_load_raw_keeps_streams_unexpanded_and_the_topology_resolved():
-    raw = load_raw("d2")
+    raw = load_raw("t13")
 
     assert raw["streams"] and isinstance(raw["topology"], dict)
-    assert expand_streams(raw)["events"] == load_scenario("d2")["events"]
+    assert expand_streams(raw)["events"] == load_scenario("t13")["events"]
 
 
 def test_policy_settings_are_laid_over_the_defaults():

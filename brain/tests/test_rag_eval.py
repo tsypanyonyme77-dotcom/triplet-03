@@ -92,7 +92,7 @@ async def test_the_report_has_every_split_mode_and_kind():
 async def test_what_the_scripted_team_cites_is_a_subset_of_what_it_retrieved():
     from tests.test_explain import events_of
 
-    events = await events_of("d3")
+    events = await events_of("t14")
     plans = [e for e in events if e["type"] == "brain.plan.verified"]
     assert plans
     for plan in plans:

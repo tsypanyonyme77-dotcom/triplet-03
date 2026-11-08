@@ -21,7 +21,7 @@ async def record(scenario_id, folder):
     return result, journal
 
 
-@pytest.mark.parametrize("scenario_id", ["d3", "d2"])
+@pytest.mark.parametrize("scenario_id", ["t14", "t13"])
 async def test_replaying_the_journal_gives_the_same_decisions_and_stream(scenario_id, tmp_path):
     result, journal = await record(scenario_id, tmp_path / "run")
     recorded = [e.model_dump(mode="json") for e in result.sink.events]
@@ -34,7 +34,7 @@ async def test_replaying_the_journal_gives_the_same_decisions_and_stream(scenari
 
 
 async def test_a_deterministic_replay_reproduces_the_recorded_log_records(tmp_path):
-    result, journal = await record("d3", tmp_path / "run")
+    result, journal = await record("t14", tmp_path / "run")
     recorded = [e.model_dump(mode="json") for e in result.sink.events]
 
     replayed = await replay(journal)
@@ -45,7 +45,7 @@ async def test_a_deterministic_replay_reproduces_the_recorded_log_records(tmp_pa
 
 
 async def test_a_tampered_journal_is_refused(tmp_path):
-    _, journal = await record("d2", tmp_path / "run")
+    _, journal = await record("t13", tmp_path / "run")
     lines = journal.read_text().splitlines()
     lines[3] = lines[3].replace('"kind"', '"kinD"', 1)
     journal.write_text("\n".join(lines) + "\n")
@@ -55,7 +55,7 @@ async def test_a_tampered_journal_is_refused(tmp_path):
 
 
 async def test_the_current_config_is_refused_when_it_differs_from_the_recorded_one_unless_allowed(tmp_path):
-    _, journal = await record("d2", tmp_path / "run")
+    _, journal = await record("t13", tmp_path / "run")
     changed = Policy.model_validate({"gate": {"max_actions_per_incident": 1}})
 
     with pytest.raises(ReplayRefused, match="config"):
@@ -65,7 +65,7 @@ async def test_the_current_config_is_refused_when_it_differs_from_the_recorded_o
 
 
 async def test_a_replay_reports_the_first_difference_when_a_decision_changed(tmp_path):
-    result, journal = await record("d3", tmp_path / "run")
+    result, journal = await record("t14", tmp_path / "run")
     recorded = [e.model_dump(mode="json") for e in result.sink.events]
     changed = Policy.model_validate({"gate": {"max_actions_per_incident": 1}})
 
@@ -77,6 +77,6 @@ async def test_a_replay_reports_the_first_difference_when_a_decision_changed(tmp
 
 
 def test_replay_takes_a_journal_and_the_two_switches():
-    args = build_parser().parse_args(["replay", "logs/d3.inputs.jsonl", "--current-config", "--allow-config-change"])
+    args = build_parser().parse_args(["replay", "logs/t14.inputs.jsonl", "--current-config", "--allow-config-change"])
 
-    assert (args.journal, args.current_config, args.allow_config_change) == ("logs/d3.inputs.jsonl", True, True)
+    assert (args.journal, args.current_config, args.allow_config_change) == ("logs/t14.inputs.jsonl", True, True)

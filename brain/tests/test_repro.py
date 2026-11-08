@@ -62,7 +62,7 @@ def test_runs_of_different_lengths_are_reported_as_a_length_difference():
 async def test_a_deterministic_run_gives_the_same_bytes_every_time():
     from brain.repro import collect
 
-    runs = await collect("d2", 2, deterministic=True)
+    runs = await collect("t13", 2, deterministic=True)
 
     by_name = {level.name: level for level in levels(runs)}
     assert by_name["bytes"].identical and by_name["stream"].identical

@@ -96,8 +96,8 @@ def mine(episodes: list[Episode], min_support: int) -> list[Candidate]:
 
 # ---------------------------------------------------------------------------- rehearsal and the promotion gate
 
-DEFAULT_SUITE = ["d1", "d2", "d3", "d4"]
-DEFAULT_HELD_OUT = ["d2", "d4"]  # scenarios no lesson is taught from; reported on their own
+DEFAULT_SUITE = ["t12", "t13", "t14", "t15"]
+DEFAULT_HELD_OUT = ["t13", "t15"]  # scenarios no lesson is taught from; reported on their own
 COMPARED = ("decisions", "blocked")
 
 

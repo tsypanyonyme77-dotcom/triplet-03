@@ -18,7 +18,7 @@ def failed(result):
     return [f"{c.name}: {c.detail}" for c in result.checks if not c.passed]
 
 
-@pytest.mark.parametrize("scenario_id", ["d1", "d2", "d3", "d4"])
+@pytest.mark.parametrize("scenario_id", ["t12", "t13", "t14", "t15"])
 async def test_test_book_scenario(scenario_id, tmp_path):
     result = await play(load_scenario(scenario_id), log_dir=tmp_path)
 
@@ -28,7 +28,7 @@ async def test_test_book_scenario(scenario_id, tmp_path):
 
 
 async def test_pursuit_call_follows_the_contract():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     call = result.actuator_calls[0]["call"]
     assert call["action"] == "dispatch_unit"
@@ -44,7 +44,7 @@ async def test_pursuit_call_follows_the_contract():
 
 
 async def test_every_event_traces_back_to_a_reading():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     request = result.sink.of("brain.action.requested")[0]
     assert request.traceid == "cit-feed-07:4"  # the sighting that tipped the score
@@ -53,7 +53,7 @@ async def test_every_event_traces_back_to_a_reading():
 
 
 async def test_guardian_down_means_no_dispatch():
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     scenario["guardian"] = {"down": True}
     scenario["expect"] = {
         "dispatched": [],
@@ -69,14 +69,14 @@ async def test_guardian_down_means_no_dispatch():
 async def test_the_reflex_tier_works_alone_when_the_team_is_switched_off():
     models = ModelsConfig.model_validate({"team": {"enabled": False}, "embeddings": {"provider": "hashing"}})
 
-    result = await play(load_scenario("d3"), models=models)
+    result = await play(load_scenario("t14"), models=models)
 
     assert [c["call"]["params"]["mode"] for c in result.actuator_calls] == ["pursuit"]
     assert "brain.deliberation.started" not in result.sink.types()
 
 
 async def test_a_twin_without_public_alerts_gets_a_plan_without_them():
-    result = await play(load_scenario("d3"), inproc_partners(frozenset({"broadcast_alert"})))
+    result = await play(load_scenario("t14"), inproc_partners(frozenset({"broadcast_alert"})))
 
     assert [c["call"]["action"] for c in result.actuator_calls] == ["dispatch_unit"] * 3 + ["recall_unit"] * 2
     assert result.sink.of("brain.plan.verified")[0].data["alert_zones"] == []
@@ -84,7 +84,7 @@ async def test_a_twin_without_public_alerts_gets_a_plan_without_them():
 
 
 async def test_when_the_twin_runs_out_of_units_the_brain_records_the_refusal():
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     for facility in scenario["topology"]["facilities"]:
         facility["units"] = 1  # two police units in the whole city
 
@@ -97,7 +97,7 @@ async def test_when_the_twin_runs_out_of_units_the_brain_records_the_refusal():
 
 def ambiguous_case():
     """b2 without the sighting at the scene, and with the Station feed marked suspicious."""
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     scenario["events"] = [e for e in scenario["events"] if e["at_ms"] != 1500]
     scenario["guardian"] = {"default": "trusted", "overrides": {"cit-feed-08": "suspicious"}}
     policy = Policy()

@@ -71,9 +71,9 @@ Secrets are agreed out of band and held in environment variables, never in a fil
 
 ## 4. Scenarios: how we test together
 
-The Test Book is `scenarios/d1.json` to `d4.json`; `TESTBOOK-brain.md` says what each layer should do in each. A scenario file holds a `topology` (the layout your `get_topology` returns) and `events`: timed readings (`at_ms`, `sensor_id`, `type`, `zone_id`, `value`). The mock replays them through the same tools your engine will offer; `scenarios/topology/` has four city layouts. Your engine does not need to read our scenario files, but it must be able to produce an equivalent stream: for `d3` (a crime with a pursuit), citizen movements in two zones, a camera anomaly, and `unit_status` readings after our dispatch.
+The Test Book is `scenarios/t12.json` to `t15.json`; `TESTBOOK-brain.md` says what each layer should do in each. A scenario file holds a `topology` (the layout your `get_topology` returns) and `events`: timed readings (`at_ms`, `sensor_id`, `type`, `zone_id`, `value`). The mock replays them through the same tools your engine will offer; `scenarios/topology/` has four city layouts. Your engine does not need to read our scenario files, but it must be able to produce an equivalent stream: for `t14` (a crime with a pursuit), citizen movements in two zones, a camera anomaly, and `unit_status` readings after our dispatch.
 
-`scenarios/triggers/<id>.sh` starts one scenario; `uv run brain scenario d3 --no-spawn` plays it against the partners in `config/partners.yaml`. Each run writes a hash-chained log in `logs/`. **Starting a scenario on your side** (agreed): the Twin offers one call that loads a scenario and starts its stream, as our mock's admin tool does.
+`scenarios/triggers/<id>.sh` starts one scenario; `uv run brain scenario t14 --no-spawn` plays it against the partners in `config/partners.yaml`. Each run writes a hash-chained log in `logs/`. **Starting a scenario on your side** (agreed): the Twin offers one call that loads a scenario and starts its stream, as our mock's admin tool does.
 
 ## 5. If your names or units differ
 

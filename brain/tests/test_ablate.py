@@ -5,7 +5,7 @@ from pathlib import Path
 
 from brain.mind.ablate import ABLATIONS, ablate, table
 
-SUITE = ["d1", "d2", "d3", "d4"]
+SUITE = ["t12", "t13", "t14", "t15"]
 _result: dict | None = None
 
 

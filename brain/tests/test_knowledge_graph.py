@@ -104,7 +104,7 @@ async def test_a_bad_link_in_a_playbook_is_reported_when_the_brain_starts_and_th
     monkeypatch.setattr(runtime, "load_playbook", lambda code: [i.model_copy(update={"requires": ["GHOST-1"]}) if i.id == "POL-PB-001" else i for i in real(code)])
     kb = MemoryKnowledgeBase(HashingEmbedder())
 
-    result = await run_scenario(load_scenario("d1"), inproc_partners(), models=ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}}),
+    result = await run_scenario(load_scenario("t12"), inproc_partners(), models=ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}}),
                                 speed=0, timeout_s=30, kb=kb)
 
     reports = [e for e in result.sink.events if e.type == "brain.pack.rejected"]

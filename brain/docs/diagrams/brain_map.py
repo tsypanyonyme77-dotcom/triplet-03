@@ -76,7 +76,7 @@ REGIONS = [
         id="team", name="Team", at=(7.2, 8.8), where="front, lower", analogue="Prefrontal goal maintenance; anterior cingulate conflict monitoring",
         neuro="Prefrontal cortex holds goals and rules that bias processing elsewhere (Miller and Cohen 2001). The anterior cingulate monitors conflict and signals when control is needed (Botvinick et al. 2001), weighed by its expected value (Shenhav, Botvinick and Cohen 2013). Confidence can be a second-order inference (Fleming and Daw 2017).",
         code="`departments/team.py` and `builder.py`: Analyst (a case file: what the evidence supports and what could be wrong), Tactician (options, every zone from a graph algorithm), Chief (one option, justified from the playbook), then `verify_case` and `verify_plan` check the answer against the tool log and the playbook, with one revision round, before the gate. The roles mirror Planning, Operations and Command of the Incident Command System. Each role is a LangChain agent with read-only tools on Groq, or a scripted stand-in; a role whose model fails falls back to the stand-in.",
-        params="Analyst and Chief `gpt-oss-120b`, Tactician `gpt-oss-20b`, temperature 0; scripted by default, `--llm` opts in. Measured: on the earlier `b2` (the crime story now in `d3`), 5 of 5 real-model trials passed, 4 placed a plan before the arrest, plan agreement 0.75. The same prompt gave 5 different answers in 5 calls.",
+        params="Analyst and Chief `gpt-oss-120b`, Tactician `gpt-oss-20b`, temperature 0; scripted by default, `--llm` opts in. Measured: on the earlier `b2` (the crime story now in `t14`), 5 of 5 real-model trials passed, 4 placed a plan before the arrest, plan agreement 0.75. The same prompt gave 5 different answers in 5 calls.",
         agents="**This is where the agents live.** Every other region is code.",
         plane="4 Decision, the slow path. Plan 2's supervisor runs the solver and the team in parallel and keeps the better feasible plan; plan 0 records every model call so a run can be replayed.",
         breaks="The three roles are an organisational analogy (incident command), not three brain areas. The 'cingulate' here is deterministic code. There is no second-order confidence yet.",
@@ -103,7 +103,7 @@ REGIONS = [
         id="sleep", name="Sleep", at=(-2.6, 8.0), where="back, low", analogue="Replay and consolidation; tag and capture; useful forgetting",
         neuro="Experience is replayed in sleep, sometimes in reverse (Foster and Wilson 2006), with priority to what is useful (Mattar and Daw 2018). A weak trace is tagged and captured only if later confirmed (Frey and Morris 1997). Sleep renormalises what waking strengthened (Tononi and Cirelli 2014). Forgetting removes what is out of date (Richards and Frankland 2017). Retrieval makes a memory editable again (Nader, Schafe and LeDoux 2000).",
         code="`brain sleep` (`mind/sleep.py`): mine episodes for plans the team made the same way at least twice, rehearse each candidate in simulation against the real team, and promote it as a reflex only through six checks: provenance (every reading trusted, none retracted), safety (only contain, respond and alert, inside the Police allowlist), a size cap, rehearsal (same decisions, fewer team runs), variants (neighbouring stories stay with the team), and the whole Test Book identical. `mind/lifecycle.py`: a lesson is confirmed only when the team plans its pattern the same way again, retired when it plans it differently, and may fade after sleeps with no recurrence.",
-        params="`min_support` 2, at most 10 learned rules, `retire_on_contradiction` on, `fade_after_sleeps` 0 (off). Measured on the earlier `b2` (now `d3`): team runs 1 to 0, time to the last action 123.6 ms to 79.7 ms, identical decisions.",
+        params="`min_support` 2, at most 10 learned rules, `retire_on_contradiction` on, `fade_after_sleeps` 0 (off). Measured on the earlier `b2` (now `t14`): team runs 1 to 0, time to the last action 123.6 ms to 79.7 ms, identical decisions.",
         agents="Sleep learns *from* the agents: what it compiles is a cache of a verified team plan.",
         plane="6 Learning. Plan 3 adds `brain improve`, one audited cycle.",
         breaks="No reward signal. A brain learns from outcomes (reward prediction error); the Brain is forbidden to, because a learner that reads outcomes can be taught by an attacker who controls the sensors.",
@@ -134,7 +134,7 @@ NEW = [
 ]
 
 EXPERIMENTS = [
-    ("1", "Measure how consistently the language-model team behaves (pass^k)", "Done on the earlier `b2` (now `d3`): 5 of 5 passed (pass^k 1.0 for k 1 to 5), plan agreement 0.75; 3 distinct plans in 5. Not done on other scenarios"),
+    ("1", "Measure how consistently the language-model team behaves (pass^k)", "Done on the earlier `b2` (now `t14`): 5 of 5 passed (pass^k 1.0 for k 1 to 5), plan agreement 0.75; 3 distinct plans in 5. Not done on other scenarios"),
     ("2", "Subtract the Brain's own actions (corollary discharge)", "Built as `forward.effects`, off until the Twin says what its actuators do"),
     ("3", "Urgency for a waiting incident", "Built as `workspace.aging_per_s`, off"),
     ("4", "Normalised salience with a self-tuning threshold", "Tried as load shedding by normalising salience; cut, it moved no number"),

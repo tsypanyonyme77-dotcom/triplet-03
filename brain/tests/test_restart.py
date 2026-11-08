@@ -58,7 +58,7 @@ async def actuator_log(twin_server) -> list[str]:
 
 async def test_a_restart_in_the_middle_of_a_pursuit_forgets_nothing(tmp_path):
     async with inproc_partners() as (twin_server, guardian_client):
-        await start_scenario(twin_server, guardian_client, load_scenario("d3"))
+        await start_scenario(twin_server, guardian_client, load_scenario("t14"))
 
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite") as first:
             await first.handle(7)  # crime, pursuit, perimeter, and the suspect tracked into the Station
@@ -83,7 +83,7 @@ async def test_a_restart_in_the_middle_of_a_pursuit_forgets_nothing(tmp_path):
 
 async def test_a_crash_half_way_through_a_reading_repeats_it_without_dispatching_twice(tmp_path):
     async with inproc_partners() as (twin_server, guardian_client):
-        await start_scenario(twin_server, guardian_client, load_scenario("d3"))
+        await start_scenario(twin_server, guardian_client, load_scenario("t14"))
 
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite") as first:
             await first.handle(5)
@@ -112,11 +112,11 @@ async def test_a_crash_half_way_through_a_reading_repeats_it_without_dispatching
 
 async def test_state_from_another_session_is_discarded_not_restored(tmp_path):
     async with inproc_partners() as (twin_server, guardian_client):
-        await start_scenario(twin_server, guardian_client, load_scenario("d3"))
+        await start_scenario(twin_server, guardian_client, load_scenario("t14"))
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite") as first:
             await first.handle(7)
 
-        await start_scenario(twin_server, guardian_client, load_scenario("d3"))  # the Twin starts its stream again
+        await start_scenario(twin_server, guardian_client, load_scenario("t14"))  # the Twin starts its stream again
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite") as second:
             await second.service.run_until_quiet()
 
@@ -128,7 +128,7 @@ async def test_state_from_another_session_is_discarded_not_restored(tmp_path):
 async def test_state_that_is_too_old_is_discarded(tmp_path):
     partners = PartnersConfig.model_validate({"brain": {"state_max_age_s": 0}})
     async with inproc_partners() as (twin_server, guardian_client):
-        await start_scenario(twin_server, guardian_client, load_scenario("d3"))
+        await start_scenario(twin_server, guardian_client, load_scenario("t14"))
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite") as first:
             await first.handle(7)
         async with Life(twin_server, guardian_client, tmp_path / "brain.sqlite", partners) as second:

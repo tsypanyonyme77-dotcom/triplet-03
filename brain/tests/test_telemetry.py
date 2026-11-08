@@ -117,7 +117,7 @@ async def test_a_scenario_run_makes_spans_whose_traces_follow_each_reading():
     broadcaster = Broadcaster(spans=sink)
     models = ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}})
 
-    result = await run_scenario(load_scenario("d3"), inproc_partners(), models=models, speed=0, timeout_s=30, extra_sinks=[broadcaster])
+    result = await run_scenario(load_scenario("t14"), inproc_partners(), models=models, speed=0, timeout_s=30, extra_sinks=[broadcaster])
 
     spans = memory.get_finished_spans()
     assert result.passed and len(spans) == len(result.sink.events)

@@ -5,7 +5,7 @@ from brain.repro import run_events
 
 
 async def test_measured_seconds_are_in_timing_and_not_in_data():
-    events = await run_events("d3")
+    events = await run_events("t14")
 
     prepared = next(e for e in events if e["type"] == "brain.options.prepared")
 

@@ -39,7 +39,7 @@ def test_every_applies_to_names_a_known_incident_type():
 
 
 async def test_every_playbook_item_uses_only_actions_the_twin_reports():
-    started = next(e for e in await events_of("d1") if e["type"] == "brain.started")
+    started = next(e for e in await events_of("t12") if e["type"] == "brain.started")
     twin = set(started["data"]["capabilities"])
     for item in all_playbooks():
         assert set(item.uses) <= twin, (item.id, set(item.uses) - twin)
@@ -74,7 +74,7 @@ def test_a_reference_document_is_cut_into_section_aware_chunks_under_the_word_li
 async def test_the_runtime_loads_every_departments_playbook_rules_and_the_interface_card():
     kb = MemoryKnowledgeBase(HashingEmbedder())
 
-    result = await run_scenario(load_scenario("d3"), inproc_partners(), models=HASHING, speed=0, timeout_s=30, kb=kb)
+    result = await run_scenario(load_scenario("t14"), inproc_partners(), models=HASHING, speed=0, timeout_s=30, kb=kb)
 
     assert result.passed
     for item_id in ("POL-PB-001", "FEM-PB-001", "MOB-PB-001", "UTL-PB-001", "FIR-001", "MOB-001", "UTL-002", "CAP-dispatch_unit"):
@@ -84,7 +84,7 @@ async def test_the_runtime_loads_every_departments_playbook_rules_and_the_interf
 
 async def test_a_police_search_never_returns_another_departments_procedure():
     kb = MemoryKnowledgeBase(HashingEmbedder())
-    await run_scenario(load_scenario("d1"), inproc_partners(), models=HASHING, speed=0, timeout_s=30, kb=kb)
+    await run_scenario(load_scenario("t12"), inproc_partners(), models=HASHING, speed=0, timeout_s=30, kb=kb)
 
     hits = await kb.search("a fire is burning, send the fire engine", department="POLICE", kinds={"playbook"}, k=5)
 

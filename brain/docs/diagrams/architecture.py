@@ -233,7 +233,7 @@ def scenario() -> str:
     p.append(rect(24, foot, 1052, 52, fill=BOARD, stroke=RULE, width=1, radius=6))
     p.append(text(40, foot + 21, "Every arrow is also a timeline event: it appears on the Strip Board screen and in the hash-chained audit log.",
                   size=12, fill=INK2))
-    p.append(text(40, foot + 39, "If the Guardian answers untrusted in step 2 or 3, nothing is dispatched and the reading is held at the gate with its reason (shown for a flood in scenario d2).",
+    p.append(text(40, foot + 39, "If the Guardian answers untrusted in step 2 or 3, nothing is dispatched and the reading is held at the gate with its reason (shown for a flood in scenario t13).",
                   size=12, fill=INK2))
     return svg(1100, foot + 66, title, "".join(p))
 

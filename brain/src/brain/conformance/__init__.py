@@ -63,7 +63,7 @@ async def run_twin(target: Any, secret: str | None = None, *, brain_secret: str 
         if "admin_load_scenario" in tools:  # a stand-in that must be told to start streaming; a real Twin just streams
             from brain.scenario import load_scenario
 
-            scenario = load_scenario("d3")
+            scenario = load_scenario("t14")
             await client.call_tool("admin_load_scenario", {"scenario": {k: scenario[k] for k in ("id", "topology", "events", "on_dispatch") if k in scenario}, "speed": 0})
         readings: list[dict[str, Any]] = []
         cursor, shape_problem, advanced = 0, "", True

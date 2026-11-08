@@ -1,5 +1,5 @@
 {
-  "id": "d1",
+  "id": "t12",
   "name": "A calm day",
   "layers": [
     "Twin",
@@ -98,6 +98,6 @@
     }
   },
   "claim": "Proves: the Brain does not overreact to a normal city.",
-  "how_to_verify": "Visible on the timeline screen; log logs/d1-*.jsonl; `uv run brain scenario d1`.",
+  "how_to_verify": "Visible on the timeline screen; log logs/t12-*.jsonl; `uv run brain scenario t12`.",
   "short": "Calm day"
 }

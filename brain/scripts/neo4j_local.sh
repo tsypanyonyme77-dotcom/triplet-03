@@ -8,7 +8,7 @@
 #   scripts/neo4j_local.sh reset --yes   # stop and delete the data (not the install)
 #
 # The password is NEO4J_PASSWORD, read from the environment or from .env; `install` makes a random one and appends it to .env
-# if there is none. Nothing here prints it. Then: uv run --env-file .env brain scenario d3 --graph neo4j
+# if there is none. Nothing here prints it. Then: uv run --env-file .env brain scenario t14 --graph neo4j
 set -euo pipefail
 
 VERSION="${NEO4J_VERSION:-5.26.32}"

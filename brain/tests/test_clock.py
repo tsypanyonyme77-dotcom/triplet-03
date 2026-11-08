@@ -44,7 +44,7 @@ async def run_b2(folder, **options):
 
         os.environ.setdefault(name, value)
     folder.mkdir()
-    result = await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=folder, **options)
+    result = await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=folder, **options)
     log = next(p for p in folder.glob("*.jsonl") if not p.name.endswith(".inputs.jsonl"))
     return result, log.read_bytes()
 

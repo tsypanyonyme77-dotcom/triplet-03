@@ -108,7 +108,7 @@ async def _edge_attacks(client: httpx.AsyncClient, tokens: dict[str, str], *, fl
     await attack("A8", "a request with no token", None, lambda: client.get("/api/scenarios"), (401,), "require a token for every route off loopback")
     await attack("A9", "a request with a made-up token", None, lambda: client.get("/api/scenarios", headers={"Authorization": "Bearer made-up"}), (401,), "compare tokens in constant time and refuse unknown ones")
     await attack("A10", "a read token tries to push an event", "read", post({**EVENT, "type": "twin.x", "source": "twin"}, "read"), (403,), "push needs the push scope")
-    await attack("A11", "a read token tries to run a scenario", "read", lambda: client.post("/api/scenarios/d3/run", headers=bearer("read")), (403,), "running scenarios needs admin")
+    await attack("A11", "a read token tries to run a scenario", "read", lambda: client.post("/api/scenarios/t14/run", headers=bearer("read")), (403,), "running scenarios needs admin")
     await attack("A12", "a read token tries to approve an action", "read", lambda: client.post("/api/approvals/pending-000001", json={"decision": "grant"}, headers=bearer("read")), (403,), "approving needs the approve scope")
     await attack("A13", "the Twin pushes as the Guardian", "twin", post({**EVENT, "type": "guardian.verdict.issued", "source": "guardian"}, "twin"), (403,), "a push token names its partner")
     await attack("A14", "the Twin pushes a brain.* event", "twin", post({**EVENT, "type": "brain.action.result", "source": "twin"}, "twin"), (403, 422), "brain.* belongs to the Brain")

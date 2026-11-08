@@ -7,7 +7,7 @@
 .DEFAULT_GOAL := help
 SHELL := /bin/bash
 
-# S: a scenario id for the targets that take one (make scenario S=d3).
+# S: a scenario id for the targets that take one (make scenario S=t14).
 # FLAGS: extra flags for brain scenario, e.g. FLAGS="--no-departments".
 S ?= d3
 FLAGS ?=
@@ -36,13 +36,13 @@ setup: ## install the Python environment with every extra (llm, mqtt, otel); mak
 serve: ## the timeline screen at http://127.0.0.1:8080 (number key runs a scenario, C opens the canopy); closed incidents are kept in state/episodes so Sleep now works
 > uv run brain serve --episodes state/episodes --learned state/learned
 
-scenario: ## one scenario in process, fast: make scenario S=d3
+scenario: ## one scenario in process, fast: make scenario S=t14
 > uv run brain scenario $(S) --inproc --speed 0 $(FLAGS)
 
 scenarios: ## all 38 scenarios in process, with the temporal promises and every frozen baseline (about 30 s)
 > uv run brain bench --quick
 
-llm: ## one scenario with the agent teams on a real model (needs GROQ_API_KEY in .env): make llm S=d3
+llm: ## one scenario with the agent teams on a real model (needs GROQ_API_KEY in .env): make llm S=t14
 > uv run $(ENVFILE) brain scenario $(S) --llm --speed 0.5 $(FLAGS)
 
 llm-all: ## every department's agents on the real model, spaced for the free plan (Police, Fire, Utilities, Mobility)
@@ -129,7 +129,7 @@ full: image ## the Brain, mock Twin and Guardian, Neo4j (city graph) and Qdrant 
 obs: image ## `make full` plus Traefik, Prometheus, Grafana, Loki and Jaeger (docs/OBSERVABILITY.md): http://brain.localhost:8000 and http://grafana.localhost:8000
 > scripts/up.sh full obs
 
-full-scenario: ## run one scenario inside the full stack and print its verdict: make full-scenario S=d4 (FLAGS="--llm --speed 0.5" for real models)
+full-scenario: ## run one scenario inside the full stack and print its verdict: make full-scenario S=t15 (FLAGS="--llm --speed 0.5" for real models)
 > docker compose exec -T brain brain scenario $(S) --no-spawn --config deploy/compose/partners.full.yaml $(FLAGS) | grep -E "desk\.|agent.fallback|^(PASSED|FAILED)" | cut -c1-200
 
 full-agents: ## every department's agents on the real model in the full stack, 65 s apart (the crime, the fake flood and the layer-down flood)

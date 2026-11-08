@@ -16,7 +16,7 @@ def blocks(result):
 
 
 async def test_a_pursuit_is_not_helped_by_taking_a_unit_from_the_only_incident_that_has_one():
-    scenario = load_scenario("d3")  # one robbery: nothing to take, nothing to fix
+    scenario = load_scenario("t14")  # one robbery: nothing to take, nothing to fix
 
     result = await play(scenario, policy=PREEMPT)
 

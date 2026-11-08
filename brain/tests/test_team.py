@@ -111,7 +111,7 @@ def choose(*picks):
 async def test_a_zone_no_tool_produced_is_rejected_and_the_revision_is_accepted():
     crew = FakeCrew(tactician=offer(["zone-02", "zone-06"], ["zone-04", "zone-08"]), chief=choose(("perimeter", ["POL-PB-002"])))
 
-    result = await play(load_scenario("d3"), crew)
+    result = await play(load_scenario("t14"), crew)
 
     rejected = result.sink.of("brain.plan.rejected")
     assert len(rejected) == 1 and "zone-02 was not produced by a containment or escape tool" in rejected[0].data["problems"]
@@ -123,7 +123,7 @@ async def test_a_zone_no_tool_produced_is_rejected_and_the_revision_is_accepted(
 async def test_a_plan_that_stays_wrong_is_dropped_and_the_reflex_decision_stands():
     crew = FakeCrew(tactician=offer(["zone-02"]), chief=choose(("perimeter", ["POL-PB-002"])))
 
-    result = await play(load_scenario("d3"), crew)
+    result = await play(load_scenario("t14"), crew)
 
     assert len(result.sink.of("brain.plan.rejected")) == 2  # the original and one revision
     assert result.sink.of("brain.plan.verified") == []
@@ -144,7 +144,7 @@ async def test_the_chief_cannot_commit_the_reserve():
 
     crew = FakeCrew(tactician=tactician, chief=choose(("exit-seal", ["POL-PB-003"]), ("tight", ["POL-PB-002"])))
 
-    result = await play(load_scenario("d3"), crew)
+    result = await play(load_scenario("t14"), crew)
 
     problems = result.sink.of("brain.plan.rejected")[0].data["problems"]
     assert problems == ["3 units requested for the perimeter but only 2 can be committed while keeping 1 in reserve"]
@@ -162,14 +162,14 @@ async def test_the_chief_cannot_commit_the_reserve():
 async def test_decisions_without_a_real_playbook_basis_are_rejected(pick, problem):
     crew = FakeCrew(tactician=offer(["zone-04", "zone-08"]), chief=choose(pick))
 
-    result = await play(load_scenario("d3"), crew)
+    result = await play(load_scenario("t14"), crew)
 
     assert problem in result.sink.of("brain.plan.rejected")[0].data["problems"]
     assert modes(result) == ["pursuit"]
 
 
 async def test_plan_decisions_cite_the_playbook_and_the_graph_remembers():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     contain = [e.data for e in result.sink.of("brain.decision.made") if e.data["params"].get("mode") == "contain"]
     assert len(contain) == 2
@@ -220,7 +220,7 @@ async def test_a_role_whose_model_fails_is_replaced_by_its_stand_in():
     async def broken(brief, tools):
         raise ConnectionError("model unreachable")
 
-    result = await play(load_scenario("d3"), FakeCrew(analyst=broken))
+    result = await play(load_scenario("t14"), FakeCrew(analyst=broken))
 
     fallback = result.sink.of("brain.agent.fallback")[0].data
     assert fallback["role"] == "analyst" and "model unreachable" in fallback["error"]
@@ -237,7 +237,7 @@ def slow(seconds):
 
 
 async def test_the_reading_stream_does_not_wait_for_a_deliberating_team():
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     scenario["on_dispatch"] = {"pursuit": [{"after_ms": 500, "state": "en_route"}, {"after_ms": 1500, "state": "pursuing"}]}
 
     result = await play(scenario, FakeCrew(analyst=slow(0.3)), models=models(head_start_s=0.05))
@@ -254,7 +254,7 @@ async def test_the_reading_stream_does_not_wait_for_a_deliberating_team():
 
 
 async def test_a_team_still_thinking_when_the_incident_closes_adds_nothing():
-    result = await play(load_scenario("d3"), FakeCrew(analyst=slow(0.3)), models=models(head_start_s=0.05))
+    result = await play(load_scenario("t14"), FakeCrew(analyst=slow(0.3)), models=models(head_start_s=0.05))
 
     order = result.sink.types()
     assert order.index("brain.incident.closed") < order.index("brain.case.reviewed")
@@ -263,7 +263,7 @@ async def test_a_team_still_thinking_when_the_incident_closes_adds_nothing():
 
 
 async def test_a_deliberation_over_budget_is_abandoned():
-    result = await play(load_scenario("d3"), FakeCrew(analyst=slow(0.5)), models=models(budget_s=0.05, head_start_s=0))
+    result = await play(load_scenario("t14"), FakeCrew(analyst=slow(0.5)), models=models(budget_s=0.05, head_start_s=0))
 
     finished = result.sink.of("brain.deliberation.finished")[0].data
     assert finished["status"] == "timeout"
@@ -413,7 +413,7 @@ async def test_llm_crew_runs_tool_calling_agents_with_structured_answers():
         structured_output="tool", model_factory=lambda spec, **options: built[spec],
     )
 
-    result = await play(load_scenario("d3"), crew)
+    result = await play(load_scenario("t14"), crew)
 
     assert result.sink.of("brain.agent.fallback") == []
     assert result.sink.of("brain.deliberation.finished")[0].data["modes"] == {"analyst": "llm", "tactician": "llm", "chief": "llm"}
@@ -428,7 +428,7 @@ async def test_a_fast_team_plans_on_the_picture_that_triggered_it():
     """Every event is released at once, yet the plan is the same every time: the loop gives the team a head start."""
     plans = []
     for _ in range(6):
-        result = await play(load_scenario("d3"))
+        result = await play(load_scenario("t14"))
         plans.append(result.sink.of("brain.plan.verified")[0].data["contain_zones"])
         assert result.passed, [c.name for c in result.checks if not c.passed]
 
@@ -438,7 +438,7 @@ async def test_a_fast_team_plans_on_the_picture_that_triggered_it():
 async def test_the_head_start_is_bounded():
     import time
 
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     scenario["on_dispatch"] = {"pursuit": [{"after_ms": 500, "state": "en_route"}]}  # the pursuit stays open
     started = time.monotonic()
     result = await play(scenario, FakeCrew(analyst=slow(0.6)), models=models(head_start_s=0.1))

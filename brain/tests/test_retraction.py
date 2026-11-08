@@ -47,7 +47,7 @@ async def test_the_api_accepts_a_retraction_and_rejects_an_unknown_reading():
     hub = Hub(PartnersConfig(), Policy(), ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}}), mocks="inproc", log_dir=None)
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app(hub)), base_url="http://brain") as client:
         assert (await client.post("/api/retractions", json={"reading_id": "x#1", "reason": "r"})).status_code == 404
-        await client.post("/api/scenarios/d4/run", params={"speed": 0})
+        await client.post("/api/scenarios/t15/run", params={"speed": 0})
         await hub.wait()
 
         accepted = await client.post("/api/retractions", json={"reading_id": "wl-01-01#5", "reason": "found faulty"})
@@ -91,7 +91,7 @@ async def test_a_retraction_lists_the_episodes_and_rules_that_rest_on_the_readin
     await Sleeper(tmp_path / "episodes", tmp_path / "learned", Policy(), Timeline([MemorySink()]), suite=SUITE, held_out=[]).run()
     partners = PartnersConfig(brain=BrainConfig(episodes_dir=str(tmp_path / "episodes"), learned_dir=str(tmp_path / "learned")))
     holder = Retractor()
-    result = await play(load_scenario("d3"), partners=partners, on_service=lambda s: setattr(holder, "service", s))
+    result = await play(load_scenario("t14"), partners=partners, on_service=lambda s: setattr(holder, "service", s))
 
     holder.service.retract("cam-07-02#1", "the camera was found faulty")
 

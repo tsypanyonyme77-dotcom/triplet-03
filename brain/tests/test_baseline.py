@@ -6,7 +6,7 @@ from brain.baseline import differences, measure
 
 
 async def test_measuring_b2_reports_the_pursuit_decision():
-    result = await measure("d3")
+    result = await measure("t14")
 
     assert result["passed"]
     dispatches = [d for d in result["decisions"] if d["action"] == "dispatch_unit"]
@@ -15,7 +15,7 @@ async def test_measuring_b2_reports_the_pursuit_decision():
 
 
 async def test_a_calm_day_has_no_decisions_and_no_first_action():
-    result = await measure("d1")
+    result = await measure("t12")
 
     assert result["decisions"] == []
     assert result["first_action_ms"] is None
@@ -23,17 +23,17 @@ async def test_a_calm_day_has_no_decisions_and_no_first_action():
 
 
 async def test_differences_ignore_timings_but_catch_a_changed_decision():
-    saved = {"d3": await measure("d3")}
+    saved = {"t14": await measure("t14")}
 
     retimed = copy.deepcopy(saved)
-    retimed["d3"]["first_action_ms"] = 9999.0
-    retimed["d3"]["events"] += 7
+    retimed["t14"]["first_action_ms"] = 9999.0
+    retimed["t14"]["events"] += 7
     assert differences(saved, retimed) == []
 
     changed = copy.deepcopy(saved)
-    changed["d3"]["decisions"][0]["params"]["zone_id"] = "zone-99"
+    changed["t14"]["decisions"][0]["params"]["zone_id"] = "zone-99"
     lines = differences(saved, changed)
     assert len(lines) == 1
-    assert "d3" in lines[0] and "decisions" in lines[0]
+    assert "t14" in lines[0] and "decisions" in lines[0]
 
 

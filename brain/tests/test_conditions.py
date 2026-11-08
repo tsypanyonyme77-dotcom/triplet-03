@@ -94,7 +94,7 @@ async def test_a_fire_needs_two_independent_sources_before_a_unit_is_sent():
 
 
 async def test_crime_scenarios_do_not_touch_the_condition_path():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     assert result.passed, failed(result)
     rules = " ".join(e.data["justification"] for e in result.sink.of("brain.decision.made"))
@@ -169,6 +169,6 @@ async def test_a_fire_unit_that_reports_it_is_returning_is_released_and_the_fire
 
 
 async def test_a_police_unit_that_is_recalled_and_reports_returning_changes_nothing_more():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     assert [e.data["outcome"] for e in result.sink.of("brain.incident.closed")] == ["apprehended"]

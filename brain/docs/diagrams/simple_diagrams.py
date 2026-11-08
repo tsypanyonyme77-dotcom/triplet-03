@@ -3,7 +3,7 @@
     uv run python docs/diagrams/simple_diagrams.py
 
 One small vocabulary throughout: a card with an icon, a labelled arrow, and a swimlane for an execution flow. The parts carry the same
-plain names as the screen. The flows are the Test Book's real scenarios (d2 to d4) (`uv run brain scenario d3 --inproc --speed 0` shows the same
+plain names as the screen. The flows are the Test Book's real scenarios (d2 to d4) (`uv run brain scenario t14 --inproc --speed 0` shows the same
 order); numbers in them come from those runs. The SVG files stand alone for the report and the deck; the page themes the same drawings.
 """
 
@@ -246,7 +246,7 @@ def inside() -> D:
 
 def two_answers() -> D:
     d = D("two-answers", "Two ways to answer", "One crime, two answers: a written rule sends the pursuit in tens of milliseconds, then a team of agents plans the perimeter. That took 0.1 to 0.5 s with the scripted stand-ins in our runs, and takes longer on a real model. Both stop at the same gate.")
-    i = d.card(10, 110, "alert", "A suspect is seen", "the crime in scenario d3", "bad", 190)
+    i = d.card(10, 110, "alert", "A suspect is seen", "the crime in scenario t14", "bad", 190)
     a = d.card(310, 0, "bolt", "Instant rule", "rule POL-001: pursue", "brain", 210)
     b = d.card(310, 200, "agents", "Team of agents", "Analyst, Tactician, Chief", "brain", 210)
     g = d.card(660, 110, "lock", "Safety gate", "the same checks for both", "gate", 190)
@@ -541,7 +541,7 @@ def flow_flood_attack() -> D:
 
 def flow_failure() -> D:
     d = D("flow-failures", "Example runs: when something breaks", "Each failure has a planned answer, and each is checked by a test or a scenario. The rule is the same throughout: lose a helper and carry on; lose trust and stop acting.")
-    rows = [("shield", "Guardian stops answering", "d4", "guardian", "stop", "Low-impact actions only, and it says so once", "bad", "Safe: no high-impact action on unjudged data"),
+    rows = [("shield", "Guardian stops answering", "t15", "guardian", "stop", "Low-impact actions only, and it says so once", "bad", "Safe: no high-impact action on unjudged data"),
             ("city", "Twin unreachable mid-pursuit", "tests", "twin", "loop", "Says it is degraded, asks again every 2 s", "brain", "Twin returns; the run carries on"),
             ("qdrant", "Vector store stops", "tests", "store", "book", "Copy in memory answers the search", "good", "Decisions do not change; the switch is logged"),
             ("groq", "A model call fails", "real runs", "store", "agents", "Scripted stand-in takes the role", "good", "Scenario still passes; fallback logged"),

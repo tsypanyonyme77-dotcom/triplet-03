@@ -6,6 +6,17 @@
    "where": "src/brain/adapters/guardian_rest.py:20"
   },
   {
+   "id": "class:brain.adapters.guardian_v1.GuardianGateway",
+   "kind": "class",
+   "where": "src/brain/adapters/guardian_v1.py:145",
+   "summary": "The Twin as the gate sees it: audited actions go through the Guardian, everything else to the real Twin."
+  },
+  {
+   "id": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "kind": "class",
+   "where": "src/brain/adapters/guardian_v1.py:95"
+  },
+  {
    "id": "class:brain.adapters.twin_http.HttpTwinAdapter",
    "kind": "class",
    "where": "src/brain/adapters/twin_http.py:24",
@@ -143,7 +154,7 @@
   {
    "id": "class:brain.config.ApprovalConfig",
    "kind": "class",
-   "where": "src/brain/config.py:156",
+   "where": "src/brain/config.py:162",
    "summary": "High-impact calls (a valve, the grid). `off`: the gate holds them. `human`: they wait for a signed approval from a person.",
    "bases": [
     "BaseModel"
@@ -152,7 +163,7 @@
   {
    "id": "class:brain.config.BrainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:83",
+   "where": "src/brain/config.py:89",
    "bases": [
     "BaseModel"
    ]
@@ -160,7 +171,7 @@
   {
    "id": "class:brain.config.DesksPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:393",
+   "where": "src/brain/config.py:400",
    "summary": "What the department desks (Fire, Ambulance and medical, Traffic control, Disaster response, Utilities) may tell the public: the words are fixed here, never written by a model.",
    "bases": [
     "BaseModel"
@@ -169,7 +180,7 @@
   {
    "id": "class:brain.config.Effect",
    "kind": "class",
-   "where": "src/brain/config.py:301",
+   "where": "src/brain/config.py:308",
    "summary": "What one of the Brain's own actions is known to do to what a sensor reads, so the change is not a surprise.",
    "bases": [
     "BaseModel"
@@ -178,7 +189,7 @@
   {
    "id": "class:brain.config.EmbeddingsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:447",
+   "where": "src/brain/config.py:454",
    "bases": [
     "BaseModel"
    ]
@@ -186,7 +197,7 @@
   {
    "id": "class:brain.config.ExplainConfig",
    "kind": "class",
-   "where": "src/brain/config.py:471",
+   "where": "src/brain/config.py:478",
    "bases": [
     "BaseModel"
    ]
@@ -203,7 +214,7 @@
   {
    "id": "class:brain.config.ForwardPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:310",
+   "where": "src/brain/config.py:317",
    "summary": "How the Brain predicts a numeric sensor from its own history, and how far off a reading must be to count as a surprise.",
    "bases": [
     "BaseModel"
@@ -212,7 +223,7 @@
   {
    "id": "class:brain.config.GatePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:225",
+   "where": "src/brain/config.py:232",
    "bases": [
     "BaseModel"
    ]
@@ -220,7 +231,7 @@
   {
    "id": "class:brain.config.GraphConfig",
    "kind": "class",
-   "where": "src/brain/config.py:104",
+   "where": "src/brain/config.py:110",
    "bases": [
     "BaseModel"
    ]
@@ -236,7 +247,7 @@
   {
    "id": "class:brain.config.KeyConfig",
    "kind": "class",
-   "where": "src/brain/config.py:137",
+   "where": "src/brain/config.py:143",
    "summary": "One signing key of a peer. The first key listed for a peer is its current one.",
    "bases": [
     "BaseModel"
@@ -245,7 +256,7 @@
   {
    "id": "class:brain.config.KnowledgeConfig",
    "kind": "class",
-   "where": "src/brain/config.py:452",
+   "where": "src/brain/config.py:459",
    "summary": "How retrieval ranks. Both switches are off (0) by default, so the ranking is the plain fusion of the two searches.",
    "bases": [
     "BaseModel"
@@ -254,7 +265,7 @@
   {
    "id": "class:brain.config.LearningPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:347",
+   "where": "src/brain/config.py:354",
    "summary": "Sleep: what may be compiled from episodes into reflexes, and how much.",
    "bases": [
     "BaseModel"
@@ -263,7 +274,7 @@
   {
    "id": "class:brain.config.MathConfig",
    "kind": "class",
-   "where": "src/brain/config.py:373",
+   "where": "src/brain/config.py:380",
    "summary": "Estimators that look ahead of a threshold.",
    "bases": [
     "BaseModel"
@@ -272,7 +283,7 @@
   {
    "id": "class:brain.config.McpConfig",
    "kind": "class",
-   "where": "src/brain/config.py:149",
+   "where": "src/brain/config.py:155",
    "summary": "The Brain's own MCP server (read-only tools for other teams' agents), mounted at `/mcp` on the API port.",
    "bases": [
     "BaseModel"
@@ -281,7 +292,7 @@
   {
    "id": "class:brain.config.ModelsConfig",
    "kind": "class",
-   "where": "src/brain/config.py:489",
+   "where": "src/brain/config.py:496",
    "bases": [
     "BaseModel"
    ]
@@ -298,7 +309,7 @@
   {
    "id": "class:brain.config.ObservabilityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:165",
+   "where": "src/brain/config.py:171",
    "summary": "Where the Brain sends its spans. Metrics at `/metrics` need no setting; spans need a collector and the optional packages (`uv sync --extra otel`).",
    "bases": [
     "BaseModel"
@@ -307,7 +318,7 @@
   {
    "id": "class:brain.config.OptimiserConfig",
    "kind": "class",
-   "where": "src/brain/config.py:360",
+   "where": "src/brain/config.py:367",
    "summary": "Solvers that return their answer with a certificate. All on (6 Nov); `brain baseline --plain` and the `--set` flags measure the Brain with them off.",
    "bases": [
     "BaseModel"
@@ -316,7 +327,7 @@
   {
    "id": "class:brain.config.OrchestrationConfig",
    "kind": "class",
-   "where": "src/brain/config.py:384",
+   "where": "src/brain/config.py:391",
    "summary": "The planning supervisor (a LangGraph graph with checkpoints). On: it opens the emergency corridor after a fire or ambulance dispatch.",
    "bases": [
     "BaseModel"
@@ -325,7 +336,7 @@
   {
    "id": "class:brain.config.PartnersConfig",
    "kind": "class",
-   "where": "src/brain/config.py:172",
+   "where": "src/brain/config.py:179",
    "bases": [
     "BaseModel"
    ]
@@ -333,7 +344,7 @@
   {
    "id": "class:brain.config.Policy",
    "kind": "class",
-   "where": "src/brain/config.py:410",
+   "where": "src/brain/config.py:417",
    "bases": [
     "BaseModel"
    ]
@@ -341,7 +352,7 @@
   {
    "id": "class:brain.config.ScoringPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:188",
+   "where": "src/brain/config.py:195",
    "bases": [
     "BaseModel"
    ]
@@ -349,7 +360,7 @@
   {
    "id": "class:brain.config.SecurityConfig",
    "kind": "class",
-   "where": "src/brain/config.py:118",
+   "where": "src/brain/config.py:124",
    "summary": "Who may call the API. `auto` requires tokens only when the server listens off loopback (`brain serve` decides).",
    "bases": [
     "BaseModel"
@@ -358,7 +369,7 @@
   {
    "id": "class:brain.config.TacticsPolicy",
    "kind": "class",
-   "where": "src/brain/config.py:251",
+   "where": "src/brain/config.py:258",
    "bases": [
     "BaseModel"
    ]
@@ -366,7 +377,7 @@
   {
    "id": "class:brain.config.TeamConfig",
    "kind": "class",
-   "where": "src/brain/config.py:424",
+   "where": "src/brain/config.py:431",
    "bases": [
     "BaseModel"
    ]
@@ -383,7 +394,7 @@
   {
    "id": "class:brain.config.TriagePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:213",
+   "where": "src/brain/config.py:220",
    "bases": [
     "BaseModel"
    ]
@@ -399,7 +410,7 @@
   {
    "id": "class:brain.config.Window",
    "kind": "class",
-   "where": "src/brain/config.py:183",
+   "where": "src/brain/config.py:190",
    "bases": [
     "BaseModel"
    ]
@@ -407,7 +418,7 @@
   {
    "id": "class:brain.config.WorkspacePolicy",
    "kind": "class",
-   "where": "src/brain/config.py:262",
+   "where": "src/brain/config.py:269",
    "summary": "Scarce attention: how many incidents may ask the agent team for deliberation at once, and how they are ranked.",
    "bases": [
     "BaseModel"
@@ -1450,7 +1461,7 @@
   {
    "id": "class:brain.observability.Metrics",
    "kind": "class",
-   "where": "src/brain/observability.py:46"
+   "where": "src/brain/observability.py:64"
   },
   {
    "id": "class:brain.onboard.Proposal",
@@ -1816,6 +1827,11 @@
    "id": "class:tests.test_guardian_fault.Answering",
    "kind": "class",
    "where": "tests/test_guardian_fault.py:9"
+  },
+  {
+   "id": "class:tests.test_guardian_v1.FakeTwin",
+   "kind": "class",
+   "where": "tests/test_guardian_v1.py:114"
   },
   {
    "id": "class:tests.test_journal.FakeTwin",
@@ -2684,9 +2700,50 @@
    "kind": "event"
   },
   {
+   "id": "function:brain.adapters.guardian_v1.canonical",
+   "kind": "function",
+   "where": "src/brain/adapters/guardian_v1.py:32",
+   "signature": "canonical(body)",
+   "summary": "Their canonical form (INTERFACE.md section 3): sorted keys, no whitespace, UTF-8."
+  },
+  {
+   "id": "function:brain.adapters.guardian_v1.from_guardian_answer",
+   "kind": "function",
+   "where": "src/brain/adapters/guardian_v1.py:80",
+   "signature": "from_guardian_answer(call, answer)",
+   "summary": "`forwarded` with an ok Twin reply is a success; anything else is a refusal that keeps the Guardian's reasons."
+  },
+  {
+   "id": "function:brain.adapters.guardian_v1.sign",
+   "kind": "function",
+   "where": "src/brain/adapters/guardian_v1.py:37",
+   "signature": "sign(body, secret)"
+  },
+  {
+   "id": "function:brain.adapters.guardian_v1.to_guardian_call",
+   "kind": "function",
+   "where": "src/brain/adapters/guardian_v1.py:53",
+   "signature": "to_guardian_call(call, dispatcher_id)",
+   "summary": "Our actuator call in theirs. Their names: `set_grid_state` and `set_signal` (state + duration_s); the unit's type, mode and target ride in `params`. Their registry knows one dispatcher (`dispatch-central`), ours one per station: with `dispatcher_id` set, every dispatch goes to it and names its station in `params`."
+  },
+  {
+   "id": "function:brain.adapters.guardian_v1.to_verdict",
+   "kind": "function",
+   "where": "src/brain/adapters/guardian_v1.py:41",
+   "signature": "to_verdict(raw)",
+   "summary": "Their verdict in our model: `ts` is `issued_at`, `trust_score` is `confidence`, `suspect` is `suspicious`. The rest (layers, threat level, the action they took) stays on the verdict as extra fields, where the explanations and the screen can read it."
+  },
+  {
+   "id": "function:brain.adapters.open_guardian",
+   "kind": "function",
+   "where": "src/brain/adapters/__init__.py:20",
+   "signature": "open_guardian(config, client)",
+   "summary": "The Guardian adapter `guardian.adapter` names (`rest` or `v1`), on an already open client. A v1 Guardian's verdicts are checked against its signing key; if that key is named but not set the Brain stops here rather than trust unsigned verdicts."
+  },
+  {
    "id": "function:brain.adapters.open_twin",
    "kind": "function",
-   "where": "src/brain/adapters/__init__.py:10",
+   "where": "src/brain/adapters/__init__.py:11",
    "signature": "open_twin(config, stop_when_done)",
    "summary": "The Twin adapter `twin.adapter` names (`mcp`, `http` or `mqtt`), pointed at `twin.url`, with the TLS settings if any."
   },
@@ -2719,6 +2776,13 @@
    "summary": "The `ssl_*` options for the listener. With `ca` set, a client without a certificate from that authority is refused."
   },
   {
+   "id": "function:brain.adapters.with_gateway",
+   "kind": "function",
+   "where": "src/brain/adapters/__init__.py:33",
+   "signature": "with_gateway(twin, guardian, config)",
+   "summary": "For a v1 Guardian that audits actuator calls: the Twin as the gate sees it. Anything else leaves the Twin as it is."
+  },
+  {
    "id": "function:brain.api._sse",
    "kind": "function",
    "where": "src/brain/api/__init__.py:95",
@@ -2727,7 +2791,7 @@
   {
    "id": "function:brain.api.create_app",
    "kind": "function",
-   "where": "src/brain/api/__init__.py:265",
+   "where": "src/brain/api/__init__.py:266",
    "signature": "create_app(hub)"
   },
   {
@@ -3085,45 +3149,45 @@
   {
    "id": "function:brain.commands.run._warm",
    "kind": "function",
-   "where": "src/brain/commands/run.py:185",
+   "where": "src/brain/commands/run.py:186",
    "signature": "async _warm(hub)",
    "summary": "Play the calm day once, unseen, so the first click on the screen does not wait for the playbook to be embedded."
   },
   {
    "id": "function:brain.commands.run.cmd_env",
    "kind": "function",
-   "where": "src/brain/commands/run.py:227",
+   "where": "src/brain/commands/run.py:228",
    "signature": "cmd_env(args)"
   },
   {
    "id": "function:brain.commands.run.cmd_export_schemas",
    "kind": "function",
-   "where": "src/brain/commands/run.py:234",
+   "where": "src/brain/commands/run.py:235",
    "signature": "cmd_export_schemas(args)"
   },
   {
    "id": "function:brain.commands.run.cmd_llm_check",
    "kind": "function",
-   "where": "src/brain/commands/run.py:255",
+   "where": "src/brain/commands/run.py:256",
    "signature": "cmd_llm_check(args)",
    "summary": "Is the hosted model reachable, is the key good and is there quota left? One one-token call per distinct Groq model. Exit 1 if any fails."
   },
   {
    "id": "function:brain.commands.run.cmd_rehearse",
    "kind": "function",
-   "where": "src/brain/commands/run.py:244",
+   "where": "src/brain/commands/run.py:245",
    "signature": "cmd_rehearse(args)"
   },
   {
    "id": "function:brain.commands.run.cmd_replay",
    "kind": "function",
-   "where": "src/brain/commands/run.py:195",
+   "where": "src/brain/commands/run.py:196",
    "signature": "cmd_replay(args)"
   },
   {
    "id": "function:brain.commands.run.cmd_repro",
    "kind": "function",
-   "where": "src/brain/commands/run.py:216",
+   "where": "src/brain/commands/run.py:217",
    "signature": "cmd_repro(args)"
   },
   {
@@ -3141,7 +3205,7 @@
   {
    "id": "function:brain.commands.run.cmd_serve",
    "kind": "function",
-   "where": "src/brain/commands/run.py:138",
+   "where": "src/brain/commands/run.py:139",
    "signature": "cmd_serve(args)"
   },
   {
@@ -3195,35 +3259,35 @@
   {
    "id": "function:brain.config._with_partner_addresses",
    "kind": "function",
-   "where": "src/brain/config.py:535",
+   "where": "src/brain/config.py:542",
    "signature": "_with_partner_addresses(partners)",
    "summary": "`TWIN_URL` and `GUARDIAN_URL` (the triplet's root `.env`) override the addresses in the file, so one stack-wide variable points the Brain at a partner. A bare `http://host:port` for an MCP Twin means the MCP endpoint at `/mcp`."
   },
   {
    "id": "function:brain.config.fingerprint",
    "kind": "function",
-   "where": "src/brain/config.py:549",
+   "where": "src/brain/config.py:556",
    "signature": "fingerprint(*models)",
    "summary": "Short stable hash of the behaviour-defining config, stamped on every decision."
   },
   {
    "id": "function:brain.config.home",
    "kind": "function",
-   "where": "src/brain/config.py:518",
+   "where": "src/brain/config.py:525",
    "signature": "home()",
    "summary": "Project root: where `config/`, `scenarios/`, `mocks/` and `logs/` live."
   },
   {
    "id": "function:brain.config.load",
    "kind": "function",
-   "where": "src/brain/config.py:523",
+   "where": "src/brain/config.py:530",
    "signature": "load(name, path)",
    "summary": "Load `config/<name>.yaml` (or an explicit path); fall back to built-in defaults."
   },
   {
    "id": "function:brain.config.secret",
    "kind": "function",
-   "where": "src/brain/config.py:545",
+   "where": "src/brain/config.py:552",
    "signature": "secret(env_name)"
   },
   {
@@ -4757,15 +4821,22 @@
   {
    "id": "function:brain.observability._labels",
    "kind": "function",
-   "where": "src/brain/observability.py:19",
+   "where": "src/brain/observability.py:18",
    "signature": "_labels()"
+  },
+  {
+   "id": "function:brain.observability._neo4j_answers",
+   "kind": "function",
+   "where": "src/brain/observability.py:25",
+   "signature": "_neo4j_answers(graph, timeout)",
+   "summary": "1 when Neo4j accepts the Brain's login. The port answering is not enough: a wrong password answers too, and the Brain then runs in memory without anyone noticing. The login is tried once every 30 s, so a wrong password does not keep Neo4j's own lock-out (three failures) running against the people logging in."
   },
   {
    "id": "function:brain.observability.store_status",
    "kind": "function",
-   "where": "src/brain/observability.py:23",
+   "where": "src/brain/observability.py:46",
    "signature": "store_status(graph, timeout)",
-   "summary": "1 for each configured store that answers right now: Neo4j on its bolt port, a Qdrant server on /readyz (an embedded folder is always up). Neo4j Community has no metrics endpoint of its own, so this is how Prometheus learns whether the City Graph is being kept."
+   "summary": "1 for each configured store that answers right now: Neo4j when it accepts the Brain's login, a Qdrant server on /readyz (an embedded folder is always up). Neo4j Community has no metrics endpoint of its own, so this is how Prometheus learns whether the City Graph is being kept."
   },
   {
    "id": "function:brain.onboard._match_fields",
@@ -6042,6 +6113,24 @@
    "signature": "vocab()"
   },
   {
+   "id": "function:tests.test_guardian_v1.adapter",
+   "kind": "function",
+   "where": "tests/test_guardian_v1.py:17",
+   "signature": "adapter(handler)"
+  },
+  {
+   "id": "function:tests.test_guardian_v1.call",
+   "kind": "function",
+   "where": "tests/test_guardian_v1.py:84",
+   "signature": "call(action, params, actuator)"
+  },
+  {
+   "id": "function:tests.test_guardian_v1.signed",
+   "kind": "function",
+   "where": "tests/test_guardian_v1.py:21",
+   "signature": "signed()"
+  },
+  {
    "id": "function:tests.test_images.docker",
    "kind": "function",
    "where": "tests/test_images.py:12",
@@ -6876,6 +6965,49 @@
    "signature": "async is_quarantined(device_id)"
   },
   {
+   "id": "method:brain.adapters.guardian_v1.GuardianGateway.__init__",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:148",
+   "signature": "__init__(twin, guardian)"
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianGateway.call_actuator",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:151",
+   "signature": "async call_actuator(call)"
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianV1Adapter.__init__",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:96",
+   "signature": "__init__(base_url, client, api_key, hmac_secret, dispatcher_id, poll_s)"
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianV1Adapter.aclose",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:102",
+   "signature": "async aclose()"
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianV1Adapter.call_actuator",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:135",
+   "signature": "async call_actuator(call)"
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianV1Adapter.get_verdict",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:105",
+   "signature": "async get_verdict(reading, deadline_s)",
+   "summary": "The Twin pushes readings to the Guardian, so ours may not have arrived yet: `unknown` is asked again until the deadline, then it is no verdict."
+  },
+  {
+   "id": "method:brain.adapters.guardian_v1.GuardianV1Adapter.is_quarantined",
+   "kind": "method",
+   "where": "src/brain/adapters/guardian_v1.py:127",
+   "signature": "async is_quarantined(device_id)"
+  },
+  {
    "id": "method:brain.adapters.twin_http.HttpTwinAdapter.__init__",
    "kind": "method",
    "where": "src/brain/adapters/twin_http.py:27",
@@ -7149,7 +7281,7 @@
   {
    "id": "method:brain.api.Hub.wait",
    "kind": "method",
-   "where": "src/brain/api/__init__.py:260",
+   "where": "src/brain/api/__init__.py:261",
    "signature": "async wait()"
   },
   {
@@ -7712,7 +7844,7 @@
   {
    "id": "method:brain.config.ModelsConfig.options_for",
    "kind": "method",
-   "where": "src/brain/config.py:504",
+   "where": "src/brain/config.py:511",
    "signature": "options_for(role)",
    "summary": "Explicit options win; otherwise each provider gets the settings that suit it."
   },
@@ -9213,19 +9345,19 @@
   {
    "id": "method:brain.observability.Metrics.__init__",
    "kind": "method",
-   "where": "src/brain/observability.py:47",
+   "where": "src/brain/observability.py:65",
    "signature": "__init__()"
   },
   {
    "id": "method:brain.observability.Metrics.render",
    "kind": "method",
-   "where": "src/brain/observability.py:80",
+   "where": "src/brain/observability.py:98",
    "signature": "render(stores)"
   },
   {
    "id": "method:brain.observability.Metrics.write",
    "kind": "method",
-   "where": "src/brain/observability.py:56",
+   "where": "src/brain/observability.py:74",
    "signature": "write(event)"
   },
   {
@@ -10307,6 +10439,24 @@
    "signature": "async is_quarantined(device_id)"
   },
   {
+   "id": "method:tests.test_guardian_v1.FakeTwin.__init__",
+   "kind": "method",
+   "where": "tests/test_guardian_v1.py:115",
+   "signature": "__init__()"
+  },
+  {
+   "id": "method:tests.test_guardian_v1.FakeTwin.call_actuator",
+   "kind": "method",
+   "where": "tests/test_guardian_v1.py:118",
+   "signature": "async call_actuator(c)"
+  },
+  {
+   "id": "method:tests.test_guardian_v1.FakeTwin.get_topology",
+   "kind": "method",
+   "where": "tests/test_guardian_v1.py:122",
+   "signature": "async get_topology()"
+  },
+  {
    "id": "method:tests.test_journal.FakeTwin.call_actuator",
    "kind": "method",
    "where": "tests/test_journal.py:40",
@@ -10527,7 +10677,7 @@
    "id": "module:brain.adapters",
    "kind": "module",
    "path": "src/brain/adapters/__init__.py",
-   "lines": 19
+   "lines": 38
   },
   {
    "id": "module:brain.adapters.guardian_rest",
@@ -10535,6 +10685,13 @@
    "path": "src/brain/adapters/guardian_rest.py",
    "summary": "GuardianPort over REST.",
    "lines": 43
+  },
+  {
+   "id": "module:brain.adapters.guardian_v1",
+   "kind": "module",
+   "path": "src/brain/adapters/guardian_v1.py",
+   "summary": "The Guardian team's contract 1.0 (guardian/INTERFACE.md), behind the same two ports as every other partner.",
+   "lines": 157
   },
   {
    "id": "module:brain.adapters.tls",
@@ -10569,7 +10726,7 @@
    "kind": "module",
    "path": "src/brain/api/__init__.py",
    "summary": "The Brain's HTTP surface: a live event stream for the timeline screen, and read-only views of what the Brain knows and decided.",
-   "lines": 298
+   "lines": 299
   },
   {
    "id": "module:brain.api.routes",
@@ -10722,7 +10879,7 @@
    "kind": "module",
    "path": "src/brain/commands/run.py",
    "summary": "Commands that run the Brain: a scenario, the live loop, the screen, a replay, a repeatability check, and the schemas.",
-   "lines": 275
+   "lines": 276
   },
   {
    "id": "module:brain.commands.trust",
@@ -10736,7 +10893,7 @@
    "kind": "module",
    "path": "src/brain/config.py",
    "summary": "Configuration models. Defaults here equal the shipped YAML files in `config/`.",
-   "lines": 552
+   "lines": 559
   },
   {
    "id": "module:brain.conformance",
@@ -11244,7 +11401,7 @@
    "kind": "module",
    "path": "src/brain/observability.py",
    "summary": "Metrics in the Prometheus text format, computed from the timeline.",
-   "lines": 96
+   "lines": 114
   },
   {
    "id": "module:brain.onboard",
@@ -11532,7 +11689,7 @@
    "kind": "module",
    "path": "tests/test_api.py",
    "summary": "The HTTP surface, driven in-process.",
-   "lines": 272
+   "lines": 287
   },
   {
    "id": "module:tests.test_approval",
@@ -11630,7 +11787,7 @@
    "kind": "module",
    "path": "tests/test_compose.py",
    "summary": "The Compose file is the only deployment: keep its shape (profiles, loopback-only ports, the full config) from drifting.",
-   "lines": 71
+   "lines": 78
   },
   {
    "id": "module:tests.test_conditions",
@@ -11825,6 +11982,13 @@
    "path": "tests/test_guardian_fault.py",
    "summary": "A Guardian that answers for a while and then goes quiet, so a scenario can show the Brain carrying on without trust verdicts.",
    "lines": 37
+  },
+  {
+   "id": "module:tests.test_guardian_v1",
+   "kind": "module",
+   "path": "tests/test_guardian_v1.py",
+   "summary": "The Guardian team's contract 1.0: our adapter against payloads taken from their Interface Card and from their running Guardian.",
+   "lines": 162
   },
   {
    "id": "module:tests.test_images",
@@ -12701,19 +12865,19 @@
   {
    "id": "test:tests.test_api.test_a_sleep_can_be_started_from_the_api_and_its_events_reach_the_stream",
    "kind": "test",
-   "where": "tests/test_api.py:239",
+   "where": "tests/test_api.py:254",
    "signature": "async test_a_sleep_can_be_started_from_the_api_and_its_events_reach_the_stream(tmp_path)"
   },
   {
    "id": "test:tests.test_api.test_a_sleep_needs_both_folders_configured",
    "kind": "test",
-   "where": "tests/test_api.py:258",
+   "where": "tests/test_api.py:273",
    "signature": "async test_a_sleep_needs_both_folders_configured(tmp_path)"
   },
   {
    "id": "test:tests.test_api.test_an_unknown_default_view_is_refused_by_the_config",
    "kind": "test",
-   "where": "tests/test_api.py:214",
+   "where": "tests/test_api.py:229",
    "signature": "test_an_unknown_default_view_is_refused_by_the_config()"
   },
   {
@@ -12773,13 +12937,13 @@
   {
    "id": "test:tests.test_api.test_the_last_sleep_report_is_served_when_there_is_one_and_404_when_not",
    "kind": "test",
-   "where": "tests/test_api.py:224",
+   "where": "tests/test_api.py:239",
    "signature": "async test_the_last_sleep_report_is_served_when_there_is_one_and_404_when_not(tmp_path)"
   },
   {
    "id": "test:tests.test_api.test_the_model_status_can_be_read_and_the_scripted_team_chosen_and_handed_back",
    "kind": "test",
-   "where": "tests/test_api.py:264",
+   "where": "tests/test_api.py:279",
    "signature": "async test_the_model_status_can_be_read_and_the_scripted_team_chosen_and_handed_back(monkeypatch)"
   },
   {
@@ -12787,6 +12951,12 @@
    "kind": "test",
    "where": "tests/test_api.py:180",
    "signature": "async test_the_screen_can_explain_a_decision_and_replay_it_through_the_brain(api)"
+  },
+  {
+   "id": "test:tests.test_api.test_the_screen_offers_the_dashboard_only_when_one_is_configured",
+   "kind": "test",
+   "where": "tests/test_api.py:214",
+   "signature": "async test_the_screen_offers_the_dashboard_only_when_one_is_configured(tmp_path)"
   },
   {
    "id": "test:tests.test_api.test_the_stream_delivers_events_as_they_happen",
@@ -14793,6 +14963,84 @@
    "kind": "test",
    "where": "tests/test_guardian_fault.py:31",
    "signature": "async test_a_quiet_guardian_cannot_say_whether_a_device_is_quarantined()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_device_is_quarantined_when_the_containment_list_names_it",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:78",
+   "signature": "async test_a_device_is_quarantined_when_the_containment_list_names_it()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_gateway_that_cannot_reach_the_guardian_raises_a_twin_error",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:141",
+   "signature": "async test_a_gateway_that_cannot_reach_the_guardian_raises_a_twin_error()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_guardian_that_is_down_raises_unavailable",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:70",
+   "signature": "async test_a_guardian_that_is_down_raises_unavailable()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_reading_the_twin_has_not_pushed_yet_is_asked_about_again_until_it_arrives",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:50",
+   "signature": "async test_a_reading_the_twin_has_not_pushed_yet_is_asked_about_again_until_it_arrives()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_verdict_is_asked_for_by_sensor_and_sequence_with_our_api_key",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:38",
+   "signature": "async test_a_verdict_is_asked_for_by_sensor_and_sequence_with_our_api_key()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_verdict_that_never_leaves_unknown_is_no_verdict",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:58",
+   "signature": "async test_a_verdict_that_never_leaves_unknown_is_no_verdict()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_a_verdict_with_the_wrong_signature_is_not_used",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:63",
+   "signature": "async test_a_verdict_with_the_wrong_signature_is_not_used()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_our_actions_are_sent_under_their_names",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:88",
+   "signature": "test_our_actions_are_sent_under_their_names()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_our_signature_matches_the_one_in_their_interface_card",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:26",
+   "signature": "test_our_signature_matches_the_one_in_their_interface_card()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_the_gateway_sends_audited_actions_through_the_guardian_and_the_rest_to_the_twin",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:126",
+   "signature": "async test_the_gateway_sends_audited_actions_through_the_guardian_and_the_rest_to_the_twin()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_the_v1_adapter_is_chosen_by_config_and_refuses_to_run_without_the_key_that_checks_verdicts",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:149",
+   "signature": "test_the_v1_adapter_is_chosen_by_config_and_refuses_to_run_without_the_key_that_checks_verdicts(monkeypatch)"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_their_answer_becomes_our_result_and_a_block_keeps_its_reasons",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:104",
+   "signature": "test_their_answer_becomes_our_result_and_a_block_keeps_its_reasons()"
+  },
+  {
+   "id": "test:tests.test_guardian_v1.test_their_verdict_becomes_ours_and_keeps_what_ours_does_not_have",
+   "kind": "test",
+   "where": "tests/test_guardian_v1.py:30",
+   "signature": "test_their_verdict_becomes_ours_and_keeps_what_ours_does_not_have()"
   },
   {
    "id": "test:tests.test_images.test_d3_passes_inside_the_image_with_no_network",
@@ -18280,6 +18528,41 @@
    "target": "method:brain.adapters.guardian_rest.RestGuardianAdapter.is_quarantined"
   },
   {
+   "source": "class:brain.adapters.guardian_v1.GuardianGateway",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianGateway.__init__"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianGateway",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianGateway.call_actuator"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianV1Adapter.__init__"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianV1Adapter.aclose"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianV1Adapter.call_actuator"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianV1Adapter.get_verdict"
+  },
+  {
+   "source": "class:brain.adapters.guardian_v1.GuardianV1Adapter",
+   "label": "defines",
+   "target": "method:brain.adapters.guardian_v1.GuardianV1Adapter.is_quarantined"
+  },
+  {
    "source": "class:brain.adapters.twin_http.HttpTwinAdapter",
    "label": "defines",
    "target": "method:brain.adapters.twin_http.HttpTwinAdapter.__init__"
@@ -21040,6 +21323,21 @@
    "target": "method:tests.test_guardian_fault.Answering.is_quarantined"
   },
   {
+   "source": "class:tests.test_guardian_v1.FakeTwin",
+   "label": "defines",
+   "target": "method:tests.test_guardian_v1.FakeTwin.__init__"
+  },
+  {
+   "source": "class:tests.test_guardian_v1.FakeTwin",
+   "label": "defines",
+   "target": "method:tests.test_guardian_v1.FakeTwin.call_actuator"
+  },
+  {
+   "source": "class:tests.test_guardian_v1.FakeTwin",
+   "label": "defines",
+   "target": "method:tests.test_guardian_v1.FakeTwin.get_topology"
+  },
+  {
    "source": "class:tests.test_journal.FakeTwin",
    "label": "defines",
    "target": "method:tests.test_journal.FakeTwin.call_actuator"
@@ -21232,12 +21530,27 @@
   {
    "source": "module:brain.adapters",
    "label": "defines",
+   "target": "function:brain.adapters.open_guardian"
+  },
+  {
+   "source": "module:brain.adapters",
+   "label": "defines",
    "target": "function:brain.adapters.open_twin"
+  },
+  {
+   "source": "module:brain.adapters",
+   "label": "defines",
+   "target": "function:brain.adapters.with_gateway"
   },
   {
    "source": "module:brain.adapters",
    "label": "imports",
    "target": "module:brain.adapters.guardian_rest"
+  },
+  {
+   "source": "module:brain.adapters",
+   "label": "imports",
+   "target": "module:brain.adapters.guardian_v1"
   },
   {
    "source": "module:brain.adapters",
@@ -21260,6 +21573,11 @@
    "target": "module:brain.adapters.twin_mqtt"
   },
   {
+   "source": "module:brain.adapters",
+   "label": "imports",
+   "target": "module:brain.config"
+  },
+  {
    "source": "module:brain.adapters.guardian_rest",
    "label": "defines",
    "target": "class:brain.adapters.guardian_rest.RestGuardianAdapter"
@@ -21271,6 +21589,51 @@
   },
   {
    "source": "module:brain.adapters.guardian_rest",
+   "label": "imports",
+   "target": "module:brain.ports"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "class:brain.adapters.guardian_v1.GuardianGateway"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "class:brain.adapters.guardian_v1.GuardianV1Adapter"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "function:brain.adapters.guardian_v1.canonical"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "function:brain.adapters.guardian_v1.from_guardian_answer"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "function:brain.adapters.guardian_v1.sign"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "function:brain.adapters.guardian_v1.to_guardian_call"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "defines",
+   "target": "function:brain.adapters.guardian_v1.to_verdict"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
+   "label": "imports",
+   "target": "module:brain.contracts"
+  },
+  {
+   "source": "module:brain.adapters.guardian_v1",
    "label": "imports",
    "target": "module:brain.ports"
   },
@@ -22918,13 +23281,13 @@
    "source": "module:brain.commands.run",
    "label": "loads",
    "target": "config:config/policy.yaml",
-   "where": "src/brain/commands/run.py:162"
+   "where": "src/brain/commands/run.py:163"
   },
   {
    "source": "module:brain.commands.run",
    "label": "loads",
    "target": "config:config/policy.yaml",
-   "where": "src/brain/commands/run.py:200"
+   "where": "src/brain/commands/run.py:201"
   },
   {
    "source": "module:brain.commands.run",
@@ -26556,7 +26919,17 @@
   {
    "source": "module:brain.observability",
    "label": "defines",
+   "target": "function:brain.observability._neo4j_answers"
+  },
+  {
+   "source": "module:brain.observability",
+   "label": "defines",
    "target": "function:brain.observability.store_status"
+  },
+  {
+   "source": "module:brain.observability",
+   "label": "imports",
+   "target": "module:brain.backends"
   },
   {
    "source": "module:brain.observability",
@@ -28736,6 +29109,11 @@
    "source": "module:tests.test_api",
    "label": "defines",
    "target": "test:tests.test_api.test_the_screen_can_explain_a_decision_and_replay_it_through_the_brain"
+  },
+  {
+   "source": "module:tests.test_api",
+   "label": "defines",
+   "target": "test:tests.test_api.test_the_screen_offers_the_dashboard_only_when_one_is_configured"
   },
   {
    "source": "module:tests.test_api",
@@ -31928,6 +32306,116 @@
   },
   {
    "source": "module:tests.test_guardian_fault",
+   "label": "imports",
+   "target": "module:brain.ports"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "class:tests.test_guardian_v1.FakeTwin"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "function:tests.test_guardian_v1.adapter"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "function:tests.test_guardian_v1.call"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "function:tests.test_guardian_v1.signed"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_device_is_quarantined_when_the_containment_list_names_it"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_gateway_that_cannot_reach_the_guardian_raises_a_twin_error"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_guardian_that_is_down_raises_unavailable"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_reading_the_twin_has_not_pushed_yet_is_asked_about_again_until_it_arrives"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_verdict_is_asked_for_by_sensor_and_sequence_with_our_api_key"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_verdict_that_never_leaves_unknown_is_no_verdict"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_a_verdict_with_the_wrong_signature_is_not_used"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_our_actions_are_sent_under_their_names"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_our_signature_matches_the_one_in_their_interface_card"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_the_gateway_sends_audited_actions_through_the_guardian_and_the_rest_to_the_twin"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_the_v1_adapter_is_chosen_by_config_and_refuses_to_run_without_the_key_that_checks_verdicts"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_their_answer_becomes_our_result_and_a_block_keeps_its_reasons"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "defines",
+   "target": "test:tests.test_guardian_v1.test_their_verdict_becomes_ours_and_keeps_what_ours_does_not_have"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.adapters"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.adapters.guardian_v1"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.config"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
+   "label": "imports",
+   "target": "module:brain.contracts"
+  },
+  {
+   "source": "module:tests.test_guardian_v1",
    "label": "imports",
    "target": "module:brain.ports"
   },

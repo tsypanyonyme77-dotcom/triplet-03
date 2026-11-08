@@ -95,7 +95,7 @@ def cmd_scenario(args: argparse.Namespace) -> int:
 
 def cmd_run(args: argparse.Namespace) -> int:
 
-    from brain.adapters import RestGuardianAdapter
+    from brain.adapters import open_guardian, with_gateway
     from brain.runtime import BrainService
 
     partners = config.load(PartnersConfig, "partners", args.config)
@@ -120,7 +120,8 @@ def cmd_run(args: argparse.Namespace) -> int:
                 _warn(backends.note)
             async with guardian_client(partners.guardian.url, partners.guardian.tls) as client:
                 async with open_twin(partners.twin) as twin:
-                    service = BrainService(partners, policy, twin, RestGuardianAdapter("", client), timeline, models,
+                    guardian = open_guardian(partners.guardian, client)
+                    service = BrainService(partners, policy, with_gateway(twin, guardian, partners.guardian), guardian, timeline, models,
                                            store=backends.store, kb=backends.kb, state=state)
                     await service.start()
                     try:
@@ -187,7 +188,7 @@ async def _warm(hub) -> None:  # noqa: ANN001 - the Hub is imported inside cmd_s
     from brain import scenario as runner
 
     try:
-        await runner.run_scenario(runner.load_scenario("d1"), runner.inproc_partners(), partners=hub.partners, policy=hub.policy, models=hub.models, speed=0, timeout_s=60)
+        await runner.run_scenario(runner.load_scenario("t12"), runner.inproc_partners(), partners=hub.partners, policy=hub.policy, models=hub.models, speed=0, timeout_s=60)
     except Exception as error:  # noqa: BLE001 - a failed warm-up only means the first click is slower
         print(f"note: warm-up did not finish ({type(error).__name__}: {error})", file=sys.stderr)
 

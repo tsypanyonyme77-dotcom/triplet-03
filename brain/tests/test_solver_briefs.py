@@ -33,7 +33,7 @@ async def test_a_solver_that_is_off_leaves_its_key_out_of_the_brief():
 async def test_a_perimeter_that_holds_more_units_than_a_solver_says_is_sent_back_once_and_then_stands():
     policy = Policy.model_validate({"optimiser": {"perimeter_slack": -3}})  # no plan is tight enough: the critic fires on the first plan
 
-    result = await play(load_scenario("d3"), policy=policy)
+    result = await play(load_scenario("t14"), policy=policy)
 
     rejected = result.sink.of("brain.plan.rejected")
     assert len(rejected) == 1 and "a solver says" in " ".join(rejected[0].data["problems"])

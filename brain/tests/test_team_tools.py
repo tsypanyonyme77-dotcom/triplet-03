@@ -97,8 +97,8 @@ async def test_tool_results_are_capped_to_the_token_budget(desk):
 
 
 async def test_the_scripted_team_decides_the_same_with_the_tools_on():
-    plain = await play(load_scenario("d3"), models=with_switch(False))
-    equipped = await play(load_scenario("d3"), models=with_switch(True, graphrag="local"))
+    plain = await play(load_scenario("t14"), models=with_switch(False))
+    equipped = await play(load_scenario("t14"), models=with_switch(True, graphrag="local"))
 
     assert plain.passed and equipped.passed
     assert [(c["call"]["action"], c["call"]["params"]) for c in plain.actuator_calls] == [(c["call"]["action"], c["call"]["params"]) for c in equipped.actuator_calls]

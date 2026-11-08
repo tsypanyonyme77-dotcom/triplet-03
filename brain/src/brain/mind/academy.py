@@ -37,7 +37,7 @@ from brain.variants import check, variants
 DESIGN_SEEDS = range(0, 5)
 HELD_OUT_SEEDS = range(1000, 1005)
 FRESH_SEEDS = range(1005, 1010)  # what the self-audit scores on: stories nothing has been tuned or confirmed on
-BURSTS = ("d4",)
+BURSTS = ("t15",)
 CALM_STREAMS = ("calm", "noisy", "heavy", "skewed", "season")
 MISS_COST = 20.0  # one missed anomaly costs as much as twenty false doubts per thousand readings: the Academy may not go deaf
 
@@ -112,7 +112,7 @@ class Battery:
         frozen = json.loads((config.home() / "docs/baseline/2026-11-07-demo-frozen.json").read_text())
         moved = differences(frozen, await measure_all(list(frozen), policy=policy))
         out["decisions"] = (not moved, "every Test Book decision as before" if not moved else f"{len(moved)} changed, first: {moved[0][:90]}")
-        rows = await check(["d2", "d3", "d4"], [self._seeds[0]], policy=policy)
+        rows = await check(["t13", "t14", "t15"], [self._seeds[0]], policy=policy)
         off = [r for r in rows if not r["passed"]]
         out["variants"] = (not off, f"{len(rows)} variants decide as their base" if not off else f"{len(off)} differ, first {off[0]['scenario']} {off[0]['transform']}")
         bench = score(policy.forward, self._seeds)
@@ -123,7 +123,7 @@ class Battery:
         seen = recall(policy.forward, DESIGN_SEEDS)
         out["recall"] = (seen >= self._untuned_recall["now"] - 1e-9, f"{seen:.3f} of injected anomalies reported (untuned {self._untuned_recall['now']:.3f})")
         broken = []
-        for sid in BURSTS + ("d3",):
+        for sid in BURSTS + ("t14",):
             result = await run_scenario(load_scenario(sid), inproc_partners(), policy=policy, models=MODELS, speed=0, timeout_s=30)
             broken += verify_log(result.sink.events)
         out["promises"] = (not broken, "the temporal promises hold" if not broken else f"{broken[0].spec}: {broken[0].message}")

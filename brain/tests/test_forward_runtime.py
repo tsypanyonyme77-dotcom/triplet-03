@@ -29,7 +29,7 @@ async def test_with_forward_models_off_no_surprise_is_reported():
 
 
 async def test_crime_scenarios_raise_no_surprise():
-    result = await play(load_scenario("d3"))
+    result = await play(load_scenario("t14"))
 
     assert result.sink.of("brain.percept.surprise") == []
 

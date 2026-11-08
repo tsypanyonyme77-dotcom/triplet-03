@@ -1,4 +1,4 @@
-"""Command line: `brain scenario d3`, `brain run`, `brain sleep`, `brain export-schemas`, `brain audit verify <log>`.
+"""Command line: `brain scenario t14`, `brain run`, `brain sleep`, `brain export-schemas`, `brain audit verify <log>`.
 
 This file builds the parser. Each command lives in `brain/commands/`, one module per kind (run, trust, evidence, learning)."""
 
@@ -162,7 +162,7 @@ def build_parser() -> argparse.ArgumentParser:
     sleeping.set_defaults(handler=cmd_sleep)
 
     curve = commands.add_parser("learning-curve", help="run a scenario several times with sleep in between and show what learning saves")
-    curve.add_argument("scenario", nargs="?", default="d3")
+    curve.add_argument("scenario", nargs="?", default="t14")
     curve.add_argument("--runs", type=int, default=3)
     curve.add_argument("--out", help="write the rows to this JSON file")
     curve.set_defaults(handler=cmd_learning_curve)
@@ -206,7 +206,7 @@ def build_parser() -> argparse.ArgumentParser:
     attention.set_defaults(handler=cmd_attention)
 
     reliable = commands.add_parser("reliability", help="run a scenario again and again under injected faults (or against the real model) and report how often the team's plan held")
-    reliable.add_argument("id", nargs="?", default="d3")
+    reliable.add_argument("id", nargs="?", default="t14")
     reliable.add_argument("--trials", type=int, default=5)
     reliable.add_argument("--fault-rate", type=float, default=0.0, help="chance that a role call fails (injected faults; ignored with --llm)")
     reliable.add_argument("--kinds", default="error,garbage", help="which faults: error, garbage")

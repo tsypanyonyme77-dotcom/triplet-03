@@ -72,8 +72,14 @@ class TwinConfig(BaseModel):
 
 
 class GuardianConfig(BaseModel):
-    adapter: Literal["rest"] = "rest"
+    # rest: our contract (POST /verdicts). v1: the Guardian team's contract 1.0 (guardian/INTERFACE.md): verdicts by sensor and sequence number,
+    # the actuator calls it audits sent through it, `X-API-Key`. Everything below the url applies to v1 only.
+    adapter: Literal["rest", "v1"] = "rest"
     url: str = "http://127.0.0.1:8766"
+    api_key_env: str = "BRAIN_API_KEY"  # the name of the variable holding our API key on the Guardian, never the key
+    hmac_secret_env: str | None = "GUARDIAN_HMAC_KEY"  # the verdicts' signing key; null skips the check (not for a demo)
+    dispatcher_id: str | None = None  # the Guardian audits dispatches on one dispatcher actuator (its registry: dispatch-central); null keeps our per-station ids
+    gateway: bool = True  # send valve, grid, signal and dispatch calls through the Guardian, as it asks; false: straight to the Twin
     # sidecar: the Brain asks for a verdict per reading. inline: readings arrive carrying `trust`.
     mode: Literal["sidecar", "inline"] = "sidecar"
     verdict_deadline_ms: int = 2000

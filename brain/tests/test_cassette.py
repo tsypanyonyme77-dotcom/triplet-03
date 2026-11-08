@@ -111,7 +111,7 @@ def test_the_cli_turns_the_cassette_flags_into_team_config():
     from brain.cli import build_parser
     from brain.commands.common import _models
 
-    args = build_parser().parse_args(["scenario", "d3", "--cassette", "c.jsonl", "--cassette-mode", "replay"])
+    args = build_parser().parse_args(["scenario", "t14", "--cassette", "c.jsonl", "--cassette-mode", "replay"])
     team = _models(args).team
 
     assert (team.cassette, team.cassette_path, team.llm) == ("replay", "c.jsonl", True)

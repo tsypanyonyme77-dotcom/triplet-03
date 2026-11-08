@@ -144,7 +144,7 @@ async def edge():
     say("P-E", "retraction by token", "EXPLOITABLE (authz)" if twin not in (401, 403) else "not", f"twin token -> {twin}; guardian token -> {await asgi(app, 'POST', '/api/retractions', {**B('guardian'), **h}, body)}; read token -> {read}; none -> {none} (404/409/503 = past the edge, the reading did not exist)")
 
     # P-F: route sweep without a token, every method, many path spellings
-    paths = ["/api/scenarios", "/api/scenarios/", "//api/scenarios", "/API/scenarios", "/api/scenarios/d3/run", "/api/approvals", "/api/approvals/x", "/api/incidents", "/api/topology",
+    paths = ["/api/scenarios", "/api/scenarios/", "//api/scenarios", "/API/scenarios", "/api/scenarios/t14/run", "/api/approvals", "/api/approvals/x", "/api/incidents", "/api/topology",
              "/metrics", "/events", "/api/llm", "/api/sleep", "/api/sleep/last", "/api/retractions", "/api/events", "/mcp", "/mcp/", "/docs/../api/scenarios", "/static/../api/scenarios",
              "/schemas/../api/scenarios", "/vendor/../api/scenarios", "/api/%73cenarios", "/api/scenarios%2f", "/health/../api/scenarios", "/.well-known/../api/scenarios", "/docsx", "/schemas/x"]
     leaks = []

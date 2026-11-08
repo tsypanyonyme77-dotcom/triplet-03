@@ -33,7 +33,7 @@ def captions(*logs):
 
 @node
 def test_the_relay_has_five_steps_in_the_order_the_jury_is_told():
-    assert captions(ROOT / "logs/canonical/d1.jsonl")["steps"] == ["Twin", "Guardian", "Brain", "Safety gate", "City"]
+    assert captions(ROOT / "logs/canonical/t12.jsonl")["steps"] == ["Twin", "Guardian", "Brain", "Safety gate", "City"]
 
 
 @node
@@ -55,7 +55,7 @@ def test_every_demo_event_gets_a_plain_sentence_or_nothing():
 
 @node
 def test_a_held_call_reads_as_held_and_names_why():
-    out = captions(ROOT / "logs/canonical/d2.jsonl")["out"]
+    out = captions(ROOT / "logs/canonical/t13.jsonl")["out"]
     held = [row["story"] for row in out if row["type"] == "brain.action.blocked"]
 
     assert held and all(s["tone"] == "hold" and s["layer"] == "GATE" and s["step"] == 3 for s in held)
@@ -64,7 +64,7 @@ def test_a_held_call_reads_as_held_and_names_why():
 
 @node
 def test_a_guardian_that_goes_quiet_is_said_once_in_plain_words():
-    out = captions(ROOT / "logs/canonical/d4.jsonl")["out"]
+    out = captions(ROOT / "logs/canonical/t15.jsonl")["out"]
     quiet = [row["story"] for row in out if row["type"] == "brain.guardian.unavailable"]
 
     assert len(quiet) == 1 and quiet[0]["layer"] == "GUARDIAN" and quiet[0]["tone"] == "hold" and "stopped answering" in quiet[0]["say"]
@@ -72,7 +72,7 @@ def test_a_guardian_that_goes_quiet_is_said_once_in_plain_words():
 
 @node
 def test_an_event_nobody_wrote_a_caption_for_shows_nothing():
-    out = captions(ROOT / "logs/canonical/d3.jsonl")["out"]
+    out = captions(ROOT / "logs/canonical/t14.jsonl")["out"]
 
     assert next(row for row in out if row["type"] == "brain.workspace.released")["story"] is None
 
@@ -88,7 +88,7 @@ def test_each_of_the_five_elements_has_a_job_the_screen_can_say():
 
 @node
 def test_the_team_steps_each_say_who_does_what():
-    out = captions(ROOT / "logs/canonical/d3.jsonl")["out"]
+    out = captions(ROOT / "logs/canonical/t14.jsonl")["out"]
     said = {row["type"]: row["story"]["say"] for row in out if row["story"]}
 
     assert "Analyst" in said["brain.case.reviewed"] and "Tactician" in said["brain.options.prepared"] and "Chief" in said["brain.plan.verified"]

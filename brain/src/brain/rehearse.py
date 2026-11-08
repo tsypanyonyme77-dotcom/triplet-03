@@ -32,7 +32,7 @@ from brain.mind.episodes import EpisodeStore, PlanAction, PlanRecord
 from brain.mind.sleep import DEFAULT_SUITE, Sleeper
 from brain.timeline import MemorySink, Timeline
 
-QUICK_SUITE = ["d1", "d2", "d3", "d4"]
+QUICK_SUITE = ["t12", "t13", "t14", "t15"]
 LOOPBACK = {"127.0.0.1", "::1", "localhost"}
 
 
@@ -96,7 +96,7 @@ async def baselines(context: Context) -> Step:
 
 
 async def curve(context: Context) -> Step:
-    rows = await learning_curve("d3", runs=3, workdir=context.workdir / "curve", policy=Policy(), suite=["d1", "d3"])
+    rows = await learning_curve("t14", runs=3, workdir=context.workdir / "curve", policy=Policy(), suite=["t12", "t14"])
     first, third = rows[0], rows[-1]
     ok = third["team_runs"] < first["team_runs"] and all(r["decisions_equal_to_run_1"] for r in rows)
     return Step("Learning curve", ok, f"team runs {first['team_runs']} to {third['team_runs']}, last action {first['last_action_ms']} ms to "
@@ -122,13 +122,13 @@ async def poison(context: Context) -> Step:
     from brain.config import BrainConfig, PartnersConfig
     from brain.scenario import load_scenario
 
-    await measure_scenario(load_scenario("d3"), Policy(), PartnersConfig(brain=BrainConfig(episodes_dir=str(folder / "episodes"))))
+    await measure_scenario(load_scenario("t14"), Policy(), PartnersConfig(brain=BrainConfig(episodes_dir=str(folder / "episodes"))))
     store = EpisodeStore(folder / "episodes")
     (real,), _ = store.all()
     nonsense = [PlanAction(action="dispatch_unit", params={"unit_type": "police", "zone_id": z, "mode": "contain"}) for z in ("zone-01", "zone-02")]
     for n in range(3):
         store.append(real.model_copy(update={"episode_id": f"ep-poison-{n}", "plans": [PlanRecord(reason="plan", actions=nonsense)]}))
-    report = await Sleeper(folder / "episodes", folder / "learned", Policy(), Timeline([MemorySink()]), suite=["d1", "d3"], held_out=[]).run()
+    report = await Sleeper(folder / "episodes", folder / "learned", Policy(), Timeline([MemorySink()]), suite=["t12", "t14"], held_out=[]).run()
     ok = report.candidates == 1 and not report.promoted and [r["check"] for r in report.rejected] == ["rehearsal"]
     return Step("Poisoned lesson", ok, "three repeated nonsense plans were turned away at rehearsal, nothing written" if ok
                 else f"promoted {len(report.promoted)}, rejected at {[r['check'] for r in report.rejected]}")
@@ -155,7 +155,7 @@ async def held_out(context: Context) -> Step:
     """Variants of the scenarios, shifted in time, with other noise and a decoy sensor, decide as their base does."""
     from brain.variants import HELD_OUT_SEEDS, check
 
-    ids = ["d2", "d3", "d4"] if context.quick else context.suite
+    ids = ["t13", "t14", "t15"] if context.quick else context.suite
     rows = await check(ids, list(HELD_OUT_SEEDS)[:1])
     wrong = [r for r in rows if not r["passed"]]
     return Step("Held-out variants", not wrong, f"{len(rows)} of {len(rows)} variants decide as their base scenario" if not wrong
@@ -182,7 +182,7 @@ async def team_under_faults(context: Context) -> Step:
     """With half of the role calls failing, the team's fallbacks and the verifier still leave a safe, gate-checked run."""
     from brain.reliability import summary, trials
 
-    rows = await trials("d3", 4 if context.quick else 8, rate=0.5, seed=11)
+    rows = await trials("t14", 4 if context.quick else 8, rate=0.5, seed=11)
     report = summary(rows)
     ok = report["passed"] == report["trials"] and report["fallbacks"] + report["rejected"] > 0
     return Step("Team under faults", ok, f"{report['passed']} of {report['trials']} trials passed with half the role calls failing "
@@ -220,10 +220,10 @@ def screens_step(out: Path, stamp: str) -> Step:
             prefix = out / f"{stamp}-{view}"
             run = subprocess.run(
                 ["uv", "run", "python", "scripts/screenshot.py", "1920x1080", str(prefix), f"goto:http://127.0.0.1:{port}/?view={view}&quality=light", "wait:2",
-                 "js:document.querySelector('[data-id=d3]').click()", "wait:16", "shot:d3"], cwd=root, capture_output=True, text=True, check=False)
+                 "js:document.querySelector('[data-id=t14]').click()", "wait:16", "shot:t14"], cwd=root, capture_output=True, text=True, check=False)
             if "page errors: none" not in run.stdout:
                 return Step("Screens", False, f"{view} view raised page errors: {run.stdout[-300:]}")
-            made.append(f"{prefix.name}-d3.png")
+            made.append(f"{prefix.name}-t14.png")
         smoke = subprocess.run([sys.executable, "scripts/canopy_smoke.py", str(port)], cwd=root, capture_output=True, text=True, check=False)
         if smoke.returncode != 0:
             return Step("Screens", False, f"canopy smoke test failed: {smoke.stdout[-300:]}")

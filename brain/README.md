@@ -10,7 +10,7 @@ It runs with no partner, using the stand-ins in [`mocks/`](mocks/) (a mock Twin 
 
 ```bash
 uv run brain serve                            # the live timeline screen (R3) at http://127.0.0.1:8080 ; press 1 to 4 to run a scenario, C for the 3D view
-uv run brain scenario d3 --inproc --speed 0   # one Test Book scenario in a second: pass/fail verdict and a log
+uv run brain scenario t14 --inproc --speed 0   # one Test Book scenario in a second: pass/fail verdict and a log
 uv run pytest tests -q                        # the test suite (tests that need Neo4j, Qdrant or a broker skip)
 ```
 
@@ -28,12 +28,12 @@ The first run downloads a 65 MB embedding model once. The agent teams run on a r
 
 | ID | Name | Trigger |
 | --- | --- | --- |
-| d1 | A calm day | `scenarios/triggers/d1.sh` |
-| d2 | A fake flood | `scenarios/triggers/d2.sh` |
-| d3 | A crime and a pursuit | `scenarios/triggers/d3.sh` |
-| d4 | A flood, an attack and a layer down | `scenarios/triggers/d4.sh` |
+| d1 | A calm day | `scenarios/triggers/t12.sh` |
+| d2 | A fake flood | `scenarios/triggers/t13.sh` |
+| d3 | A crime and a pursuit | `scenarios/triggers/t14.sh` |
+| d4 | A flood, an attack and a layer down | `scenarios/triggers/t15.sh` |
 
-Each run writes a hash-chained log to `logs/<id>-<time>.jsonl` with its input journal beside it. One verified, replayable log per scenario is kept in [`logs/canonical/`](logs/canonical/) (`uv run brain replay logs/canonical/d3.inputs.jsonl` plays it back). Fields and expected outputs: [`docs/TESTBOOK-brain.md`](docs/TESTBOOK-brain.md).
+Each run writes a hash-chained log to `logs/<id>-<time>.jsonl` with its input journal beside it. One verified, replayable log per scenario is kept in [`logs/canonical/`](logs/canonical/) (`uv run brain replay logs/canonical/t14.inputs.jsonl` plays it back). Fields and expected outputs: [`docs/TESTBOOK-brain.md`](docs/TESTBOOK-brain.md).
 
 ## Configuration
 
@@ -47,7 +47,7 @@ Partner addresses, protocols and the names of the secret variables are in [`conf
 | `src/brain/` | Layer code (map: [`docs/codebase/CODEBASE.md`](docs/codebase/CODEBASE.md)) |
 | `mocks/` | Stand-ins for twin + guardian |
 | `tests/` | Tests, named as sentences |
-| `scenarios/` | The Test Book scenarios (`d1` to `d4`), city topologies, one trigger script per scenario |
+| `scenarios/` | The Test Book scenarios (`t12` to `t15`), city topologies, one trigger script per scenario |
 | `logs/canonical/` | One verified log per scenario |
 | `config/`, `contracts/` | Partner settings and policy; JSON schemas and one example of every message |
 | `docs/` | Our report part, how it works, security, decisions, diagrams ([`docs/README.md`](docs/README.md)) |

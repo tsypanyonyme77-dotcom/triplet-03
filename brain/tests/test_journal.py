@@ -18,7 +18,7 @@ async def run_b2(folder):
     for name, value in DEV_SECRETS.items():
         os.environ.setdefault(name, value)
     folder.mkdir()
-    result = await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=folder, deterministic=True)
+    result = await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, log_dir=folder, deterministic=True)
     return result, next(folder.glob("*.inputs.jsonl"))
 
 

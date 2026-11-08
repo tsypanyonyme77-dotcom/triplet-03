@@ -121,7 +121,7 @@ def test_a_log_file_can_be_read_back_and_checked(tmp_path):
     assert verify_log(read_log(path)) == []
 
 
-@pytest.mark.parametrize("scenario_id", ["d1", "d2", "d3", "d4"])
+@pytest.mark.parametrize("scenario_id", ["t12", "t13", "t14", "t15"])
 async def test_every_scenario_keeps_every_promise(scenario_id):
     result_ = await play(load_scenario(scenario_id))
 

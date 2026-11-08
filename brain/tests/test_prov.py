@@ -11,7 +11,7 @@ MODELS = ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}})
 
 
 async def explained():
-    result = await run_scenario(load_scenario("d3"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, deterministic=True)
+    result = await run_scenario(load_scenario("t14"), inproc_partners(), models=MODELS, speed=0, timeout_s=30, deterministic=True)
     events = [e.model_dump(mode="json", exclude_none=True) for e in result.sink.events]
     decision = next(e for e in events if e["type"] == "brain.decision.made")["data"]["decision_id"]
     return explain_decision(events, decision, policy=Policy())

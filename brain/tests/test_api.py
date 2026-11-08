@@ -31,16 +31,16 @@ async def test_nothing_to_show_before_the_first_run(api):
     assert (await client.get("/health")).json()["running"] is None
     assert (await client.get("/api/incidents")).status_code == 404
     listing = (await client.get("/api/scenarios")).json()
-    assert [s["id"] for s in listing["scenarios"]] == ["d1", "d2", "d3", "d4"] and listing["runnable"]
+    assert [s["id"] for s in listing["scenarios"]] == ["t12", "t13", "t14", "t15"] and listing["runnable"]
     assert (await client.post("/api/scenarios/nope/run")).status_code == 404
 
 
 async def test_one_trigger_runs_a_scenario_and_everything_about_it_can_be_read_back(api):
     client, hub = api
 
-    started = await client.post("/api/scenarios/d3/run", params={"speed": 0})
+    started = await client.post("/api/scenarios/t14/run", params={"speed": 0})
     assert started.status_code == 202 and started.json()["run_id"].startswith("d3-")
-    assert (await client.post("/api/scenarios/d1/run")).status_code == 409  # one at a time
+    assert (await client.post("/api/scenarios/t12/run")).status_code == 409  # one at a time
     await hub.wait()
 
     listing = (await client.get("/api/scenarios")).json()
@@ -68,9 +68,9 @@ async def test_one_trigger_runs_a_scenario_and_everything_about_it_can_be_read_b
 
 async def test_a_new_run_clears_the_screen(api):
     client, hub = api
-    await client.post("/api/scenarios/d3/run", params={"speed": 0})
+    await client.post("/api/scenarios/t14/run", params={"speed": 0})
     await hub.wait()
-    await client.post("/api/scenarios/d1/run", params={"speed": 0})
+    await client.post("/api/scenarios/t12/run", params={"speed": 0})
     await hub.wait()
 
     events = await backlog(client)
@@ -258,7 +258,7 @@ async def test_a_sleep_can_be_started_from_the_api_and_its_events_reach_the_stre
     await record(tmp_path / "episodes")
     partners = PartnersConfig(brain=BrainConfig(episodes_dir=str(tmp_path / "episodes"), learned_dir=str(tmp_path / "learned")))
     hub = Hub(partners, Policy(), MODELS, mocks="inproc", log_dir=tmp_path)
-    hub.sleep_suite = ["d1", "d3"]
+    hub.sleep_suite = ["t12", "t14"]
     async with httpx.AsyncClient(transport=httpx.ASGITransport(app=create_app(hub)), base_url="http://brain") as client:
         assert (await client.post("/api/sleep")).status_code == 202
         assert (await client.post("/api/sleep")).status_code == 409

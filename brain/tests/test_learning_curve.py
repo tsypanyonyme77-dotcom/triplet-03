@@ -10,7 +10,7 @@ from tests.test_sleep import SUITE, record
 
 
 async def test_run_three_needs_fewer_team_runs_than_run_one_with_the_same_decisions(tmp_path):
-    rows = await learning_curve("d3", runs=3, workdir=tmp_path, policy=Policy(), suite=SUITE)
+    rows = await learning_curve("t14", runs=3, workdir=tmp_path, policy=Policy(), suite=SUITE)
 
     first, second, third = rows
     assert (first["team_runs"], second["team_runs"], third["team_runs"]) == (1, 1, 0)

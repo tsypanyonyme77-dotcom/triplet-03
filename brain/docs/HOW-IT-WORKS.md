@@ -1,6 +1,6 @@
 # How the City Brain works
 
-Written 6 Nov 2026 from the code as it stands and from real runs of the four demo scenarios (`d1` to `d4`); every event name, number and file in the worked flows was read from a run. For where each symbol lives, use `codebase/CODEBASE.md`; for the region-by-region brain analogy, `BRAIN-MAPPING.md`; for the message formats, `../INTERFACE.md` and `INTEGRATION-brain.md`. This file is the one that explains how the parts fit.
+Written 6 Nov 2026 from the code as it stands and from real runs of the four demo scenarios (`t12` to `t15`); every event name, number and file in the worked flows was read from a run. For where each symbol lives, use `codebase/CODEBASE.md`; for the region-by-region brain analogy, `BRAIN-MAPPING.md`; for the message formats, `../INTERFACE.md` and `INTEGRATION-brain.md`. This file is the one that explains how the parts fit.
 
 ## 1. What it is, in one page
 
@@ -160,9 +160,9 @@ A call the Twin never answered frees its idempotency key (`gate.retry_unreached`
 
 | When this happens | …this part | …tells this part | …which changes this |
 | --- | --- | --- | --- |
-| a reading is untrusted | Guardian verdict | salience and the gate | the incident scores near zero and the gate refuses what it proposes (`d2`) |
-| a reading jumps | forward models | the reflex (held) and the workspace (surprise boost) | a lying gauge cannot trigger a flood response alone (`d2`) |
-| the water is rising | level forecast | the early alert, the Disaster desk's brief, workspace urgency | the zone is warned before the line (`d4`) |
+| a reading is untrusted | Guardian verdict | salience and the gate | the incident scores near zero and the gate refuses what it proposes (`t13`) |
+| a reading jumps | forward models | the reflex (held) and the workspace (surprise boost) | a lying gauge cannot trigger a flood response alone (`t13`) |
+| the water is rising | level forecast | the early alert, the Disaster desk's brief, workspace urgency | the zone is warned before the line (`t15`) |
 | two incidents want one unit | workspace and dispatch solver | the station choice and the desks' briefs | the far ambulance goes to the first call so the close one is free for the second (unit tests; no demo scenario) |
 | an ambulance is dispatched | gate, then corridor planner | Traffic control | signals are held green along its road (unit tests) |
 | an overload shares a feeder | cascade and shed solver | the Utilities desk and the gate | the cheapest cut is proposed, a person approves it (unit tests) |
@@ -175,7 +175,7 @@ A call the Twin never answered frees its idempotency key (`gate.retry_unreached`
 
 Event names and values below come from real runs (`uv run brain scenario dN --inproc --speed 0`; the logs are in `logs/canonical/`).
 
-### 6.1 One reading becomes an action: a crime and a pursuit (`d3`)
+### 6.1 One reading becomes an action: a crime and a pursuit (`t14`)
 
 ```
 Twin ─▶ cctv_anomaly "robbery (0.93)" in zone-07 (signed)
@@ -219,7 +219,7 @@ A rule or agent turns the incident into a proposal, which the gate checks:
 
 A valve is high impact, so the gate needs two independent trusted sources and a person's approval. With one source it records `brain.action.blocked` ("high-impact action needs 2 independent trusted sources, found 1"); with two and `--approvals` on, `brain.approval.requested` puts an Approve and Deny strip on the screen. After a grant the gate checks everything again and sends the signed call (`actuator_call.set_valve_state.json`, `provenance.signed_by: city_brain`).
 
-### 6.3 A river that rises, a forged report, a layer down (`d4`)
+### 6.3 A river that rises, a forged report, a layer down (`t15`)
 
 ```
 water_level readings every second: 0.28, 0.31, 0.32 …
@@ -244,9 +244,9 @@ No demo scenario shows this any more; `tests/test_engines_dispatch.py` does. Wit
 
 ### 6.5 Holding back: a lying gauge, a forged report, a silent Guardian
 
-- **`d2`, a fake flood.** A second gauge reads 1.8 m while the honest one reads 0.3 m. The Guardian marks it untrusted. The Brain still opens a flood incident, but `brain.action.blocked` twice (check `trust_ref`: no Guardian verdict stands behind the order), once for the warning and once for the valve. Nothing is sent. The incident closes when the honest gauge reads on.
-- **`d4`, the forged robbery.** The camera reading is untrusted; the incident opens with `evidence_verdict: untrusted` and no police are sent.
-- **`d4`, the Guardian goes down.** `brain.guardian.unavailable` once; every later verdict is `unavailable`. Only low-impact actions could pass.
+- **`t13`, a fake flood.** A second gauge reads 1.8 m while the honest one reads 0.3 m. The Guardian marks it untrusted. The Brain still opens a flood incident, but `brain.action.blocked` twice (check `trust_ref`: no Guardian verdict stands behind the order), once for the warning and once for the valve. Nothing is sent. The incident closes when the honest gauge reads on.
+- **`t15`, the forged robbery.** The camera reading is untrusted; the incident opens with `evidence_verdict: untrusted` and no police are sent.
+- **`t15`, the Guardian goes down.** `brain.guardian.unavailable` once; every later verdict is `unavailable`. Only low-impact actions could pass.
 
 ### 6.6 A person is needed
 
@@ -298,7 +298,7 @@ a closed incident ─▶ an episode (state/episodes) ─▶ brain sleep: the sam
 
 ```bash
 uv run brain serve --approvals            # the screen at :8080; number keys run scenarios; C canopy; M model; G a guided tour
-uv run brain scenario d4 --inproc --speed 0   # one scenario in a second (d1 to d4)
+uv run brain scenario t15 --inproc --speed 0   # one scenario in a second (d1 to d4)
 uv run brain explain …                    # why a decision was taken, with counterfactuals
 uv run brain replay logs/<run>.inputs.jsonl    # play a run back; exit 0 if identical
 uv run brain llm-check                    # is the key good, how much quota is left

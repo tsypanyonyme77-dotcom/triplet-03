@@ -70,7 +70,7 @@ async def test_a_model_that_obeys_an_injected_instruction_is_stopped_by_the_gate
     from brain.config import ModelsConfig
     from brain.scenario import inproc_partners, load_scenario, run_scenario
 
-    scenario = load_scenario("d3")
+    scenario = load_scenario("t14")
     scenario["guardian"] = {"default": "trusted", "overrides": {}, "quarantined": ["police-dispatch-05"]}  # the nearest dispatch actuator
     result = await run_scenario(scenario, inproc_partners(), models=ModelsConfig.model_validate({"embeddings": {"provider": "hashing"}}), speed=0, timeout_s=30)
     quarantined = [c for c in result.actuator_calls if c["call"]["actuator_id"] == "police-dispatch-05"]
