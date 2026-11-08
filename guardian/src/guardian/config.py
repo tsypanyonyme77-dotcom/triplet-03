@@ -44,6 +44,7 @@ class TwinCfg(_M):
     mode: Literal["push", "pull"] = "push"
     base_url: str
     timeout_s: float = 3.0
+    tools_api_key: str = ""   # sent as X-API-Key on /tools calls; set it with TWIN_TOOLS_API_KEY, never here
     poll_interval_s: float = 2.0
     health_interval_s: float = 5.0
     mcp: McpCfg | None = None
@@ -260,6 +261,9 @@ class VerificationCfg(_M):
 class SafetyCfg(_M):
     no_grid_disconnect_in_hospital_zone: bool = True
     no_duplicate_dispatch: bool = True
+    # call: same incident, station, unit type, mode, zone and target; unit_type: one unit of each type per
+    # incident; incident: one unit per incident (see CallAuditor._dispatch_key)
+    duplicate_dispatch_per: Literal["call", "unit_type", "incident"] = "call"
 
 
 class RateLimits(_M):
@@ -335,6 +339,7 @@ class Settings(BaseSettings):
     twin_base_url: str | None = Field(default=None, validation_alias=AliasChoices("TWIN_BASE_URL", "TWIN_URL"))
     twin_transport: str | None = Field(default=None, alias="TWIN_TRANSPORT")
     twin_mode: str | None = Field(default=None, alias="TWIN_MODE")
+    twin_tools_api_key: str | None = Field(default=None, alias="TWIN_TOOLS_API_KEY")
     guardian_port: int | None = Field(default=None, alias="GUARDIAN_PORT")
     guardian_url: str | None = Field(default=None, alias="GUARDIAN_URL")
 
@@ -414,6 +419,8 @@ def load_config(config_dir: str | Path | None = None, settings: Settings | None 
         twin["transport"] = settings.twin_transport
     if settings.twin_mode:
         twin["mode"] = settings.twin_mode
+    if settings.twin_tools_api_key:
+        twin["tools_api_key"] = settings.twin_tools_api_key
     if settings.log_dir:
         g.setdefault("audit", {})["log_dir"] = settings.log_dir
     if settings.db_path:

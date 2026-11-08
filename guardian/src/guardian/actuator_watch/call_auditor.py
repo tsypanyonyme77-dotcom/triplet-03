@@ -29,16 +29,8 @@ class CallAuditor:
         self.containment, self.semantic, self.twin = containment, semantic, twin
         self.verifier, self.correlator, self.audit, self.clock = verifier, correlator, audit, clock
         self.calls: deque[tuple[datetime, str, str]] = deque(maxlen=10_000)  # ts, caller, actuator
-        self.dispatched: set[str] = set(state.db.get_kv("dispatched_incidents", []))
-
-    @staticmethod
-    def _dispatch_key(call: ActuatorCall) -> str:
-        """Two dispatches are the same when incident, station, unit type, mode, zone and target all match.
-        A repeated call is refused; a perimeter's further units (other zones, mode contain) are not."""
-        p = call.params
-        parts = (call.incident_id, p.get("station_id") or call.actuator_id, p.get("unit_type"),
-                 p.get("mode"), call.zone_id or p.get("zone_id"), p.get("target_id"))
-        return "|".join(str(v or "") for v in parts)
+        # dispatch keys, see _dispatch_key
+        self.dispatched: set[str] = set(state.db.get_kv("dispatched_units", []))
 
     def _authorise(self, call: ActuatorCall, zone: str | None) -> list[str]:
         if not call.trust_ref:
@@ -57,6 +49,20 @@ class CallAuditor:
         if zone and v.zone_id and v.zone_id != zone and v.zone_id not in self.cc.adjacency.get(zone, []):
             out.append("trust_ref_zone_mismatch")
         return out
+
+    def _dispatch_key(self, call: ActuatorCall) -> str:
+        """What makes two dispatches the same (policies.safety.duplicate_dispatch_per):
+        call (default): incident, station, unit type, mode, zone and target all match, so a repeated call is
+          refused but a perimeter's further units (other zones, mode contain) and other unit types are not;
+        unit_type: one unit of each type per incident; incident: one unit per incident."""
+        p, per = call.params, self.p.safety.duplicate_dispatch_per
+        if per == "incident":
+            return str(call.incident_id)
+        if per == "unit_type":
+            return f"{call.incident_id}|{p.get('unit_type', '')}"
+        parts = (call.incident_id, p.get("station_id") or call.actuator_id, p.get("unit_type"),
+                 p.get("mode"), call.zone_id or p.get("zone_id"), p.get("target_id"))
+        return "|".join(str(v or "") for v in parts)
 
     def _policy(self, call: ActuatorCall, zone: str | None, caller: str) -> list[str]:
         out = []
@@ -119,7 +125,7 @@ class CallAuditor:
             else:
                 if call.action == "dispatch_unit" and call.incident_id:
                     self.dispatched.add(self._dispatch_key(call))
-                    self.state.db.put_kv("dispatched_incidents", sorted(self.dispatched))
+                    self.state.db.put_kv("dispatched_units", sorted(self.dispatched))
                 warnings += await self.verifier.expect(call, reply)
         decision = Decision(call_id=call.call_id, decision="blocked" if reply is None else "forwarded",
                             reasons=reasons + warnings, twin_reply=reply)

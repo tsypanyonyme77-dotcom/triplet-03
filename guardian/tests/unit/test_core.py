@@ -128,3 +128,24 @@ def test_listen_port_and_triplet_env_names(monkeypatch: pytest.MonkeyPatch) -> N
     monkeypatch.setenv("TWIN_HMAC_KEY", "own")
     s = Settings(_env_file=None)
     assert (s.listen_port(8100), s.twin_base_url, s.twin_hmac_key) == (9000, "http://localhost:8101", "own")
+
+
+async def test_twin_tools_call_sends_api_key_when_configured() -> None:
+    import httpx
+
+    from guardian.adapters.twin_client.http import HttpTwinClient
+    from guardian.clock import FakeClock
+    from guardian.config import TwinCfg
+
+    seen: list[str | None] = []
+
+    def handler(req: httpx.Request) -> httpx.Response:
+        seen.append(req.headers.get("x-api-key"))
+        return httpx.Response(200, json={"status": "ok", "current_state": {}, "reverts_at": None})
+
+    for key in ("tools-key", ""):
+        cfg = TwinCfg(base_url="http://twin", tools_api_key=key)
+        http = httpx.AsyncClient(base_url="http://twin", transport=httpx.MockTransport(handler))
+        await HttpTwinClient(cfg, FakeClock(), http).call_tool("set_valve_state", {"call_id": "c"})
+        await http.aclose()
+    assert seen == ["tools-key", None]

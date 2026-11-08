@@ -1,4 +1,5 @@
-"""REST TwinClient: POST {base_url}/tools/{name}; pull mode polls GET {base_url}/readings?cursor=N."""
+"""REST TwinClient: POST {base_url}/tools/{name} (with X-API-Key when TWIN_TOOLS_API_KEY is set);
+pull mode polls GET {base_url}/readings?cursor=N."""
 
 from __future__ import annotations
 
@@ -19,10 +20,11 @@ class HttpTwinClient:
         self.cfg, self.clock = cfg, clock
         self.client = client or httpx.AsyncClient(base_url=cfg.base_url, timeout=cfg.timeout_s)
         self.cursor = 0
+        self.headers = {"X-API-Key": cfg.tools_api_key} if cfg.tools_api_key else {}
 
     async def call_tool(self, name: str, payload: dict[str, Any]) -> dict[str, Any]:
         try:
-            r = await self.client.post(f"/tools/{name}", json=payload)
+            r = await self.client.post(f"/tools/{name}", json=payload, headers=self.headers)
             r.raise_for_status()
             body = r.json()
         except (httpx.HTTPError, ValueError) as e:

@@ -32,6 +32,7 @@ Repointing to real partners: edit `twin.base_url` / `twin.transport` / `twin.mod
 | REST calls to the Guardian | header `X-API-Key: <key>`; one key per partner in `.env` (`BRAIN_API_KEY`, `TWIN_API_KEY`, `OPS_API_KEY`). The key decides the caller identity used in audit logs and quarantine. `/health` and `/docs` are open. |
 | WebSockets | `X-API-Key` header, or `?api_key=` query parameter (browsers cannot set WS headers). Bad key → close code `4401`. |
 | Sensor envelopes | HMAC-SHA256 with the shared `TWIN_HMAC_KEY` (field `hmac`). |
+| Guardian → Twin `/tools` calls | header `X-API-Key: $TWIN_TOOLS_API_KEY` when set (the same variable the Twin checks). |
 | Verdicts | HMAC-SHA256 with the shared `GUARDIAN_HMAC_KEY` (field `signature`). |
 | Scenario tagging | optional header `X-Scenario-Id: T1` is copied into every audit event caused by that request. |
 
@@ -239,6 +240,11 @@ Block reasons: `trust_ref_missing`, `trust_ref_unknown`, `trust_ref_not_trusted`
 `no_switchable_grid`, `no_road_access`, `rate_limited`, `twin_unreachable`. Warnings on forwarded calls:
 `odd_hour_action`, `twin_rejected`, `reply_contradicts_order`.
 
+`duplicate_dispatch`: by default two dispatches are the same when the incident, station, unit type, mode, zone and
+target all match. A repeated call is blocked; a second unit of another type, or a perimeter unit sent to another zone
+or in another mode, is not. Stricter options: `safety.duplicate_dispatch_per: unit_type` (one unit of each type per
+incident) or `incident` (one unit per incident) in `config/policies.yaml`.
+
 After forwarding, the effect verifier checks the physical effect with an **independent** sensor
 (`config/policies.yaml`), e.g. valve closed → flow drops ≥ 80 % within 30 s. Failures (`no_effect`, `wrong_effect`,
 `partial_effect`, `late_effect`, `reply_contradicts_order`, `unauthorised_effect`, `reverted_early`) raise an
@@ -368,6 +374,6 @@ requests, see `tests/integration/test_ws_latency_restart.py`).
 | 5 | Zone granularity and adjacency | Twin exposes zone metadata; until then `config/city_model.yaml` + `crosschecks.yaml` are our documented copy |
 | 6 | Sequence reset after a Twin restart | `sequence_reset: true` in the signed body on the first reading, with a newer timestamp |
 | 7 | Normal-day recording for baselines | Twin provides N hours of clean data; until then the baseline learns online from trusted readings only |
-| 8 | Sensors/actuators in scope for Phase 1 | The eight sensor types and five actuators above |
+| 8 | Sensors/actuators in scope for Phase 1 | The eight sensor types and five actuators above, plus the real Twin's event types `cctv_anomaly`, `building_fire`, `unit_status` and its zones (`zone-01..03`, `zone-dip-*`) in `config/` |
 | 9 | Owner of the shared timeline screen (R3) | One owner; each layer only emits events (ours: `WS /v1/ws/timeline`) |
 | 10 | Actuator calls via Guardian | The Brain sends all actuator calls through `/v1/actuator-calls` |

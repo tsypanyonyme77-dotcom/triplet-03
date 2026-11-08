@@ -2,9 +2,20 @@
 corroboration_window_s: 120
 min_sources: 2          # distinct trusted independent sensors needed for a verdict
 adjacency:
+  # real Twin
+  zone-01: [zone-02, zone-03]
+  zone-02: [zone-01, zone-03]
+  zone-03: [zone-01, zone-02, zone-dip-1-2, zone-dip-1-4, zone-dip-2-3, zone-dip-2-5, zone-dip-3-6, zone-dip-4-5, zone-dip-5-6, zone-08]   # zone-08: Guardian mock only
+  zone-dip-1-2: [zone-03, zone-dip-1-4, zone-dip-2-3, zone-dip-2-5, zone-dip-3-6, zone-dip-4-5, zone-dip-5-6]
+  zone-dip-1-4: [zone-03, zone-dip-1-2, zone-dip-2-3, zone-dip-2-5, zone-dip-3-6, zone-dip-4-5, zone-dip-5-6]
+  zone-dip-2-3: [zone-03, zone-dip-1-2, zone-dip-1-4, zone-dip-2-5, zone-dip-3-6, zone-dip-4-5, zone-dip-5-6]
+  zone-dip-2-5: [zone-03, zone-dip-1-2, zone-dip-1-4, zone-dip-2-3, zone-dip-3-6, zone-dip-4-5, zone-dip-5-6]
+  zone-dip-3-6: [zone-03, zone-dip-1-2, zone-dip-1-4, zone-dip-2-3, zone-dip-2-5, zone-dip-4-5, zone-dip-5-6]
+  zone-dip-4-5: [zone-03, zone-dip-1-2, zone-dip-1-4, zone-dip-2-3, zone-dip-2-5, zone-dip-3-6, zone-dip-5-6]
+  zone-dip-5-6: [zone-03, zone-dip-1-2, zone-dip-1-4, zone-dip-2-3, zone-dip-2-5, zone-dip-3-6, zone-dip-4-5]
+  # Guardian mock city
   zone-07: [zone-08, zone-12]
   zone-08: [zone-07, zone-03]
-  zone-03: [zone-08]
   zone-12: [zone-07]
 # rules[<sensor_type>] or rules["emergency_call:<incident_type>"] -> list of sources.
 # A source sensor "agrees" when it is in the same event state (thresholds.events) as the target.

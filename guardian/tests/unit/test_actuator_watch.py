@@ -69,6 +69,9 @@ async def test_auditor_policies(city: Harness) -> None:
     dup = await a.handle(call("dispatch-central", "dispatch_unit", {"unit_type": "police"}, ref,
                               incident_id="inc-1"), "brain")
     assert "duplicate_dispatch" in dup.reasons
+    other_type = await a.handle(call("dispatch-central", "dispatch_unit", {"unit_type": "ambulance"}, ref,
+                                     incident_id="inc-1"), "brain")
+    assert other_type.decision == "forwarded", other_type.reasons  # a second unit of another type is allowed
     # T14's pattern (the Brain's GuardianV1Adapter shape): a pursuit, then a perimeter for the same incident. Each unit
     # goes to another zone or in another mode, so none is a duplicate; sending the pursuit again still is.
     pursuit = {"unit_type": "police", "mode": "pursuit", "target_id": "cit-88213", "station_id": "police-dispatch-05"}

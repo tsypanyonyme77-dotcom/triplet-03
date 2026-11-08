@@ -31,6 +31,9 @@ verification:
 safety:
   no_grid_disconnect_in_hospital_zone: true
   no_duplicate_dispatch: true
+  # what counts as a duplicate dispatch: call (same incident, station, unit type, mode, zone and target)
+  # | unit_type (one unit of each type per incident) | incident (one unit per incident)
+  duplicate_dispatch_per: call
 rate_limits:
   per_caller_per_min: 30
   per_actuator_per_min: 6

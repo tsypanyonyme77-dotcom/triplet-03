@@ -126,7 +126,8 @@ file and field named) and secrets are in `.env`:
 ### Pointing at a real Twin / Brain
 
 Change `config/guardian.yaml` (`twin.base_url`, `twin.transport`, `twin.mode`) or the matching `.env` overrides
-(`TWIN_BASE_URL`, `TWIN_TRANSPORT`, `TWIN_MODE`), and put the agreed keys in `.env`. Nothing else changes: only
+(`TWIN_BASE_URL`, `TWIN_TRANSPORT`, `TWIN_MODE`), and put the agreed keys in `.env` (`TWIN_TOOLS_API_KEY` if the Twin
+protects its `/tools`). Nothing else changes: only
 `src/guardian/adapters/` knows partner formats. Install `.[mcp]` or `.[mqtt]` for those transports. Set
 `LOG_DIR=../logs` to write into the triplet's root `logs/`.
 

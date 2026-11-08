@@ -48,3 +48,7 @@ sensor_types:
       frequency_hz: {type: float, unit: Hz}
       voltage_v: {type: float, unit: V}
     checks: [range, dynamics, liveness]
+  # Event types sent by the real Twin (twin/): judged on authenticity, freshness and the city model.
+  cctv_anomaly: {expected_interval_s: null, fields: {anomaly_type: {type: str}, confidence: {type: float}}, checks: [semantic]}
+  building_fire: {expected_interval_s: null, fields: {building_id: {type: str}, smoke_detected: {type: bool}, temp_c: {type: float}, co2_ppm: {type: float}}, checks: [semantic]}
+  unit_status: {expected_interval_s: null, fields: {unit_id: {type: str}, incident_id: {type: str}, state: {type: str}}, checks: [semantic]}
