@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import httpx
+import pytest
 from fastapi.testclient import TestClient
 
 from twin.city.two_blocks import TwoBlocksCity
@@ -152,3 +153,33 @@ def test_a_tools_key_is_required_once_configured():
     client, _ = _tools(Settings(emit_enabled=False, live=False, tools_api_key="tk"))
     assert client.post("/tools/dispatch_unit", json=_forwarded()).status_code == 401
     assert client.post("/tools/dispatch_unit", json=_forwarded(), headers={"X-API-Key": "tk"}).json()["status"] == "ok"
+
+
+def _ped_hit_emitter(**settings):
+    city = TwoBlocksCity("ped-hit")
+    city.step(60.0)
+    return create_app(Settings(emit_enabled=False, live=False, guardian_dialect="guardian-v1",
+                               guardian_ingest_url="http://guardian:8003/v1/readings", **settings), city)
+
+
+def test_the_brain_is_offered_only_what_the_guardian_can_judge():
+    app = _ped_hit_emitter()
+    readings = asyncio.run(app.state.emitter.tick())
+    assert {"cctv_anomaly", "traffic_camera"} <= {r["type"] for r in readings}     # the camera does flag the crash
+    offered = app.state.reading_log.page(0, 1000)["readings"]
+    assert {r["type"] for r in offered} == {"traffic_camera", "water_level", "rainfall", "air_quality", "emergency_call"}
+    assert all(r["value"].get("category") != "other" for r in offered)             # a call the Guardian has no type for
+
+
+def test_extended_types_go_to_the_guardian_and_the_brain_once_configured():
+    app = _ped_hit_emitter(guardian_extended_types=("cctv_anomaly",))
+    readings = asyncio.run(app.state.emitter.tick())
+    assert "cctv_anomaly" in {r["type"] for r in app.state.reading_log.page(0, 1000)["readings"]}
+    dialect = GuardianDialect("k", ("cctv_anomaly",))
+    (rendered,) = [e for r in readings if r["type"] == "cctv_anomaly" for e in dialect.render(r)]
+    assert set(rendered["value"]) == {"anomaly_type", "confidence"} and rendered["sensor_id"] == "cam-n2-cctv"
+
+
+def test_a_type_with_no_mapping_stops_the_start_with_a_clear_error():
+    with pytest.raises(ValueError, match="GUARDIAN_EXTENDED_TYPES"):
+        GuardianDialect("k", ("citizen_activity",))

@@ -24,7 +24,9 @@ HMAC-SHA256 over the reading without `provenance`, keys sorted, no whitespace, U
 ```
 
 **To the Guardian** (its contract `1.0`): pushed, one batch per tick, `POST {GUARDIAN_URL}/v1/readings` with `X-API-Key: <TWIN_API_KEY>`.
-Its envelope holds exactly its fields, and `value` exactly what its sensor registry lists for the type; types it does not know are not sent.
+Its envelope holds exactly its fields, and `value` exactly what its sensor registry lists for the type.
+Types its stock registry lacks (`cctv_anomaly`, `building_fire`, `unit_status`) go out only when named in `GUARDIAN_EXTENDED_TYPES`, once it has registered them.
+The City Brain asks the Guardian about every reading it pulls, and a reading with no verdict costs it the verdict deadline and degraded mode, so it is offered only what the Guardian can judge.
 HMAC over the envelope without `hmac`, same rule and key. `sequence_reset: true` on the first reading of each sensor after a restart.
 
 ```json
@@ -36,12 +38,12 @@ HMAC over the envelope without `hmac`, same rule and key. `sequence_reset: true`
 |---|---|---|---|
 | `emergency_call` | `ecall-<zone>` | `call_id, category, caller_id, caller_confidence, incident_id, location, reporter_kind` | `emergency_call {call_id, incident_type, caller_id}`; `police` is `crime`, `other` is not sent |
 | `traffic_camera` | `cam-n2`, `cam-n5` | `congestion_score, vehicle_count, avg_speed_kmh, smoke_detected` | `traffic_camera` without `smoke_detected` |
-| `cctv_anomaly` | `<camera>-cctv` | `anomaly_type (collision, stopped_vehicle), confidence, anomaly_id, incident_id, location` | not in its registry |
-| `building_fire` | `fire-<building>` | `smoke_detected, temp_c, co2_ppm, building_id, incident_id, location`, while a building smokes | not in its registry |
+| `cctv_anomaly` | `<camera>-cctv` | `anomaly_type (collision, stopped_vehicle), confidence, anomaly_id, incident_id, location` | `cctv_anomaly {anomaly_type, confidence}`, if extended |
+| `building_fire` | `fire-<building>` | `smoke_detected, temp_c, co2_ppm, building_id, incident_id, location`, while a building smokes | `building_fire {building_id, smoke_detected, temp_c, co2_ppm}`, if extended |
 | `air_quality` | `aq-<zone>` | `aqi, pm25_ugm3, pm10_ugm3, smoke_detected` | `air_quality {aqi, smoke}` |
 | `rainfall` | `rain-dip-<u>-<v>` | `mm_per_hr, location` | `rain_gauge {rainfall_mm_h}` |
 | `water_level` | `wl-dip-<u>-<v>` | `level_m, flow_rate_m3s, pump_id, pump_on, location` | `water_level {level_m}` and `flow_meter {flow_rate_m3s}` as `flow-dip-<u>-<v>` |
-| `unit_status` | `unit-<unit>` | `unit_id, incident_id, state (en_route, on_scene, returning), unit_type, station_id`, on each change | not in its registry |
+| `unit_status` | `unit-<unit>` | `unit_id, incident_id, state (en_route, on_scene, returning), unit_type, station_id`, on each change | `unit_status {unit_id, incident_id, state}`, if extended |
 
 Every value also has `sim_time_s`. `location` is metres on the map (x east, y north). `incident_id` in a call or alarm is the Twin's call-centre incident.
 
@@ -77,7 +79,8 @@ Answer, always HTTP 200: `{"status":"ok","current_state":{...the actuator's resu
 ## Pointing it at a different partner (configuration only)
 
 `GUARDIAN_URL` and `BRAIN_URL` are the partners' base addresses; `GUARDIAN_DIALECT` is `guardian-v1` (the real Guardian, default) or `twin` (our mock).
-`GUARDIAN_INGEST_URL` overrides where readings go; `BRAIN_NOTIFY_URL` pings our mock City Brain after each batch (the real one polls).
+`GUARDIAN_EXTENDED_TYPES` (comma-separated) names our types the Guardian has registered. `GUARDIAN_INGEST_URL` overrides where readings go; `BRAIN_NOTIFY_URL` pings our mock City Brain after each batch (the real one polls).
+`BRAIN_EVENTS_URL` is where our events go for the City Brain's timeline (default `{BRAIN_URL}/api/events`, empty for off), as CloudEvents of type `twin.<kind>`, without ground truth; `TWIN_PUSH_TOKEN` is the bearer token if it asks for one.
 `TWIN_MCP_ALLOWED_HOSTS` lists the Host headers `/mcp` accepts (default `127.0.0.1:*`, `localhost:*`, `twin:*`, `twin`).
 All in the environment: `twin/.env.example` alone with mocks, the root `.env.example` in the triplet.
 

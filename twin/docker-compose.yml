@@ -37,6 +37,7 @@ services:
       GUARDIAN_INGEST_URL: ${GUARDIAN_INGEST_URL:-}
       BRAIN_NOTIFY_URL: ${BRAIN_NOTIFY_URL:-http://mock-brain:8000/notify}
       BRAIN_EVENTS_URL: ${BRAIN_EVENTS_URL:-}     # empty: the mock reads our GET /events instead
+      GUARDIAN_EXTENDED_TYPES: ${GUARDIAN_EXTENDED_TYPES:-}
       TWIN_API_KEY: ${TWIN_API_KEY:-}
       BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-}
       TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
