@@ -424,9 +424,9 @@ def rejection_rows() -> str:
     return "".join(rows)
 
 
-def page(n: int, part: str, body: str) -> str:
+def page(n: int, part: str, body: str, team: str = "City Brain team") -> str:
     return (f"<section class='page'><div class='top'><span><b>Triplet 03</b> · TSYP14 City Brain Convergence, Phase 1</span><span>{part}</span></div>{body}"
-            f"<div class='foot'><span>City Brain team</span><span>{n}</span></div></section>")
+            f"<div class='foot'><span>{team}</span><span>{n}</span></div></section>")
 
 
 def small_icon(name: str, tone: str) -> str:
@@ -486,7 +486,7 @@ def part2(n: int) -> list[str]:
 <p>When an alarm matches no department, an incident has no procedure, or an incident stalls, the Brain emits <code>brain.human.needed</code> and asks a person.</p>
 </div><div>
 <h3>2.2.2 Decision method</h3>
-<p><b>Rules</b> (13, in six packs) answer in milliseconds with no model. <b>Agent teams</b> weigh the case: for Police an Analyst, a Tactician and a Chief on LangGraph, using Groq models with <code>--llm</code> and a scripted stand-in otherwise or when the model fails; the other departments use a two-role desk. <b>Solvers</b> compute what should not be guessed: OR-Tools min-cost flow for dispatch, CP-SAT for a perimeter and for load shedding, Dijkstra for a green corridor and the Kalman forecast for floods. They run before the agents and their answers go into the agents&rsquo; brief, so a model that never calls a tool still reads them.</p>
+<p><b>Rules</b> (14, in six packs) answer in milliseconds with no model. <b>Agent teams</b> weigh the case: for Police an Analyst, a Tactician and a Chief on LangGraph, using Groq models with <code>--llm</code> and a scripted stand-in otherwise or when the model fails; the other departments use a two-role desk. <b>Solvers</b> compute what should not be guessed: OR-Tools min-cost flow for dispatch, CP-SAT for a perimeter and for load shedding, Dijkstra for a green corridor and the Kalman forecast for floods. They run before the agents and their answers go into the agents&rsquo; brief, so a model that never calls a tool still reads them.</p>
 <p>Code then verifies the agents&rsquo; plan (<code>verify_case</code>, <code>verify_plan</code>, <code>verify_desk</code>) before it reaches the gate.</p>
 </div></div>
 <h4>Departments</h4>
@@ -494,7 +494,7 @@ def part2(n: int) -> list[str]:
 <tr><td>Police</td><td>crime</td><td><code>dispatch_unit</code> (pursuit, contain), <code>broadcast_alert</code>, <code>recall_unit</code></td><td>Analyst, Tactician, Chief</td></tr>
 <tr><td>Fire, Ambulance</td><td>fire, accident</td><td><code>dispatch_unit</code>, <code>broadcast_alert</code></td><td>desk: Analyst, Chief</td></tr>
 <tr><td>Traffic control</td><td>jam</td><td><code>set_signal_phase</code> (hold green, also for an ambulance&rsquo;s route)</td><td>desk</td></tr>
-<tr><td>Disaster response</td><td>flood</td><td><code>broadcast_alert</code>, <code>set_valve_state</code> (a person approves)</td><td>desk</td></tr>
+<tr><td>Disaster response</td><td>flood</td><td><code>broadcast_alert</code>, <code>set_pump_state</code>, <code>set_valve_state</code> (a person approves)</td><td>desk</td></tr>
 <tr><td>Utilities</td><td>overload, smog</td><td><code>broadcast_alert</code>, <code>set_grid_connection</code> (a person approves)</td><td>desk</td></tr></table>
 <p>A department is three files (detectors and actuators, reflex rules, a playbook): a new kind of incident is a new pack.</p>
 """))
@@ -523,10 +523,10 @@ def part2(n: int) -> list[str]:
 <table><tr><th style='width:16%'>Direction</th><th style='width:30%'>Message</th><th>Transport and contract</th></tr>
 <tr><td>In, from the Twin</td><td>signed sensor readings; the city layout</td><td>MCP <code>list_readings(cursor)</code> every 200 ms and <code>get_topology()</code>; plain HTTP or MQTT as alternatives</td></tr>
 <tr><td>In, from the Guardian</td><td>a signed verdict per reading; containment</td><td>contract 1.0: <code>POST /v1/verdicts/request</code> by sensor and sequence number, HMAC checked; <code>GET /v1/containment</code></td></tr>
-<tr><td>Out, to the Twin</td><td>signed calls for the six actions (<code>dispatch_unit</code>, <code>set_valve_state</code>&hellip;)</td><td>valve, grid, signal, dispatch via the Guardian&rsquo;s audited <code>/v1/actuator-calls</code>; broadcast and recall to the Twin directly</td></tr>
+<tr><td>Out, to the Twin</td><td>signed calls (<code>dispatch_unit</code>, <code>set_pump_state</code>&hellip;)</td><td>dispatch, valve, grid and signal via the Guardian&rsquo;s audited <code>/v1/actuator-calls</code>; alerts, recalls and the pump to the Twin&rsquo;s MCP tools</td></tr>
 <tr><td>Out, to the screen and partners</td><td>timeline events; the reasons for a decision; read-only tools</td><td>SSE <code>GET /events</code> (CloudEvents 1.0, 55 types in AsyncAPI); <code>/api/decisions/{{id}}/explanation</code>; MCP at <code>/mcp</code></td></tr></table>
 <div style='width:86%;margin:0 auto'>{fig_interop()}</div>
-<p class='cap'><b>Figure 2.4.</b> Where the logic ends and partners begin. Phase 2 reshuffles the triplets, so a new Twin or Guardian must be a new adapter class or an edit of <code>config/partners.yaml</code>, never a change to the decision logic, which reaches partners only through the two ports.</p>
+<p class='cap'><b>Figure 2.4.</b> Where the logic ends and partners begin. Phase 2 reshuffles the triplets, so a new Twin or Guardian must be a new adapter class or an edit of <code>config/partners.yaml</code>, never a change to the decision logic, which reaches partners only through the two ports. The Twin&rsquo;s and the Guardian&rsquo;s sides of these links are in 1.4 and 3.4.</p>
 <table><tr><th style='width:26%'>The jury looks for</th><th>Where the Brain does it, and the check that keeps it true</th></tr>
 <tr><td>Logic separate from partner I/O</td><td>two ports in <code>ports.py</code>, one adapter class per protocol; <code>tests/test_layering.py</code> enforces it</td></tr>
 <tr><td>A complete Interface Card</td><td><code>INTERFACE.md</code>, an example of every message; <code>tests/test_contracts.py</code> validates each</td></tr>
@@ -559,12 +559,12 @@ def part2(n: int) -> list[str]:
 <p><b>Reproduce:</b> <code>uv run brain scenario t13 --inproc --speed 0</code>, <code>uv run brain redteam</code>, <code>uv run brain verify-log --scenarios</code>.</p>
 <h2>2.6 Known limitations</h2>
 <div class='cols'><div><ul class='items'>
-<li><b>No joint run with the real Twin yet.</b> Against the live Guardian we ran the fake and real flood and T16. Next: run T12 to T16 against the Twin team&rsquo;s Twin.</li>
+<li><b>Joint runs, not yet complete.</b> On 8 November the Brain ran with the Twin team&rsquo;s Twin and the Guardian team&rsquo;s Guardian: three incidents end to end, a flood alert. Next: the same through Compose, with the agent teams.</li>
 <li><b>The mock Guardian is scripted.</b> T13 and T16 show what the Brain does with a given verdict, not whether a real Guardian would issue it. Next: rerun both with <code>docker-compose.guardian.yml</code>.</li>
-<li><b>Tuned on stand-ins.</b> Which sensors move together, and whether sensors in one zone are independent, waits for the real Twin&rsquo;s data. Next: record a normal day from it (<code>docs/TWIN-HANDOVER.md</code>).</li>
 </ul></div><div><ul class='items'>
+<li><b>Tuned on stand-ins.</b> Which sensors move together, and whether sensors in one zone are independent, waits for the real Twin&rsquo;s data. Next: record a normal day from it (<code>docs/TWIN-HANDOVER.md</code>).</li>
 <li><b>TLS and the freshness limit are off by default.</b> Signatures still protect readings and calls. Next: set <code>guardian.tls</code> and <code>twin.max_age_s</code> on the live stack.</li>
-<li><b>Guardian alerts are not read.</b> An actuator the Guardian flags as unreliable appears in its containment list, which the gate obeys; a <code>compromised_twin</code> alert does not reach the Brain. Next: read <code>WS /v1/ws/verdicts</code> in the adapter.</li>
+<li><b>Guardian alerts are not read.</b> An unreliable actuator reaches the Brain through the containment list, which the gate obeys; a <code>compromised_twin</code> alert does not. Next: read <code>WS /v1/ws/verdicts</code>.</li>
 </ul></div></div>
 """))
     return p
@@ -668,18 +668,25 @@ def document(embed_fonts: bool, body: list[str] | None = None, title: str = "Cit
     return re.sub(r"\s+\n", "\n", f"<!doctype html><html lang='en'><head><meta charset='utf-8'><title>{title}</title><style>{faces}{CSS}{LOGO_CSS}</style></head><body>{html_body}</body></html>")
 
 
-def main() -> int:
+def print_pdfs(jobs: list[tuple[Path, str]]) -> bool:
+    """Print each (output, HTML) pair with headless Chromium; False when no Chromium is installed."""
     browser = shutil.which("chromium") or shutil.which("chromium-browser") or shutil.which("google-chrome")
     if browser is None:
         print("error: needs Chromium to print the PDF", file=sys.stderr)
-        return 1
-    PAGE.write_text(document(True), encoding="utf-8")
+        return False
     with tempfile.TemporaryDirectory() as work:
-        for out, html_text in ((PDF, document(False)), (PART2, document(False, part2(1), "City Brain: report, Part 2"))):
+        for out, html_text in jobs:
             src = Path(work) / "report.html"
             src.write_text(html_text, encoding="utf-8")
             subprocess.run([browser, "--headless=new", "--disable-gpu", "--no-pdf-header-footer", "--allow-file-access-from-files",
                             f"--user-data-dir={work}/profile", f"--print-to-pdf={out}", src.as_uri()], check=True, capture_output=True, timeout=180)
+    return True
+
+
+def main() -> int:
+    if not print_pdfs([(PDF, document(False)), (PART2, document(False, part2(1), "City Brain: report, Part 2"))]):
+        return 1
+    PAGE.write_text(document(True), encoding="utf-8")
     print(f"wrote {PDF.relative_to(ROOT)}, {PART2.relative_to(ROOT)} and {PAGE.relative_to(ROOT)}")
     return 0
 
