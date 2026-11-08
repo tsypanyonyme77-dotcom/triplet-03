@@ -775,6 +775,19 @@ class BrainService:
             self.timeline.emit("brain.incident.closed", closed.incident_id, {"outcome": "returned", "unit_id": status.unit_id}, trace_id)
             await self.bus.publish(IncidentClosed(closed.incident_id, "returned", trace_id))
 
+    async def twin_reset(self, run: str) -> list[str]:
+        """The Twin started a new city run: what was open belongs to the old city, so it is closed, not merged into."""
+        ended = []
+        for incident_id in [i.incident_id for i in self.triage.incidents.values() if i.status == "open"]:
+            closed = self.triage.close(incident_id, "twin_reset")
+            if closed is None:
+                continue
+            self.store.close_incident(closed)
+            self.timeline.emit("brain.incident.closed", closed.incident_id, {"outcome": "twin_reset", "twin_run": run}, None)
+            await self.bus.publish(IncidentClosed(closed.incident_id, "twin_reset", None))
+            ended.append(closed.incident_id)
+        return ended
+
     async def _unit_status(self, status: UnitStatus, verdict: TrustVerdict, reading: SensorReading, trace_id: str) -> None:
         self.timeline.emit("brain.unit.status", status.incident_id, {
             "unit_id": status.unit_id, "state": status.state, "zone_id": reading.zone_id, "verdict": verdict.status.value,
