@@ -45,3 +45,29 @@ def test_intervals_come_from_configuration_and_a_bad_one_is_named():
             assert "TWIN_READING_INTERVALS" in str(exc)
         else:
             raise AssertionError(bad)
+
+
+def _call(incident, zone="zone-01"):
+    return {"sensor_id": f"ecall-{zone}", "type": "emergency_call", "zone_id": zone, "value": {"incident_id": incident}}
+
+
+def test_the_call_centre_forwards_two_calls_per_incident_a_minute():
+    cadence = ReadingCadence({}, tick_s=1.0, call_limits=True)
+    cadence.next_tick()
+    assert [cadence.due(_call("inc-1")) for _ in range(3)] == [True, True, False]
+    assert cadence.due(_call("inc-2"))                 # another incident is news
+    for _ in range(60):
+        cadence.next_tick()
+    assert cadence.due(_call("inc-1"))                 # a minute on, it is worth saying again
+
+
+def test_no_zone_sends_more_calls_than_the_guardians_limit():
+    cadence = ReadingCadence({}, tick_s=1.0, call_limits=True)
+    cadence.next_tick()
+    sent = sum(cadence.due(_call(f"inc-{n}")) for n in range(9))
+    assert sent == 5 and cadence.due(_call("inc-99", zone="zone-02"))
+
+
+def test_without_call_limits_every_call_goes_out():
+    cadence = ReadingCadence({}, tick_s=1.0)
+    assert all(cadence.due(_call("inc-1")) for _ in range(9))
