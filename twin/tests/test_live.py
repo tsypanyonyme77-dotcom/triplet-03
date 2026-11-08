@@ -71,22 +71,25 @@ class _Router(httpx.AsyncBaseTransport):
 
 
 def test_the_brain_lists_incidents_from_guardian_history_and_dispatches_only_when_told(guardian_mock):
-    from conftest import load_mock
+    from conftest import ALL_TYPES, load_mock, send_to_guardian
+    from twin.partners.guardian_dialect import GuardianDialect
 
     brain = load_mock("brain", "mock_brain_live")
     city = TwoBlocksCity("ped-hit")
-    twin_app = create_app(Settings(live=True, emit_enabled=False, brain_api_key=KEY), city)
+    twin_app = create_app(Settings(live=True, emit_enabled=False, brain_api_key=KEY, guardian_extended_types=ALL_TYPES,
+                                   guardian_ingest_url="http://guardian:8001/v1/readings"), city)
     brain.TWIN_URL, brain.GUARDIAN_URL, brain.TWIN_API_KEY = "http://twin:8000", "http://guardian:8001", KEY
     emitter = twin_app.state.emitter
     guardian = TestClient(guardian_mock.app)
+    dialect = GuardianDialect(twin_app.state.emitter.settings.hmac_key, ALL_TYPES)
 
     async def scenario():
         async with httpx.AsyncClient(transport=_Router({8000: twin_app, 8001: guardian_mock.app})) as client:
             desk = brain.desk
             for _ in range(65):                       # 65 s: the hit at 48.7 s, camera and calls
                 city.step(1.0)
-                for r in emitter.build_readings():
-                    guardian.post("/ingest", json=r)
+                for r in await emitter.tick():
+                    send_to_guardian(guardian, r, dialect)
                 await desk.poll_once(client)
             listed = [dict(i) for i in desk.board.list()]
             moved_before = [u for u in city.sim.units.values() if u.status != "idle"]

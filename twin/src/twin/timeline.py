@@ -14,7 +14,7 @@ PARTNER_TIMEOUT_S = 1.5
 PARTNER_EVENTS = 1000
 # periodic chatter: left out by default so that cause and effect stay readable, and flagged `routine`
 # when asked for
-NOISE = {"reading_emitted", "brain_notified", "notified", "readings_verified"}
+NOISE = {"reading_emitted", "readings_verified"}
 
 
 async def _partner(client: httpx.AsyncClient, layer: str, url: str) -> tuple[str, list[dict[str, Any]], str | None]:

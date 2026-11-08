@@ -145,8 +145,8 @@ def test_the_mock_brain_only_lists_smoke_not_its_absence():
     board = rule.rules.IncidentBoard()
     base = {"sensor_id": "fire-bld-01-03", "type": "building_fire", "zone_id": "zone-01",
             "value": {"building_id": "bld-01-03", "incident_id": "inc-0001", "smoke_detected": False}}
-    verdict = {"trust": "trusted", "verdict_id": "verdict-1"}
+    verdict = {"status": "trusted", "verdict_id": "verdict-1"}
     assert board.observe(base, verdict, 5.0) is None and board.list() == []
     smoke = {**base, "value": {**base["value"], "smoke_detected": True}}
     assert board.observe(smoke, verdict, 6.0)["type"] == "fire"
-    assert board.observe(smoke, {"trust": "untrusted", "verdict_id": "verdict-2"}, 7.0) is None
+    assert board.observe(smoke, {"status": "untrusted", "verdict_id": "verdict-2"}, 7.0) is None

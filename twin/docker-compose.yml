@@ -32,13 +32,11 @@ services:
       LOG_DIR: /logs
       GUARDIAN_URL: ${GUARDIAN_URL:-http://mock-guardian:8000}
       BRAIN_URL: ${BRAIN_URL:-http://mock-brain:8000}
-      # the mocks speak the Twin's own envelopes; a real Guardian needs guardian-v1 (its contract 1.0)
-      GUARDIAN_DIALECT: ${GUARDIAN_DIALECT:-twin}
       GUARDIAN_INGEST_URL: ${GUARDIAN_INGEST_URL:-}
-      BRAIN_NOTIFY_URL: ${BRAIN_NOTIFY_URL:-http://mock-brain:8000/notify}
       BRAIN_EVENTS_URL: ${BRAIN_EVENTS_URL:-}     # empty: the mock reads our GET /events instead
-      GUARDIAN_EXTENDED_TYPES: ${GUARDIAN_EXTENDED_TYPES:-}
-      TWIN_API_KEY: ${TWIN_API_KEY:-}
+      # the mock Guardian takes every type; a real one only what it has registered
+      GUARDIAN_EXTENDED_TYPES: ${GUARDIAN_EXTENDED_TYPES:-cctv_anomaly,building_fire,unit_status}
+      TWIN_API_KEY: ${TWIN_API_KEY:-dev-only-twin-key}
       BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-}
       TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
       TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-brain-key}
@@ -78,7 +76,7 @@ services:
       LOG_DIR: /logs
       TWIN_URL: ${TWIN_URL:-http://twin:8001}
       TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
-      TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
+      TWIN_API_KEY: ${TWIN_API_KEY:-dev-only-twin-key}
 
   mock-brain:
     <<: *service

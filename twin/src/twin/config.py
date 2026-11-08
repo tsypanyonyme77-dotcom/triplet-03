@@ -9,15 +9,11 @@ from twin.reading_cadence import DEFAULT_INTERVALS, parse_intervals
 
 @dataclass(frozen=True)
 class Settings:
-    # Partners: base addresses (their GET /events feeds the timeline) and where readings and
-    # notifications go. An empty string disables that link.
+    # Partners: base addresses (their GET /events feeds the timeline) and where readings go.
+    # An empty string disables that link.
     guardian_url: str = ""
     brain_url: str = ""
     guardian_ingest_url: str = ""
-    brain_notify_url: str = ""
-    # How readings reach the Guardian: "guardian-v1" = its contract 1.0, batches to /v1/readings (the real
-    # Guardian); "twin" = our own envelopes, one POST each (the mock Guardian in twin/mocks)
-    guardian_dialect: str = "twin"
     guardian_push_api_key: str = ""   # the Twin's key on the Guardian (its TWIN_API_KEY)
     guardian_extended_types: tuple[str, ...] = ()   # our types the Guardian has registered (partners/guardian_dialect.py, EXTENDED)
     # The City Brain's timeline screen takes our events here (R3); the token is its TWIN_PUSH_TOKEN, if it asks for one
@@ -37,6 +33,7 @@ class Settings:
     emit_enabled: bool = True
     emit_interval_s: float = 1.0
     reading_intervals: tuple[tuple[str, float], ...] = ()   # (type, seconds): how often a sensor reports; empty = every tick
+    realistic_sensors: bool = False   # sensors measure over a window and wobble (sensor_model.py); off: readings are the engine's truth
     # The city (twin.world.scenarios.CityParams checks the ranges)
     scenario: str = "city"
     seed: int | None = None
@@ -58,20 +55,13 @@ class Settings:
         seed = os.environ.get("TWIN_SEED")
         guardian = os.environ.get("GUARDIAN_URL", "").rstrip("/")
         brain = os.environ.get("BRAIN_URL", "").rstrip("/")
-        dialect = os.environ.get("GUARDIAN_DIALECT", "guardian-v1")
-        if dialect not in ("guardian-v1", "twin"):
-            raise ValueError(f"GUARDIAN_DIALECT must be 'guardian-v1' or 'twin', got {dialect!r}")
-        ingest_path = "/v1/readings" if dialect == "guardian-v1" else "/ingest"
         hosts = os.environ.get("TWIN_MCP_ALLOWED_HOSTS")
         events_url = os.environ.get("BRAIN_EVENTS_URL")
         intervals = os.environ.get("TWIN_READING_INTERVALS")
         return cls(
             guardian_url=guardian,
             brain_url=brain,
-            guardian_ingest_url=os.environ.get("GUARDIAN_INGEST_URL") or (f"{guardian}{ingest_path}" if guardian else ""),
-            # the real City Brain polls for readings; only the mock wants to be told (set BRAIN_NOTIFY_URL for it)
-            brain_notify_url=os.environ.get("BRAIN_NOTIFY_URL", ""),
-            guardian_dialect=dialect,
+            guardian_ingest_url=os.environ.get("GUARDIAN_INGEST_URL") or (f"{guardian}/v1/readings" if guardian else ""),
             guardian_push_api_key=os.environ.get("TWIN_API_KEY", ""),
             guardian_extended_types=tuple(t.strip() for t in os.environ.get("GUARDIAN_EXTENDED_TYPES", "").split(",") if t.strip()),
             # unset: the real City Brain's route; empty: off (the mock has no such route)
@@ -86,6 +76,7 @@ class Settings:
             mcp_allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()) if hosts is not None else cls.mcp_allowed_hosts,
             operator_key=os.environ.get("TWIN_OPERATOR_KEY", ""),
             emit_interval_s=float(os.environ.get("TWIN_EMIT_INTERVAL_S", cls.emit_interval_s)),
+            realistic_sensors=os.environ.get("TWIN_REALISTIC_SENSORS", "1").strip().lower() not in ("0", "false", "no", "off"),
             reading_intervals=tuple((parse_intervals(intervals) if intervals is not None else DEFAULT_INTERVALS).items()),
             scenario=os.environ.get("TWIN_SCENARIO", cls.scenario),
             seed=int(seed) if seed else None,

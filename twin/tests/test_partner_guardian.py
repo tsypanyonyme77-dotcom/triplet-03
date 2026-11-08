@@ -158,8 +158,7 @@ def test_a_tools_key_is_required_once_configured():
 def _ped_hit_emitter(**settings):
     city = TwoBlocksCity("ped-hit")
     city.step(60.0)
-    return create_app(Settings(emit_enabled=False, live=False, guardian_dialect="guardian-v1",
-                               guardian_ingest_url="http://guardian:8003/v1/readings", **settings), city)
+    return create_app(Settings(emit_enabled=False, live=False, guardian_ingest_url="http://guardian:8003/v1/readings", **settings), city)
 
 
 def test_the_brain_is_offered_only_what_the_guardian_can_judge():
@@ -183,3 +182,11 @@ def test_extended_types_go_to_the_guardian_and_the_brain_once_configured():
 def test_a_type_with_no_mapping_stops_the_start_with_a_clear_error():
     with pytest.raises(ValueError, match="GUARDIAN_EXTENDED_TYPES"):
         GuardianDialect("k", ("citizen_activity",))
+
+
+def test_with_realistic_sensors_the_water_level_goes_out_as_the_drain_shaft_reads_it():
+    city = TwoBlocksCity("flood")
+    city.step(90.0)
+    app = create_app(Settings(emit_enabled=False, live=False, realistic_sensors=True), city)
+    (level,) = [r for r in asyncio.run(app.state.emitter.tick()) if r["sensor_id"] == "wl-dip-2-3"]
+    assert level["value"]["road_depth_m"] > 0 and level["value"]["level_m"] > level["value"]["road_depth_m"]

@@ -1,8 +1,8 @@
 """MOCK City Brain layer (stand-in, no real analysis), with an operator console.
 
-- Receives the Twin's "new data available" notification (no payload).
-- Polls the Guardian's verified readings every second and keeps an incident board
-  (incident_rule.IncidentBoard).
+- Reads as the real City Brain does: pulls GET {TWIN}/readings by cursor every second, and asks the Guardian for
+  the verdict on each one by sensor and sequence number (POST /v1/verdicts/request). Keeps an incident board
+  from the trusted ones (incident_rule.IncidentBoard).
 - Operator actions (dispatch ambulance / police / fire truck, close / open the road) go through
   POST /api/incidents/{id}/actions, which builds the actuator call exactly as the City Brain
   would and sends it to the Twin. Manual by default: nothing is dispatched until an operator
@@ -20,7 +20,7 @@ from typing import Any
 
 import httpx
 from contextlib import asynccontextmanager, suppress
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -32,6 +32,7 @@ UI_DIR = Path(os.environ.get("MOCK_UI_DIR", Path(__file__).parent / "ui"))
 LOG_DIR = os.environ.get("LOG_DIR", "")
 AUTO_DISPATCH = os.environ.get("BRAIN_AUTO_DISPATCH", "").strip().lower() in ("1", "true", "yes", "on")
 POLL_S = float(os.environ.get("BRAIN_POLL_S", "1"))
+VERDICT_RETRIES = 3   # polls to wait for a verdict on one reading before moving past it
 
 try:
     import incident_rule as rules  # next to this file (uvicorn --app-dir mocks/brain, or the Docker image)
@@ -68,12 +69,22 @@ class IncidentDesk:
             self.sim_time = status.get("sim_time_s", self.sim_time)
         except (httpx.HTTPError, ValueError):
             pass  # not in live mode, or the Twin is down: keep what we have
-        got = (await client.get(f"{GUARDIAN_URL}/verified/readings",
-                                params={"after": _cursor["after"]})).json()
-        _cursor["after"] = got["next"]
-        for item in got["items"]:
-            reading, verdict = item["reading"], item["verdict"]
-            self.readings.append(item)
+        page = (await client.get(f"{TWIN_URL}/readings", params={"cursor": _cursor["at"], "limit": 500})).json()
+        if page.get("stream_id") != _cursor["stream"]:   # the Twin restarted: its stream starts again
+            if _cursor["stream"] is not None:
+                _cursor["at"] = 0
+                page = (await client.get(f"{TWIN_URL}/readings", params={"cursor": 0, "limit": 500})).json()
+            _cursor["stream"] = page.get("stream_id")
+        for reading in page["readings"]:
+            verdict = await self.verdict(client, reading)
+            if verdict is None:     # not judged yet: asked again on the next poll, from here, a few times
+                _cursor["waited"] += 1
+                if _cursor["waited"] <= VERDICT_RETRIES:
+                    break
+                _cursor.update(at=_cursor["at"] + 1, waited=0)
+                continue
+            _cursor.update(at=_cursor["at"] + 1, waited=0)
+            self.readings.append({"reading": reading, "verdict": verdict})
             if self.run_id is not None and reading["value"].get("run_id") not in (None, self.run_id):
                 continue  # a report from an earlier run of the Twin
             now = reading["value"].get("sim_time_s", self.sim_time)
@@ -91,6 +102,12 @@ class IncidentDesk:
         if self.rule:
             for action, call in self.rule.due(self.board, self.sim_time):
                 await self.send(client, action, call)
+
+    async def verdict(self, client: httpx.AsyncClient, reading: dict[str, Any]) -> dict[str, Any] | None:
+        """The Guardian's verdict on a reading; None while it says it has not seen it."""
+        got = (await client.post(f"{GUARDIAN_URL}/v1/verdicts/request",
+                                 json={"sensor_id": reading["sensor_id"], "sequence_no": reading["sequence_no"]})).json()
+        return None if got.get("status") == "unknown" else got
 
     async def send(self, client: httpx.AsyncClient, action: str, call: dict[str, Any]) -> dict[str, Any]:
         headers = {"X-Api-Key": TWIN_API_KEY} if TWIN_API_KEY else {}
@@ -111,7 +128,7 @@ class IncidentDesk:
         return entry
 
 
-_cursor = {"after": 0}
+_cursor: dict[str, Any] = {"at": 0, "stream": None, "waited": 0}
 desk = IncidentDesk()
 
 
@@ -136,7 +153,6 @@ async def _lifespan(app: FastAPI):
 
 app = FastAPI(title="Mock City Brain", lifespan=_lifespan)
 _events: deque[dict[str, Any]] = deque(maxlen=1000)
-_notify = {"count": 0, "last": None, "last_flush": 0.0}
 
 
 def _now() -> str:
@@ -157,21 +173,9 @@ def health():
     return {"status": "ok", "mock": True}
 
 
-@app.post("/notify")
-async def notify(request: Request):
-    body = await request.json()
-    _notify["count"] += 1
-    _notify["last"] = _now()
-    loop_time = asyncio.get_event_loop().time()
-    if loop_time - _notify["last_flush"] >= 3.0:  # keep the timeline readable
-        _emit("notified", "Twin says new readings are available (no payload)", twin_event=body.get("event"), total=_notify["count"])
-        _notify["last_flush"] = loop_time
-    return {"ok": True}
-
-
 @app.get("/api/status")
 def status():
-    return {"notifications": _notify["count"], "last_notification": _notify["last"], "twin_url": TWIN_URL, "guardian_url": GUARDIAN_URL}
+    return {"readings_read": _cursor["at"], "stream_id": _cursor["stream"], "twin_url": TWIN_URL, "guardian_url": GUARDIAN_URL}
 
 
 @app.get("/api/identity")
@@ -181,7 +185,7 @@ def identity():
 
 @app.get("/api/readings")
 def recent_readings(limit: int = 50):
-    """What the Brain has read from the Guardian, newest first, each reading with the verdict vouching for it."""
+    """What the Brain has read from the Twin, newest first, each reading with the verdict vouching for it."""
     return {"items": list(desk.readings)[-limit:][::-1]}
 
 

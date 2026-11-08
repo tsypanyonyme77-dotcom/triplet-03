@@ -12,10 +12,10 @@ export function ReadingStream({ title }: { title: string }) {
       {data?.items.length === 0 && <p>No readings yet.</p>}
       <ul className="rows">
         {data?.items.map(({ reading, verdict }) => (
-          <li key={`${reading.sensor_id}-${reading.sequence_no}-${verdict.verdict_id}`} className={verdict.trust}>
+          <li key={`${reading.sensor_id}-${reading.sequence_no}-${verdict.verdict_id}`} className={verdict.status}>
             <strong>{reading.sensor_id}</strong> <small>#{reading.sequence_no}</small> {readingSummary(reading)}{' '}
             <span className="verdict">
-              {verdict.trust} ({verdict.verdict_id})
+              {verdict.status} ({verdict.verdict_id})
             </span>
             {verdict.reasons.length > 0 && <small className="error"> {verdict.reasons.join('; ')}</small>}
           </li>

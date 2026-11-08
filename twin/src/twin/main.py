@@ -62,8 +62,8 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
     devices = DeviceRegistry()
     links = IncidentLinks(city)
     reading_log = ReadingLog()
-    guardian_push = (GuardianPush(settings.guardian_ingest_url, settings.guardian_push_api_key, GuardianDialect(settings.hmac_key, settings.guardian_extended_types), events)
-                     if settings.guardian_dialect == "guardian-v1" else None)
+    guardian_push = GuardianPush(settings.guardian_ingest_url, settings.guardian_push_api_key,
+                                 GuardianDialect(settings.hmac_key, settings.guardian_extended_types), events)
     brain_timeline = BrainTimeline(settings.brain_events_url, settings.brain_push_token, events) if settings.brain_events_url else None
     emitter = Emitter(settings, city, events, step_city=live is None, devices=devices, log=reading_log, guardian=guardian_push,
                       view=links.partner_view, timeline=brain_timeline)
