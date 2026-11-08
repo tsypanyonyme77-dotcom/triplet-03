@@ -762,6 +762,42 @@ class Simulation(EmergencyDriving, IncidentResponse, FireResponse, FloodResponse
         self.log_event("unit_dispatched", unit_id=unit.id, unit_kind=kind, incident_id=incident_id, eta_s=eta)
         return {"status": "dispatched", "unit_id": unit.id, "eta_seconds": eta}
 
+    def recall_unit(self, unit_id: str) -> dict:
+        """Call (the Twin's recall_unit actuator): stand a unit down, so it drives home and can be sent again.
+        Idempotent: a unit going home or at home answers "duplicate". A unit at work that cannot just leave
+        (an ambulance crew out or a casualty aboard, a fire truck fighting a fire or rescuing) is "unit_busy"."""
+        unit = self.units.get(unit_id)
+        if unit is None:
+            return {"status": "rejected", "reason": "unknown_unit", "unit_id": unit_id}
+        if unit.status in ("idle", "returning"):
+            return {"status": "duplicate", "unit_id": unit_id}
+        response = self.responses.get(unit.incident_id)
+        if self._unit_busy(unit, response):
+            return {"status": "rejected", "reason": "unit_busy", "unit_id": unit_id}
+        if unit.pending_route is not None:   # still in its bay, waiting for a gap to pull out
+            unit.pending_route = unit.pending_end = None
+            self._unit_home(unit)
+        else:
+            self._head_home(unit)
+            if unit.status != "returning":
+                return {"status": "rejected", "reason": "no_way_home", "unit_id": unit_id}
+            unit.scene_shift, unit.siren, unit.target_car_ids = 0.0, False, None
+        if response is not None:
+            response["units"].pop(unit.kind, None)
+            if unit.kind == "police" and response.get("closed_edges"):
+                self.set_barrier_state(response.pop("closed_edges"), False, by="police")
+        self.log_event("unit_recalled", unit_id=unit_id)
+        return {"status": "recalled", "unit_id": unit_id}
+
+    @staticmethod
+    def _unit_busy(unit: EmergencyVehicle, response: dict | None) -> bool:
+        if unit.status == "to_hospital" or getattr(unit, "casualty_id", None):
+            return True
+        if response is None:
+            return False
+        return ((response.get("crew") or {}).get("unit") == unit.id or (response.get("fire_work") or {}).get("unit") == unit.id
+                or response.get("rescue_unit") == unit.id)
+
     def response_for(self, incident: dict) -> dict:
         """What is being done about a call-centre incident; created on the first dispatch."""
         response = self.responses.get(incident["id"])

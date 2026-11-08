@@ -18,7 +18,7 @@ from twin.events import EventLog
 # the event each result status puts on the timeline
 EVENT_KIND = {"dispatched": "unit_dispatched", "closed": "road_closed", "opened": "road_opened", "quarantined": "device_quarantined",
               "isolated": "device_isolated", "cleared": "device_cleared", "on": "pump_started", "off": "pump_stopped",
-              "broadcast": "alert_broadcast", "duplicate": "actuator_duplicate"}
+              "broadcast": "alert_broadcast", "recalled": "unit_recalled", "duplicate": "actuator_duplicate"}
 
 
 class CallRefused(Exception):

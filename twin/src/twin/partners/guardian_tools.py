@@ -25,7 +25,7 @@ from twin.partners import partner_dispatch
 from twin.partners.incident_links import IncidentLinks
 
 CONTAINMENT = ("quarantine_device", "isolate_sensor", "clear_quarantine")
-OK_STATUSES = {"dispatched", "duplicate", "quarantined", "isolated", "cleared", "closed", "opened", "on", "off", "broadcast"}
+OK_STATUSES = {"dispatched", "duplicate", "quarantined", "isolated", "cleared", "closed", "opened", "on", "off", "broadcast", "recalled"}
 
 
 def _device_id(raw: dict[str, Any]) -> str:

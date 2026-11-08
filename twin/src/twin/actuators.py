@@ -52,6 +52,13 @@ def _dispatch_unit(params: dict[str, Any], city: CitySource, devices: DeviceRegi
     return {**result, "unit_type": unit_type, "incident_id": incident_id}
 
 
+def _recall_unit(params: dict[str, Any], city: CitySource, _devices: DeviceRegistry) -> dict[str, Any]:
+    unit_id = params.get("unit_id")
+    if not isinstance(unit_id, str) or not unit_id:
+        raise ParamError("params.unit_id is required: the unit_id a dispatch answered with")
+    return city.recall_unit(unit_id)
+
+
 def _set_barrier_state(params: dict[str, Any], city: CitySource, _devices: DeviceRegistry) -> dict[str, Any]:
     state, road_id, incident_id = params.get("state"), params.get("road_id"), params.get("incident_id")
     if state not in ROAD_STATES:
@@ -137,6 +144,25 @@ ACTUATORS["dispatch_unit"] = {
                        "incident_id": {"type": "string"},
                        "reason": {"enum": ["unknown_incident", "no_unit_available", "unknown_unit_type", "unknown_station",
                                            "station_quarantined"]}}},
+}
+
+ACTUATORS["recall_unit"] = {
+    "handler": _recall_unit,
+    "actuator_id": DISPATCH_ACTUATOR_ID,
+    "department": "emergency",
+    "description": "Stand a unit down: it drives home and can be sent again. Idempotent: a unit going home or at home returns "
+                   "'duplicate'. A unit at work that cannot just leave (an ambulance crew out, a casualty aboard, a fire truck "
+                   "fighting a fire or rescuing) refuses with unit_busy. A police car recalled from a scene lifts its road closure.",
+    "params": {"unit_id": "string, from a dispatch's answer", "incident_id": "string, optional (the incident it was sent to)"},
+    "result": {"status": "recalled | duplicate | rejected", "unit_id": "string",
+               "reason": "string, only when rejected (unknown_unit, unit_busy, no_way_home)"},
+    "params_schema": {
+        "type": "object", "required": ["unit_id"], "additionalProperties": False,
+        "properties": {"unit_id": {"type": "string", "minLength": 1}, "incident_id": {"type": "string"}}},
+    "result_schema": {
+        "type": "object", "required": ["status"],
+        "properties": {"status": {"enum": ["recalled", "duplicate", "rejected"]}, "unit_id": {"type": "string"},
+                       "reason": {"enum": ["unknown_unit", "unit_busy", "no_way_home"]}}},
 }
 
 ACTUATORS["broadcast_alert"] = {
