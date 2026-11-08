@@ -37,12 +37,12 @@ CATEGORIES = ("fire", "medical", "police", "flood", "other")
 
 def true_category(accident: dict) -> str:
     """What a caller who gets it right reports: a burning building -> fire, a car or someone stuck in a
-    flood -> flood, someone hurt -> medical, else police."""
+    flood -> flood, a road crash -> medical."""
     if accident["kind"] == "building_fire":
         return "fire"
     if accident["kind"] in ("flooded_car", "trapped_pedestrian"):
         return "flood"
-    return "medical" if accident["kind"] == "car_pedestrian" else "police"
+    return "medical"   # the caller asks for an ambulance; the City Brain reads a "police" call as a crime
 
 
 @dataclass
