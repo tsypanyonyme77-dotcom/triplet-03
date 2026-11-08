@@ -1,14 +1,18 @@
-# The Brain's partners inside the Compose stack: the other containers, by service name.
-# The port is published to 127.0.0.1 only, so the API runs without tokens here (security.require: never).
+# The Brain's partners in the triplet's root docker-compose.yml: the Twin team's real Twin and the Guardian team's real Guardian, by service name.
+# The Brain's own mock stack (brain/docker-compose.yml) reads partners.full.yaml. The port is published to 127.0.0.1 only (security.require: never).
 twin:
   adapter: mcp
-  url: http://twin:8765/mcp
+  url: http://twin:8001/mcp
   hmac_secret_env: TWIN_HMAC_SECRET
   require_signature: true
   poll_interval_ms: 200
 guardian:
-  adapter: rest
-  url: http://guardian:8766
+  adapter: v1
+  url: http://guardian:8003
+  api_key_env: BRAIN_API_KEY
+  hmac_secret_env: GUARDIAN_HMAC_KEY
+  dispatcher_id: dispatch-central
+  gateway: true
   mode: sidecar
   verdict_deadline_ms: 2000
 brain:

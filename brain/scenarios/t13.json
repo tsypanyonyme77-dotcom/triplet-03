@@ -54,6 +54,7 @@
   "expect": {
     "dispatched": [],
     "blocked": [
+      "resources",
       "trust_ref",
       "trust_ref"
     ],

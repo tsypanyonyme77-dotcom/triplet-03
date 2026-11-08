@@ -51,7 +51,7 @@ services:
     profiles: ["core", "full"]
     # BRAIN_CONFIG and BRAIN_FLAGS come from the Makefile (`make full`): the full config, and --llm when .env holds a GROQ_API_KEY.
     # Inside the stack the Brain listens on 8002, as in the triplet's root file; the host port stays 8080.
-    command: serve --host 0.0.0.0 --port 8002 --config ${BRAIN_CONFIG:-deploy/compose/partners.compose.yaml} ${BRAIN_FLAGS:-}
+    command: serve --host 0.0.0.0 --port 8002 --config ${BRAIN_CONFIG:-deploy/compose/partners.full.yaml} ${BRAIN_FLAGS:-}
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)"]
       interval: 5s

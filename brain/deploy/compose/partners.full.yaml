@@ -1,4 +1,4 @@
-# The Compose stack with the stores: Neo4j holds the city graph, Qdrant the knowledge vectors. Same partners as partners.compose.yaml.
+# The Compose stack with the stores: Neo4j holds the city graph, Qdrant the knowledge vectors. The mock Twin and mock Guardian; also the default of brain/docker-compose.yml.
 twin:
   adapter: mcp
   url: http://twin:8765/mcp

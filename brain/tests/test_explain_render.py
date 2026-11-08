@@ -97,7 +97,7 @@ async def test_the_api_explains_a_decision_a_held_action_and_an_incident(api):
     await client.post("/api/scenarios/t15/run", params={"speed": 0})
     await hub.wait()
     blocked = next(json.loads(line[6:]) for line in (await client.get("/events", params={"once": True})).text.splitlines()
-                   if line.startswith("data: ") and '"brain.action.blocked"' in line)
+                   if line.startswith("data: ") and '"brain.action.blocked"' in line and '"set_pump_state"' not in line)
     held = (await client.get(f"/api/held/{blocked['id']}/explanation")).json()
     assert held["outcome"] == "held" and held["checks"][-1]["check"] == "evidence"
 

@@ -31,7 +31,7 @@ async def test_a_retracted_reading_stops_later_actions_that_cite_it():
     result = await play(scenario([water(100, 1.3)]), extra_sinks=[sink], on_service=lambda s: setattr(sink, "service", s))
 
     assert result.actuator_calls == []
-    assert {e.data["check"] for e in result.sink.of("brain.action.blocked")} == {"trust_ref"}
+    assert {e.data["check"] for e in result.sink.of("brain.action.blocked")} == {"trust_ref", "resources"}  # resources: the mock city has no pump
     (event,) = result.sink.of("brain.evidence.retracted")
     assert event.subject == "wl-01-01#1" and event.data["incidents"] == ["inc-0001"] and "faulty" in event.data["reason"]
 

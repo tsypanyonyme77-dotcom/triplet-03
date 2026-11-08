@@ -236,6 +236,15 @@ class SetValveStateParams(BaseModel):
     flow_target_pct: float | None = Field(default=None, ge=0.0, le=100.0)
 
 
+class SetPumpStateParams(BaseModel):
+    """The Twin's drainage pump (its data dictionary, 2026-11-08): on or off, without the draft's flow_target."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    pump_id: str
+    state: Literal["on", "off"]
+
+
 class SetGridConnectionParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -250,6 +259,7 @@ PARAM_MODELS: dict[str, type[BaseModel]] = {
     "set_signal_phase": SetSignalPhaseParams,
     "set_valve_state": SetValveStateParams,
     "set_grid_connection": SetGridConnectionParams,
+    "set_pump_state": SetPumpStateParams,
 }
 
 

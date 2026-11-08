@@ -19,8 +19,13 @@ async def run(scenario_id: str, **kwargs):
     return result
 
 
+def no_pump(event: dict) -> bool:
+    """The mock city has no drainage pump, so every flood also holds the pump call for resources; these tests explain the other refusals."""
+    return not (event["type"] == "brain.action.blocked" and event["data"].get("would_have") == "set_pump_state")
+
+
 async def events_of(scenario_id: str) -> list[dict]:
-    return [event.model_dump(mode="json") for event in (await run(scenario_id)).sink.events]
+    return [e for e in (event.model_dump(mode="json") for event in (await run(scenario_id)).sink.events) if no_pump(e)]
 
 
 @pytest.fixture

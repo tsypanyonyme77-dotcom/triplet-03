@@ -241,6 +241,7 @@ class GatePolicy(BaseModel):
             "broadcast_alert": "low",
             "set_valve_state": "high",
             "set_grid_connection": "high",
+            "set_pump_state": "low",
         }
     )
     min_trusted_sources: dict[str, int] = Field(

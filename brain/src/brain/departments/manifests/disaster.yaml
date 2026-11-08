@@ -1,11 +1,11 @@
-# Disaster response: floods. A flood gets a public alert and a request to close the nearest valve (a person approves it).
+# Disaster response: floods. A flood gets a public alert, the street's drainage pump started, and a request to close the nearest valve (a person approves it).
 code: DISASTER
 name: Disaster response
 version: "1"
 description: Floods. Warns the zone and asks to close the nearest valve; a person approves the valve.
 subscribes: [water_level, "emergency_call:flood"]
 incident_types: [flood]
-actuators: [broadcast_alert, set_valve_state]
+actuators: [broadcast_alert, set_valve_state, set_pump_state]
 needs: [broadcast_alert]          # without these the pack bids low
 reflex_rules: disaster.yaml
 # The desk (`team.departments: on`): an analyst weighs the situation with read-only tools, a chief decides which neighbouring zones to advise.

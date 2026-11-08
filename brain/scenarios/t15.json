@@ -153,7 +153,8 @@
       }
     ],
     "blocked": [
-      "evidence"
+      "evidence",
+      "resources"
     ],
     "event_counts": {
       "brain.guardian.unavailable": 1

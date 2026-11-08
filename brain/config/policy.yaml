@@ -25,6 +25,7 @@ gate:
     broadcast_alert: low
     set_valve_state: high
     set_grid_connection: high
+    set_pump_state: low
   min_trusted_sources: {low: 1, medium: 2, high: 2}
   min_gap_s: {}   # e.g. {set_signal_phase: 60}: seconds between two calls of one action to one actuator
   independence: sensor   # sensor, or cause (two sensors of one type in one zone are one witness)

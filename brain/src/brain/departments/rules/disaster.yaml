@@ -24,3 +24,15 @@ rules:
         params:
           valve_id: $device.id
           state: closed
+
+  - id: UTL-003
+    name: flood.pump.start
+    scope: condition
+    description: A flood is reported. Start the drainage pump of the flooded street.
+    when:
+      incident.type: flood
+    do:
+      - action: set_pump_state
+        params:
+          pump_id: $device.id
+          state: "on"

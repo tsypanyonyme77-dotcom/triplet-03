@@ -15,7 +15,7 @@ from brain.departments import Rule, matches, render
 from brain.graph.actuation import Actuation, make_proposal
 
 # The facility an action works on, for actions that act on a device rather than on a zone.
-DEVICE_KINDS = {"set_signal_phase": "signal_controller", "set_valve_state": "valve", "set_grid_connection": "grid_breaker"}
+DEVICE_KINDS = {"set_signal_phase": "signal_controller", "set_valve_state": "valve", "set_grid_connection": "grid_breaker", "set_pump_state": "drainage_pump"}
 
 _TYPE_NAMES = {"jam": "Traffic jam", "flood": "Flood", "fire": "Fire", "accident": "Accident"}
 

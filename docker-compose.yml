@@ -14,6 +14,8 @@ x-partners: &partners
   GUARDIAN_TOKEN: ${GUARDIAN_TOKEN:-change-me}
   TWIN_HMAC_SECRET: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}
   BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-dev-only-brain-secret}
+  GUARDIAN_HMAC_KEY: ${GUARDIAN_HMAC_KEY:-dev-only-guardian-key}   # the Guardian signs verdicts, the Brain checks them
+  BRAIN_API_KEY: ${BRAIN_API_KEY:-dev-only-brain-api-key}          # the Brain's login on the Guardian (X-API-Key)
 
 services:
   twin:

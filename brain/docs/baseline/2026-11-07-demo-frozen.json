@@ -27,6 +27,7 @@
   },
   "t13": {
     "blocked": [
+      "resources",
       "trust_ref",
       "trust_ref"
     ],
@@ -34,7 +35,7 @@
     "decisions": [],
     "deliberations": 0,
     "event_counts": {
-      "brain.action.blocked": 2,
+      "brain.action.blocked": 3,
       "brain.incident.closed": 1,
       "brain.incident.opened": 1,
       "brain.reading.received": 7,
@@ -43,7 +44,7 @@
       "brain.started": 1,
       "brain.verdict.received": 7
     },
-    "events": 21,
+    "events": 22,
     "first_action_ms": null,
     "funnel": {
       "actions": 0,
@@ -162,7 +163,8 @@
   },
   "t15": {
     "blocked": [
-      "evidence"
+      "evidence",
+      "resources"
     ],
     "compiled_plans": 0,
     "decisions": [
@@ -187,7 +189,7 @@
     ],
     "deliberations": 0,
     "event_counts": {
-      "brain.action.blocked": 1,
+      "brain.action.blocked": 2,
       "brain.action.requested": 2,
       "brain.action.result": 2,
       "brain.decision.made": 2,
@@ -203,8 +205,8 @@
       "brain.verdict.received": 169,
       "brain.workspace.ignited": 1
     },
-    "events": 357,
-    "first_action_ms": 25.9,
+    "events": 358,
+    "first_action_ms": 26.0,
     "funnel": {
       "actions": 2,
       "ignited": 1,
@@ -212,7 +214,7 @@
       "readings": 169,
       "salient": 1
     },
-    "last_action_ms": 45.4,
+    "last_action_ms": 44.3,
     "passed": true,
     "readings": 169,
     "scenario_id": "t15"

@@ -39,7 +39,7 @@ async def test_a_flood_reading_reaches_an_alert_and_a_refused_valve_call():
     assert [a["call"]["params"]["zone_id"] for a in alerts] == ["zone-01"]
     assert [c["call"]["action"] for c in result.actuator_calls] == ["broadcast_alert"]
     # One source cannot back a high-impact call; two can, and then it waits for a human.
-    assert blocked(result) == ["evidence", "human_approval"]
+    assert blocked(result) == ["evidence", "human_approval", "resources"]  # resources: the mock city has no drainage pump
 
 
 async def test_a_storm_of_jam_readings_gives_one_incident_and_one_signal_call():
@@ -62,7 +62,7 @@ async def test_an_untrusted_flood_reading_opens_an_incident_but_moves_nothing():
 
     assert len(result.sink.of("brain.incident.opened")) == 1
     assert result.actuator_calls == []
-    assert blocked(result) and set(blocked(result)) == {"trust_ref"}
+    assert blocked(result) and set(blocked(result)) == {"trust_ref", "resources"}  # resources: the mock city has no drainage pump
 
 
 async def test_an_untrusted_recovery_reading_does_not_close_the_incident():
