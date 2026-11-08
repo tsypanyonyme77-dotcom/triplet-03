@@ -27,8 +27,23 @@ class CitySource(Protocol):
     def sensor_readings(self) -> list[dict[str, Any]]:
         """Unsigned readings since the last call: sensor_id, type, zone_id, department, value."""
 
-    def dispatch_unit(self, unit_type: str, incident_id: str) -> dict[str, Any]:
-        """Send a unit to an incident. Idempotent per incident and unit type."""
+    def dispatch_unit(self, unit_type: str, incident_id: str, station_id: str | None = None) -> dict[str, Any]:
+        """Send a unit to an incident, from `station_id` when given. Idempotent per incident and unit type."""
+
+    def broadcast_alert(self, zone_id: str, channel: str, message: str) -> dict[str, Any]:
+        """A public alert to everyone in a zone."""
+
+    def stations(self) -> list[dict[str, Any]]:
+        """Emergency stations: station_id, kind, unit_kind, zone_id, units."""
+
+    def pumps(self) -> list[dict[str, Any]]:
+        """Drainage pumps: pump_id, flood_zone_id, zone_id."""
+
+    def sensors(self) -> list[dict[str, Any]]:
+        """Every sensor that can send a reading: sensor_id, type, zone_id."""
+
+    def open_incidents(self) -> list[dict[str, Any]]:
+        """Call-centre incidents still open, oldest first: incident_id, zone_id, kind, units already sent."""
 
     def set_barrier_state(self, state: str, road_id: str | None = None, incident_id: str | None = None) -> dict[str, Any]:
         """Close or reopen a street. Idempotent."""

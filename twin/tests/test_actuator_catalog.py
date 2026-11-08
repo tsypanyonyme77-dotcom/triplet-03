@@ -22,7 +22,8 @@ def _client(city):
 
 
 def _call(action, params, key=None, actuator_id=None):
-    ids = {"dispatch_unit": "dispatch-centre-01", "set_barrier_state": "road-barriers-01", "set_pump_state": "drainage-pumps-01"}
+    ids = {"dispatch_unit": "dispatch-centre-01", "set_barrier_state": "road-barriers-01", "set_pump_state": "drainage-pumps-01",
+           "broadcast_alert": "public-alerts-01"}
     body = {"contract_version": "2026-09-17", "actuator_id": actuator_id or ids[action], "action": action, "params": params,
             "requesting_layer": "city_brain", "justification": "test", "trust_ref": "verdict-1"}
     if key:
@@ -32,8 +33,8 @@ def _call(action, params, key=None, actuator_id=None):
 
 def test_the_catalog_lists_every_action_with_schemas(city_after_hit):
     acts = {a["action"]: a for a in _client(city_after_hit).get("/actuators").json()["actuators"]}
-    assert set(acts) == {"dispatch_unit", "set_barrier_state", "set_pump_state", "quarantine_device", "isolate_sensor",
-                         "clear_quarantine"}
+    assert set(acts) == {"dispatch_unit", "set_barrier_state", "set_pump_state", "broadcast_alert", "quarantine_device",
+                         "isolate_sensor", "clear_quarantine"}
     dispatch, barrier = acts["dispatch_unit"], acts["set_barrier_state"]
     assert dispatch["params_schema"]["properties"]["unit_type"]["enum"] == ["police", "ambulance", "fire"]
     assert dispatch["result_schema"]["properties"]["status"]["enum"] == ["dispatched", "duplicate", "rejected"]
@@ -90,6 +91,33 @@ def test_the_drainage_pump_starts_is_idempotent_and_shows_in_the_water_level_rea
     assert level["value"]["pump_on"] and level["value"]["flow_rate_m3s"] == 1.5
     kinds = [e["kind"] for e in client.get("/events").json()["events"]]
     assert "pump_started" in kinds and "actuator_duplicate" in kinds
+
+
+def test_a_public_alert_is_recorded_and_an_unknown_zone_is_refused(city_after_hit):
+    client = _client(city_after_hit)
+    sent = client.post("/actuators/call", json=_call("broadcast_alert", {"zone_id": "zone-03", "channel": "app",
+                                                                          "message": "Flooding on the south street."}), headers=H).json()
+    assert sent["result"]["status"] == "broadcast" and sent["result"]["zone_id"] == "zone-03"
+    assert city_after_hit.alerts[-1]["message"] == "Flooding on the south street."
+    assert "alert_broadcast" in [e["kind"] for e in client.get("/events").json()["events"]]
+    unknown = client.post("/actuators/call", json=_call("broadcast_alert", {"zone_id": "zone-99", "channel": "app",
+                                                                             "message": "x"}), headers=H).json()
+    assert unknown["result"]["status"] == "rejected" and unknown["result"]["reason"] == "unknown_zone"
+    for bad in ({"zone_id": "zone-03", "channel": "pigeon", "message": "x"}, {"zone_id": "zone-03", "channel": "app", "message": ""}):
+        assert client.post("/actuators/call", json=_call("broadcast_alert", bad), headers=H).status_code == 422
+
+
+def test_a_dispatch_can_name_its_station_and_a_wrong_station_is_refused():
+    city = TwoBlocksCity("ped-hit")
+    city.step(60.0)
+    client = _client(city)
+    incident = city.sim.call_centre.incidents[0]["id"]
+    wrong = client.post("/actuators/call", json=_call("dispatch_unit", {"unit_type": "ambulance", "incident_id": incident,
+                                                                         "station_id": "police_station"}), headers=H).json()
+    assert wrong["result"] == {"status": "rejected", "reason": "unknown_station", "unit_type": "ambulance", "incident_id": incident}
+    sent = client.post("/actuators/call", json=_call("dispatch_unit", {"unit_type": "ambulance", "incident_id": incident,
+                                                                        "station_id": "hospital"}), headers=H).json()
+    assert sent["result"]["status"] == "dispatched" and city.sim.units[sent["result"]["unit_id"]].station_id == "hospital"
 
 
 @pytest.mark.parametrize("params", [{"state": "on"}, {"state": "fast", "pump_id": "pump-2-3"},

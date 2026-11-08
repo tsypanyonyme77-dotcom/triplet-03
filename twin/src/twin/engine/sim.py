@@ -711,13 +711,17 @@ class Simulation(EmergencyDriving, IncidentResponse, FireResponse, FloodResponse
 
     INCIDENT_FIND_RADIUS_M = 40.0  # a unit sent to a reported location finds an accident this close to it
 
-    def dispatch_unit(self, kind: str, incident_id: str) -> dict:
+    def dispatch_unit(self, kind: str, incident_id: str, station_id: str | None = None) -> dict:
         """Call (the Twin's dispatch_unit actuator): send the nearest idle unit of `kind` to an
         incident of the call centre. Idempotent: a second call for the same incident and kind
         returns "duplicate" with the unit already sent. The unit drives to the reported
-        location; the accident it works is the open one nearest to it (within 40 m)."""
+        location; the accident it works is the open one nearest to it (within 40 m).
+        With `station_id`, only a unit of that station may go (a dispatcher that picked the station,
+        for instance because another one is quarantined)."""
         if kind not in self.UNIT_ID_PREFIX:
             return {"status": "rejected", "reason": "unknown_unit_type"}
+        if station_id is not None and not any(st.id == station_id and st.unit_kind == kind for st in self.stations):
+            return {"status": "rejected", "reason": "unknown_station"}
         incident = self.call_centre.incident(incident_id)
         if incident is None:
             return {"status": "rejected", "reason": "unknown_incident"}
@@ -739,12 +743,12 @@ class Simulation(EmergencyDriving, IncidentResponse, FireResponse, FloodResponse
                 end = max(end - POLICE_BEHIND_AMBULANCE_M, 0.5)
             targets = (accident["car_id"], accident["other_car_id"] or accident["pedestrian_id"])
         elif fire is not None and fire["cleared_t"] is None:
-            dest, end, best = self._fastest_lane_position(kind, fire["x"], fire["y"])  # either lane in front of it
+            dest, end, best = self._fastest_lane_position(kind, fire["x"], fire["y"], station_id)  # either lane in front of it
             targets = None
         else:
             dest, end = self._nearest_lane_position(incident["x"], incident["y"])
             targets = None
-        best = best or self._best_unit(kind, dest, end)
+        best = best or self._best_unit(kind, dest, end, station_id)
         if best is None:
             return {"status": "rejected", "reason": "no_unit_available"}
         unit, route, length, end = best
@@ -775,12 +779,12 @@ class Simulation(EmergencyDriving, IncidentResponse, FireResponse, FloodResponse
             self.responses[incident["id"]] = response
         return response
 
-    def _best_unit(self, kind: str, dest: tuple[int, int], end: float):
-        """The idle unit of `kind` with the shortest way to the spot, from either end of its street:
-        (unit, route, length, where the route ends on its last edge)."""
+    def _best_unit(self, kind: str, dest: tuple[int, int], end: float, station_id: str | None = None):
+        """The idle unit of `kind` (of `station_id` when given) with the shortest way to the spot, from
+        either end of its street: (unit, route, length, where the route ends on its last edge)."""
         best, best_len = None, math.inf
         for unit in self.units.values():
-            if unit.kind != kind or unit.status != "idle":
+            if unit.kind != kind or unit.status != "idle" or (station_id is not None and unit.station_id != station_id):
                 continue
             start = (unit.route_nodes[unit.edge_index], unit.route_nodes[unit.edge_index + 1])
             for edge, stop in self.scene_targets(dest, end):

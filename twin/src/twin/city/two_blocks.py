@@ -12,6 +12,8 @@ What the Twin sees of the engine, as readings (sensor_readings, signed by the em
                    within 60 m of a burning building, so the three tell the same story
   water_level      one reading per flood zone per emit tick: depth at its low point, outflow
   rainfall         one rain gauge per flood zone per emit tick: intensity in mm/h over that street
+  unit_status      one reading per emergency unit each time its state changes while it is out:
+                   en_route, on_scene, returning (what a dispatcher needs to close an incident)
 The engine's ground truth (which accident a call is about, true positions) stays here: it is
 in `timeline()` for the Twin's own logs, never in a reading.
 
@@ -34,6 +36,11 @@ CATEGORY_DEPARTMENT = {"medical": "medical", "police": "police", "fire": "fire",
 FREE_FLOW_MS = 40 / 3.6   # the two-block map's speed limit: congestion 0 at this mean speed
 AQI_CLEAN, AQI_PER_FIRE = 38, 140     # air quality index of clean air, and what one full-strength fire adds in its zone
 NEIGHBOUR_SHARE = 0.25                # the share of a zone's fire load that drifts into the others
+# an engine unit's status as a dispatcher hears it (unit_status readings); idle units send nothing
+UNIT_STATE = {"dispatched": "en_route", "on_scene": "on_scene", "cleaning": "on_scene", "to_hospital": "returning",
+              "returning": "returning"}
+UNIT_DEPARTMENT = {"ambulance": "medical", "police": "police", "fire": "fire"}
+ALERT_CHANNELS = ("sms", "siren", "app")
 
 
 class TwoBlocksCity:
@@ -69,6 +76,8 @@ class TwoBlocksCity:
         self._calls_sent = 0
         self._timeline_sent = 0
         self._fire_all_clear: set[str] = set()   # fires whose "smoke gone" reading has been sent
+        self._unit_reported: dict[str, tuple[str, str | None]] = {}   # unit -> (state, incident) last sent
+        self.alerts: list[dict[str, Any]] = []   # public alerts broadcast this run
         self.run_id += 1
 
     def params_dict(self) -> dict[str, Any]:
@@ -132,9 +141,71 @@ class TwoBlocksCity:
         """The set_barrier_state actuator: close or reopen a street (idempotent)."""
         return self.sim.set_road_state(state, road_id=road_id, incident_id=incident_id, by="actuator")
 
-    def dispatch_unit(self, unit_type: str, incident_id: str) -> dict[str, Any]:
-        """The dispatch_unit actuator: the engine sends its nearest idle unit (idempotent per incident and type)."""
-        return self.sim.dispatch_unit(unit_type, incident_id)
+    def dispatch_unit(self, unit_type: str, incident_id: str, station_id: str | None = None) -> dict[str, Any]:
+        """The dispatch_unit actuator: the engine sends its nearest idle unit, or one of `station_id`
+        (idempotent per incident and type)."""
+        return self.sim.dispatch_unit(unit_type, incident_id, station_id)
+
+    def broadcast_alert(self, zone_id: str, channel: str, message: str) -> dict[str, Any]:
+        """The broadcast_alert actuator: a public alert to everyone in a zone. Recorded and shown on the
+        timeline; the simulated people do not react to it yet."""
+        if zone_id not in ZONES:
+            return {"status": "rejected", "reason": "unknown_zone", "zone_id": zone_id}
+        if channel not in ALERT_CHANNELS:
+            return {"status": "rejected", "reason": "unknown_channel", "channel": channel}
+        alert = {"alert_id": f"alert-{len(self.alerts) + 1:04d}", "zone_id": zone_id, "channel": channel, "message": message,
+                 "sim_time_s": self.sim_time}
+        self.alerts.append(alert)
+        self.sim.log_event("alert_broadcast", alert_id=alert["alert_id"], zone_id=zone_id, channel=channel)
+        return {"status": "broadcast", "alert_id": alert["alert_id"], "zone_id": zone_id, "channel": channel}
+
+    def stations(self) -> list[dict[str, Any]]:
+        """The emergency stations: id, kind (hospital, police_station, fire_station), unit kind, zone, units."""
+        units: dict[str, int] = {}
+        for u in self.sim.units.values():
+            units[u.station_id] = units.get(u.station_id, 0) + 1
+        return [{"station_id": st["id"], "kind": st["kind"], "unit_kind": st["unit_kind"], "zone_id": self.zone_of(*st["front"]),
+                 "units": units.get(st["id"], 0), "location": {"x": st["front"][0], "y": st["front"][1]}}
+                for st in self.sim.stations_geometry()["stations"]]
+
+    def pumps(self) -> list[dict[str, Any]]:
+        """The drainage pumps, one per street's low point: pump id, flood zone, city zone."""
+        return [{"pump_id": z.pump_id, "flood_zone_id": z.id, "zone_id": self.zone_of(*z.centre_xy)} for z in self.sim.flood_zones]
+
+    def sensors(self) -> list[dict[str, Any]]:
+        """Every sensor that can send a reading, with its type and zone (the topology a partner reads at start)."""
+        out = [{"sensor_id": f"ecall-{z}", "type": "emergency_call", "zone_id": z} for z in ZONES]
+        out += [{"sensor_id": f"aq-{z}", "type": "air_quality", "zone_id": z} for z in ZONES]
+        for cam in self.sim.cameras:
+            zone = self.zone_of(cam.x, cam.y)
+            out += [{"sensor_id": cam.id, "type": "traffic_camera", "zone_id": zone},
+                    {"sensor_id": f"{cam.id}-cctv", "type": "cctv_anomaly", "zone_id": zone}]
+        for fz in self.sim.flood_zones:
+            zone = self.zone_of(*fz.centre_xy)
+            out += [{"sensor_id": f"rain-{fz.id}", "type": "rainfall", "zone_id": zone},
+                    {"sensor_id": f"wl-{fz.id}", "type": "water_level", "zone_id": zone}]
+        out += [{"sensor_id": f"fire-{b.id}", "type": "building_fire", "zone_id": self.zone_of(b.x, b.y)}
+                for b in self.sim.buildings.values()]
+        out += [{"sensor_id": f"unit-{u.id}", "type": "unit_status", "zone_id": self.zone_of(u.x, u.y)} for u in self.sim.units.values()]
+        return out
+
+    def open_incidents(self) -> list[dict[str, Any]]:
+        """The call centre's incidents still open, oldest first: id, zone, place, what is there (accident,
+        fire or unknown) and the unit kinds already sent. An incident whose response has closed is left out."""
+        out = []
+        open_fires = self.sim.fire.open()
+        for inc in self.sim.call_centre.incidents:
+            response = self.sim.responses.get(inc["id"])
+            if response is not None and response.get("phase") in ("closed", "cleared"):
+                continue
+            near = self.sim.INCIDENT_FIND_RADIUS_M
+            accident = any(a["cleared_t"] is None and abs(a["x"] - inc["x"]) <= near and abs(a["y"] - inc["y"]) <= near
+                           for a in self.sim.accidents)
+            fire = any(abs(f["x"] - inc["x"]) <= near and abs(f["y"] - inc["y"]) <= near for f in open_fires)
+            out.append({"incident_id": inc["id"], "zone_id": self.zone_of(inc["x"], inc["y"]), "x": inc["x"], "y": inc["y"],
+                        "first_call_t": inc["first_call_t"], "kind": "fire" if fire else "accident" if accident else "unknown",
+                        "units": dict(response["units"]) if response is not None else {}})
+        return out
 
     def ignite_fire(self, building_id: str) -> dict[str, Any]:
         """The fire simulator: set a building on fire (idempotent; a building already burning is a duplicate)."""
@@ -166,7 +237,7 @@ class TwoBlocksCity:
             zone = self.zone_of(call["x"], call["y"])
             out.append({"sensor_id": f"ecall-{zone}", "type": "emergency_call", "zone_id": zone,
                         "department": CATEGORY_DEPARTMENT[call["category"]],
-                        "value": {"call_id": call["call_id"], "category": call["category"],
+                        "value": {"call_id": call["call_id"], "category": call["category"], "caller_id": call["reporter_id"],
                                   "caller_confidence": call["caller_confidence"], "incident_id": call["incident_id"],
                                   "location": {"x": call["x"], "y": call["y"]}, "reporter_kind": call["reporter_kind"],
                                   "sim_time_s": call["t"], "run_id": self.run_id}})
@@ -195,7 +266,23 @@ class TwoBlocksCity:
                         "value": {"level_m": round(zone.depth_m, 3), "flow_rate_m3s": round(zone.outflow_m3s, 3),
                                   "pump_id": zone.pump_id, "pump_on": zone.pump_on, "location": {"x": round(cx, 1), "y": round(cy, 1)},
                                   "sim_time_s": t}})
-        return out + self._fire_readings(t)
+        return out + self._fire_readings(t) + self._unit_readings(t)
+
+    def _unit_readings(self, t: float) -> list[dict[str, Any]]:
+        """A unit_status reading for each unit whose state (or incident) changed since the last one."""
+        out = []
+        for u in self.sim.units.values():
+            state = UNIT_STATE.get(u.status)
+            key = (state, u.incident_id)
+            if state is None or u.incident_id is None or self._unit_reported.get(u.id) == key:
+                continue
+            self._unit_reported[u.id] = key
+            out.append({"sensor_id": f"unit-{u.id}", "type": "unit_status", "zone_id": self.zone_of(u.x, u.y),
+                        "department": UNIT_DEPARTMENT[u.kind],
+                        "value": {"unit_id": u.id, "incident_id": u.incident_id, "state": state, "unit_type": u.kind,
+                                  "station_id": u.station_id, "location": {"x": round(u.x, 1), "y": round(u.y, 1)},
+                                  "sim_time_s": t, "run_id": self.run_id}})
+        return out
 
     def _fire_readings(self, t: float) -> list[dict[str, Any]]:
         """Smoke sensors of the burning buildings, then the air quality of every zone."""
@@ -214,15 +301,21 @@ class TwoBlocksCity:
                                   "incident_id": fire["incident_id"], "location": {"x": fire["x"], "y": fire["y"]},
                                   "sim_time_s": t, "run_id": self.run_id}})
         load = dict.fromkeys(ZONES, 0.0)
+        smoky: set[str] = set()   # zones with a building whose smoke sensor has tripped and whose fire still burns
         for fire in self.sim.fires_state():
             b = self.sim.buildings[fire["building_id"]]
             load[self.zone_of(b.x, b.y)] += fire["intensity"]
+        for fire in self.sim.fire.open():
+            if fire.get("smoke_t") is not None:
+                b = self.sim.buildings[fire["building_id"]]
+                smoky.add(self.zone_of(b.x, b.y))
         for zone in ZONES:
             effective = load[zone] + NEIGHBOUR_SHARE * (sum(load.values()) - load[zone])
             aqi = min(500, round(AQI_CLEAN + AQI_PER_FIRE * effective))
             pm25 = round(aqi * 0.35, 1)
             out.append({"sensor_id": f"aq-{zone}", "type": "air_quality", "zone_id": zone,
-                        "value": {"aqi": aqi, "pm25_ugm3": pm25, "pm10_ugm3": round(pm25 * 1.8, 1), "sim_time_s": t}})
+                        "value": {"aqi": aqi, "pm25_ugm3": pm25, "pm10_ugm3": round(pm25 * 1.8, 1),
+                                  "smoke_detected": zone in smoky, "sim_time_s": t}})
         return out
 
     def timeline(self) -> list[dict[str, Any]]:
