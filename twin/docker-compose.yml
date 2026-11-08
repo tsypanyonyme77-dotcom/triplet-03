@@ -45,6 +45,7 @@ services:
       TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
       TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
       TWIN_EMIT_INTERVAL_S: ${TWIN_EMIT_INTERVAL_S:-1}
+      TWIN_READING_INTERVALS: ${TWIN_READING_INTERVALS-traffic_camera=10,air_quality=10,rainfall=10,water_level=5,cctv_anomaly=5,building_fire=5}
       TWIN_SCENARIO: ${TWIN_SCENARIO:-city}
       TWIN_SEED: ${TWIN_SEED:-}
       TWIN_CARS: ${TWIN_CARS:-20}
