@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import importlib.util
 import json
+import os
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -25,6 +26,12 @@ KEY, API_KEY = "dev-only-hmac-key", "scenario-key"
 READING_EVERY_S = 1.0
 REQUIRED_MANUAL = ("incident", "first_report", "verdict")
 REQUIRED_AUTO = REQUIRED_MANUAL + ("decision", "unit_dispatched", "unit_arrived")
+
+
+def chain_log_dir() -> Path:
+    """Where a chain writes its log: TWIN_CHAIN_LOG_DIR (the test suite sets a temporary folder), else the
+    triplet's logs/ folder, for a chain run by hand."""
+    return Path(os.environ.get("TWIN_CHAIN_LOG_DIR") or ROOT / "logs")
 
 
 def _load(path: Path, name: str):
@@ -123,8 +130,8 @@ class ChainRun:
         self.timeline.sort(key=lambda e: e["t"])
         missing = self.missing()
         stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        log = ROOT / "logs" / f"{self.name}-chain-{stamp}.log"
-        log.parent.mkdir(exist_ok=True)
+        log = chain_log_dir() / f"{self.name}-chain-{stamp}.log"
+        log.parent.mkdir(parents=True, exist_ok=True)
         mode = "auto" if self.auto else "manual"
         with log.open("w", encoding="utf-8") as fh:
             fh.write(f"# {self.name} incident chain ({mode} City Brain), seed {self.seed}, {seconds:.0f} s sim, written {stamp}\n")
