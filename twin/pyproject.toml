@@ -8,6 +8,7 @@ dependencies = [
     "uvicorn>=0.54.0",
     "httpx>=0.28.1",
     "networkx>=3.6.1",
+    "mcp>=2.3.0",
 ]
 
 [dependency-groups]
