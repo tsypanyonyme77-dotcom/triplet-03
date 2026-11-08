@@ -1,0 +1,88 @@
+# Test Book
+
+Each scenario starts with one trigger and leaves one log in `logs/`.
+A button in the viewer and the commands below do the same thing, and the run ends with `PASS` or `FAIL` against the events listed under Expected.
+`twin/src/twin/testbook.py` holds the same expectations as data, so keep the two together.
+
+## Coverage
+
+| Interaction | Covered by |
+|---|---|
+| Twin to Brain | T1, T2, T3, T4 |
+| Twin to Guardian | T1, T2, T3, T4, healthy data only (T4 adds the periodic `rainfall` and `water_level` feeds) |
+| Brain to Guardian | T1, T2, T3, T4, through `trust_ref` only |
+| All three, when something goes wrong | Not yet: scenarios to be added |
+
+## T1: Pedestrian hit on a crosswalk
+
+| Field | Content |
+|---|---|
+| ID | T1 |
+| Name | Pedestrian hit on a crosswalk |
+| Layers involved | Twin, Guardian, City Brain |
+| Description | A careless driver does not yield, and a distracted pedestrian steps onto a crosswalk. The car hits them. Witnesses call it in, and a unit is sent. |
+| Trigger | The `Run T1` button, or `docker compose run --rm scenario t1`, or `python3 scenarios/t1_ped_hit.py` |
+| Expected: Twin | Records the accident and keeps that truth to itself. Streams signed `emergency_call` and `cctv_anomaly` readings. On dispatch, the unit leaves its station, reaches the scene, the crew loads the casualty, the scene is cleared and the casualty reaches the hospital. |
+| Expected: Guardian | Issues a trusted verdict on each report. |
+| Expected: Brain | Lists one incident from a trusted report and calls `dispatch_unit` with the verdict as `trust_ref`. |
+| How to verify | The timeline at `/timeline`, and `logs/t1-*.log`, which ends with `# result: PASS`. |
+
+In the engine this takes about 250 s of simulated time, which is about a minute at the scenario's default 4x speed.
+
+## T2: Car crash at a junction
+
+| Field | Content |
+|---|---|
+| ID | T2 |
+| Name | Car crash at a junction |
+| Layers involved | Twin, Guardian, City Brain |
+| Description | A driver runs a red light and hits the side of a car crossing on green. Both cars stop where they are. Witnesses and a junction camera report it, and units are sent. |
+| Trigger | The `Run T2` button, or `docker compose run --rm scenario t2`, or `python3 scenarios/t2_car_crash.py` |
+| Expected: Twin | The same chain as T1. The camera also flags the collision, and the police close the street. |
+| Expected: Guardian | Issues a trusted verdict on each report. |
+| Expected: Brain | Lists one incident, from witnesses and the camera together, and calls `dispatch_unit` with the verdict as `trust_ref`. |
+| How to verify | The timeline at `/timeline`, and `logs/t2-*.log`, which ends with `# result: PASS`. |
+
+In the engine this takes about 200 s of simulated time, which is under a minute at the default 4x speed.
+
+## T3: Fire in a building
+
+| Field | Content |
+|---|---|
+| ID | T3 |
+| Name | Fire in a building |
+| Layers involved | Twin, Guardian, City Brain |
+| Description | A building catches fire and burns, and spreads to the buildings next to it while nobody answers. People and cars keep away from it. |
+| Trigger | The `Run T3` button, or `docker compose run --rm scenario t3`, or `python3 scenarios/t3_building_fire.py` |
+| Expected: Twin | Records the fire and keeps that truth to itself. Streams signed `building_fire` readings (smoke, temperature, CO2) from the burning building, with an `air_quality` spike in its zone and `smoke_detected` on the nearby cameras, and `emergency_call` readings when witnesses call it in. On dispatch, the fire truck leaves its station, reaches the building, puts the fire out, and drives home. |
+| Expected: Guardian | Issues a trusted verdict on each report. |
+| Expected: Brain | Lists one incident from a trusted smoke reading and calls `dispatch_unit` for a fire truck with the verdict as `trust_ref`. |
+| How to verify | The timeline at `/timeline`, and `logs/t3-*.log`, which ends with `# result: PASS`. |
+
+A fire can also be started by hand: select a building in the viewer and press `Start a fire here`, or `POST /simulators/ignite_fire` with `{"building_id": "bld-01-03"}`.
+`TWIN_FIRE_RISK` makes buildings catch fire on their own in the default city.
+
+In the engine this takes about 130 to 155 s of simulated time, which is about 40 s at the default 4x speed.
+The smoke sensor trips 3 s after the fire starts, and with the Brain deciding at once the truck puts the fire out about 25 s after that.
+
+## T4: Flash flood from rain
+
+| Field | Content |
+|---|---|
+| ID | T4 |
+| Name | Flash flood from rain |
+| Layers involved | Twin, Guardian, City Brain |
+| Description | A cloudburst (120 mm/h for two minutes) fills the dip of street 2-3 faster than its storm drain empties it. Once the water is 0.2 m deep, careful drivers turn round or park elsewhere, but one driver ignores it, drives in and stalls with the driver trapped. Careful pedestrians turn back before water 0.1 m deep, but one walks on along the sidewalk and is trapped in 0.2 m of fast water. The driver, the pedestrian and witnesses call it in, and units are sent. |
+| Trigger | The `Run T4` button, or `docker compose run --rm scenario t4`, or `python3 scenarios/t4_flood.py` |
+| Expected: Twin | Logs the rain starting and the street flooding, then the stalled car as an incident, and keeps the truth to itself. Logs the trapped pedestrian as a second accident of the same incident. Streams signed `emergency_call` readings (category `flood`), plus a `rainfall` and a `water_level` reading on every tick, which stay consistent with each other. On dispatch, the fire truck reaches the car and its crew gets the driver out, then leads the pedestrian to dry ground. The police close the street. `set_pump_state` starts the drainage pump. Once nobody is left in the water and the water at the car is down to 0.15 m, the car is towed and the scene is cleared. The street reopens to traffic when the water drops below 0.15 m. |
+| Expected: Guardian | Issues a trusted verdict on each report. The water level never rises more than 0.2 m in 5 s, and only while the rain gauge shows rain. |
+| Expected: Brain | Lists one incident and calls `dispatch_unit` (fire, then police) and `set_pump_state` (`on`, by `incident_id`), with the verdict as `trust_ref`. |
+| How to verify | The timeline at `/timeline`, and `logs/t4-*.log`, which ends with `# result: PASS`. |
+
+In the engine this takes about 270 s of simulated time, which is about 70 s at the default 4x speed. With the pump on, the dip is dry about 310 s in. On the storm drain alone, the car can be towed only about 850 s in, so the run still passes within its 1000 s timeout, but late.
+
+## Running with an operator
+
+Choosing "Brain waits for its operator" before a run leaves the decision to the mock City Brain's console at http://localhost:8002.
+The run passes once someone dispatches a unit there, and fails on its timeout if nobody does.
+For T3 and T4 the unit to dispatch is the fire truck.

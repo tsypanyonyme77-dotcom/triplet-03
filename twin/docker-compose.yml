@@ -1,0 +1,97 @@
+# The Twin layer on its own (R1), run from twin/: docker compose up --build
+# Twin (real) + its viewer + mock Guardian and mock City Brain. The whole triplet is the root docker-compose.yml.
+#
+# To link a real layer, set its address in twin/.env and leave its mock out, for example:
+#   GUARDIAN_URL=http://guardian-host:9000
+#   docker compose up --build twin viewer mock-brain
+# A partner on this machine is host.docker.internal. See .env.example and INTERFACE.md.
+x-service: &service
+  restart: unless-stopped
+  user: "${UID:-1000}:${GID:-1000}"
+  volumes:
+    - ../logs:/logs   # the triplet's logs/ folder (R2)
+  extra_hosts:
+    - "host.docker.internal=host-gateway"
+
+x-python-health: &python-health
+  test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://127.0.0.1:8000/health', timeout=2)"]
+  interval: 5s
+  timeout: 3s
+  retries: 12
+  start_period: 5s
+
+services:
+  twin:
+    <<: *service
+    build: .
+    ports: ["${TWIN_PORT:-8000}:8000"]
+    healthcheck: *python-health
+    environment:
+      LOG_DIR: /logs
+      GUARDIAN_URL: ${GUARDIAN_URL:-http://mock-guardian:8000}
+      BRAIN_URL: ${BRAIN_URL:-http://mock-brain:8000}
+      GUARDIAN_INGEST_URL: ${GUARDIAN_INGEST_URL:-}
+      BRAIN_NOTIFY_URL: ${BRAIN_NOTIFY_URL:-}
+      TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
+      TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-brain-key}
+      TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
+      TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
+      TWIN_EMIT_INTERVAL_S: ${TWIN_EMIT_INTERVAL_S:-1}
+      TWIN_SCENARIO: ${TWIN_SCENARIO:-city}
+      TWIN_SEED: ${TWIN_SEED:-}
+      TWIN_CARS: ${TWIN_CARS:-20}
+      TWIN_PEDESTRIANS: ${TWIN_PEDESTRIANS:-40}
+      TWIN_CAR_CRASH_RISK: ${TWIN_CAR_CRASH_RISK:-0.1}
+      TWIN_PED_HIT_RISK: ${TWIN_PED_HIT_RISK:-0.1}
+      TWIN_FIRE_RISK: ${TWIN_FIRE_RISK:-0}
+      TWIN_FLOOD_RISK: ${TWIN_FLOOD_RISK:-0}
+
+  viewer:
+    build: ./src/viewer
+    restart: unless-stopped
+    ports: ["${VIEWER_PORT:-8080}:80"]
+    depends_on:
+      twin:
+        condition: service_healthy
+    environment:
+      TWIN_URL: http://twin:8000
+      TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
+
+  mock-guardian:
+    <<: *service
+    build:
+      context: .
+      dockerfile: mocks/Dockerfile
+      args: { MOCK: guardian }
+    ports: ["${MOCK_GUARDIAN_PORT:-8001}:8000"]
+    healthcheck: *python-health
+    environment:
+      LOG_DIR: /logs
+      TWIN_URL: ${TWIN_URL:-http://twin:8000}
+      TWIN_HMAC_KEY: ${TWIN_HMAC_KEY:-dev-only-hmac-key}
+      TWIN_GUARDIAN_API_KEY: ${TWIN_GUARDIAN_API_KEY:-dev-only-guardian-key}
+
+  mock-brain:
+    <<: *service
+    build:
+      context: .
+      dockerfile: mocks/Dockerfile
+      args: { MOCK: brain }
+    ports: ["${MOCK_BRAIN_PORT:-8002}:8000"]
+    healthcheck: *python-health
+    environment:
+      LOG_DIR: /logs
+      TWIN_URL: ${TWIN_URL:-http://twin:8000}
+      GUARDIAN_URL: ${GUARDIAN_URL:-http://mock-guardian:8000}
+      TWIN_BRAIN_API_KEY: ${TWIN_BRAIN_API_KEY:-dev-only-brain-key}
+
+  # docker compose run --rm scenario t1   (only runs when asked)
+  scenario:
+    image: python:3.12-slim
+    profiles: ["tools"]
+    volumes:
+      - ./scenarios:/scenarios:ro
+    environment:
+      TWIN_URL: http://twin:8000
+      TWIN_OPERATOR_KEY: ${TWIN_OPERATOR_KEY:-dev-only-operator-key}
+    entrypoint: ["python", "/scenarios/trigger.py"]
