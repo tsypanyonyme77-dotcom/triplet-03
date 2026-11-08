@@ -1,0 +1,38 @@
+# The Brain's partners in docker-compose.guardian.yml: the Guardian team's real Guardian (contract 1.0) and the Twin mock it ships with.
+# The mock stack (docker-compose.yml, partners.compose.yaml) is untouched. Why each line is here: docs/GUARDIAN-COMPAT.md.
+twin:
+  adapter: http                         # the bridge below speaks plain HTTP: GET /readings, /topology, /capabilities, POST /actuators/{action}
+  url: http://twin-bridge:8765          # the Guardian team's Twin mock behind mocks/guardian_twin (their mock has no topology or capabilities)
+  hmac_secret_env: TWIN_HMAC_SECRET     # the Guardian reads the same variable as the Twin's key (its TWIN_HMAC_KEY alias), so one value serves all three
+  require_signature: true
+  dialect: guardian-v1                  # readings as contract 1.0 has them: sensor_type, a signed hmac, sequence_reset
+  poll_interval_ms: 200
+  retry_s: 2.0
+  type_aliases: {power_meter: power_load}   # their power meter is our power load (load_kw, capacity_kw); rain, flow and grid meters are not modelled
+guardian:
+  adapter: v1                           # POST /v1/verdicts/request by sensor and sequence number, GET /v1/containment, X-API-Key, signed verdicts
+  url: http://guardian:8003             # the port the root compose gives the Guardian
+  api_key_env: BRAIN_API_KEY            # names of variables, never the values
+  hmac_secret_env: GUARDIAN_HMAC_KEY    # verdicts are checked with it; the Brain stops at start-up if it is not set
+  dispatcher_id: dispatch-central       # their registry has one dispatcher; every dispatch goes to it and names the Brain's station in params.station_id
+  gateway: true                         # valve, grid, signal and dispatch calls go through POST /v1/actuator-calls; broadcast and recall go to the Twin
+  mode: sidecar
+  verdict_deadline_ms: 2000
+brain:
+  signing_secret_env: BRAIN_HMAC_SECRET
+  log_dir: logs
+  state_file: state/brain.sqlite
+  accepted_contract_versions: ["2026-09-17"]
+  reference_docs: ["INTERFACE.md"]
+  episodes_dir: state/episodes
+  learned_dir: state/learned
+graph:
+  backend: neo4j
+  uri: bolt://neo4j:7687
+  user: neo4j
+  password_env: NEO4J_PASSWORD
+  database: neo4j
+  qdrant_url: http://qdrant:6333
+  qdrant_fusion: server
+security:
+  require: never                        # the Brain's port is published to 127.0.0.1 only

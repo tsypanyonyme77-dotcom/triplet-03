@@ -34,7 +34,7 @@ FIELDS = {
     "air_quality": [("aqi", {"aqi", "index"}, None), ("pm25_ugm3", {"pm25", "pm2"}, None), ("pm10_ugm3", {"pm10"}, None)],
 }
 REQUIRED = {"water_level": ["level_m"], "traffic_camera": ["congestion_score", "vehicle_count", "avg_speed_kmh"],
-            "power_load": ["load_kw", "capacity_kw", "voltage_v"], "air_quality": ["aqi", "pm25_ugm3", "pm10_ugm3"]}
+            "power_load": ["load_kw", "capacity_kw"], "air_quality": ["aqi"]}  # voltage and the particulates are optional in the contract
 
 # A suffix on their field name says its unit: scale to ours. (unit of ours) -> {suffix: scale}
 UNITS = {"length": {"cm": 0.01, "mm": 0.001, "ft": 0.3048, "in": 0.0254, "m": 1.0}, "fraction": {"pct": 0.01, "percent": 0.01},

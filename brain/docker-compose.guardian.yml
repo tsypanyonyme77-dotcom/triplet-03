@@ -1,0 +1,122 @@
+# The City Brain with the Guardian team's REAL Guardian (contract 1.0), their Twin mock and the bridge that lets the Brain read that Twin.
+#   make guardian-up        (builds the Brain image and the Guardian, starts everything, waits for health)
+#   make guardian-down
+# Separate from docker-compose.yml, which runs the Brain's own mocks and is not changed. Own project name, own volumes, own host ports, so both can exist.
+# Secrets are dev values until the teams agree real ones: set them in .env (git-ignored) and the same file serves the Guardian and the Brain.
+name: city-brain-guardian
+
+x-secrets: &secrets
+  TWIN_HMAC_SECRET: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}      # the Twin signs readings, the Guardian and the Brain check them
+  TWIN_HMAC_KEY: ${TWIN_HMAC_SECRET:-dev-only-twin-secret}         # the name the Guardian team's mock reads
+  GUARDIAN_HMAC_KEY: ${GUARDIAN_HMAC_KEY:-dev-only-guardian-key}   # the Guardian signs verdicts, the Brain checks them
+  BRAIN_API_KEY: ${BRAIN_API_KEY:-dev-only-brain-api-key}          # the Brain's login on the Guardian (X-API-Key)
+  TWIN_API_KEY: ${TWIN_API_KEY:-dev-only-twin-api-key}             # the Twin's login on the Guardian
+  OPS_API_KEY: ${OPS_API_KEY:-dev-only-ops-api-key}                # an operator's: quarantine and release by hand
+
+x-brain: &brain
+  image: city-brain/brain:dev
+  build: .
+  restart: unless-stopped
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    <<: *secrets
+    BRAIN_HMAC_SECRET: ${BRAIN_HMAC_SECRET:-dev-only-brain-secret}
+    BRAIN_APPROVAL_SECRET: ${BRAIN_APPROVAL_SECRET:-dev-only-approval-secret}
+    NEO4J_PASSWORD: ${NEO4J_PASSWORD:-citybrain-local-pw}
+
+services:
+  guardian:                              # their Guardian, built from ../guardian, listening on 8003 as in the root compose
+    build: ../guardian
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      TWIN_BASE_URL: http://twin:8101
+      GUARDIAN_URL: http://guardian:8003   # its own address: the port it listens on
+      LOG_DIR: /app/logs
+      GUARDIAN_DB_PATH: /app/data/guardian.db
+    ports: ["127.0.0.1:${GUARDIAN_PORT:-8103}:8003"]   # /timeline is their live screen
+    volumes: [guardian-logs:/app/logs, guardian-data:/app/data]
+
+  twin:                                  # their Twin mock: signed 1.0 readings pushed to the Guardian, /tools/{action}, /inject/{kind} to start an incident
+    build: ../guardian
+    command: ["python", "-m", "mocks.twin_mock", "serve"]
+    restart: unless-stopped
+    environment:
+      <<: *secrets
+      GUARDIAN_URL: http://guardian:8003
+      TWIN_MODE: push
+      TWIN_SPEED: "${TWIN_SPEED:-1}"
+    ports: ["127.0.0.1:${TWIN_MOCK_PORT:-8111}:8101"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8101/health', timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      guardian: {condition: service_healthy}
+
+  twin-bridge:                           # the Brain's Twin port over their Twin mock (topology, capabilities, broadcast, recall): mocks/guardian_twin
+    <<: *brain
+    entrypoint: ["python", "-m", "mocks.guardian_twin"]
+    command: ["--upstream", "http://twin:8101", "--guardian-config", "/guardian-config", "--host", "0.0.0.0", "--port", "8765"]
+    volumes: ["../guardian/config:/guardian-config:ro"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8765/health',timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      twin: {condition: service_healthy}
+
+  brain:
+    <<: *brain
+    command: serve --live --host 0.0.0.0 --port 8002 --config deploy/compose/partners.guardian-v1.yaml ${BRAIN_FLAGS:-}
+    ports: ["127.0.0.1:${BRAIN_PORT:-8081}:8002"]
+    volumes:
+      - brain-state:/app/state
+      - brain-logs:/app/logs
+      - ./deploy/compose/partners.guardian-v1.yaml:/app/deploy/compose/partners.guardian-v1.yaml:ro
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request;urllib.request.urlopen('http://127.0.0.1:8002/health',timeout=2)"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    depends_on:
+      guardian: {condition: service_healthy}
+      twin-bridge: {condition: service_healthy}
+      neo4j: {condition: service_healthy}
+      qdrant: {condition: service_healthy}
+
+  neo4j:
+    image: neo4j:5.26-community
+    restart: unless-stopped
+    ports: ["127.0.0.1:${NEO4J_HTTP_PORT:-7475}:7474", "127.0.0.1:${NEO4J_BOLT_PORT:-7688}:7687"]
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-citybrain-local-pw}
+      NEO4J_dbms_usage__report_enabled: "false"
+    volumes: [neo4j-data:/data]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO /dev/null http://localhost:7474 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  qdrant:
+    image: qdrant/qdrant:v1.20.0
+    restart: unless-stopped
+    volumes: [qdrant-data:/qdrant/storage]
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/6333'"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  brain-state:
+  brain-logs:
+  guardian-logs:
+  guardian-data:
+  neo4j-data:
+  qdrant-data:

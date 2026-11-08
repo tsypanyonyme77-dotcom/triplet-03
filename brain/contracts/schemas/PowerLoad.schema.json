@@ -11,15 +11,22 @@
       "type": "number"
     },
     "voltage_v": {
-      "minimum": 0.0,
-      "title": "Voltage V",
-      "type": "number"
+      "anyOf": [
+        {
+          "minimum": 0.0,
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Voltage V"
     }
   },
   "required": [
     "load_kw",
-    "capacity_kw",
-    "voltage_v"
+    "capacity_kw"
   ],
   "title": "PowerLoad",
   "type": "object"

@@ -2,6 +2,10 @@
 
 Checked on 8 Nov 2026 against their repository (`guardian/`, contract 1.0): their Guardian and its Twin mock were built from a fresh clone and our Brain was run against them. Their Interface Card is `guardian/INTERFACE.md`; ours is `INTERFACE.md`.
 
+## Where the Guardian sits
+
+Checked against both codebases on 8 Nov: the Guardian receives every reading from the Twin (`POST /v1/readings`, pushed, or pulled) and judges it, but it **forwards none to the Brain**. The Brain reads the Twin directly and asks the Guardian for a verdict by sensor and sequence number. Valve, grid, signal and dispatch calls go through the Guardian (`POST /v1/actuator-calls`) to the Twin; broadcast and recall go to the Twin directly. The Guardian's alert feed (`WS /v1/ws/verdicts`, `GET /v1/alerts`) is not read by the Brain. All of it is drawn in [Figure 9](diagrams/print/fig9-guardian-wiring.svg) and explained in [HOW-IT-WORKS.md](HOW-IT-WORKS.md#where-the-guardian-sits).
+
 ## What was incompatible, and where it is handled
 
 The two contracts differ in versions, endpoints, login, verdict fields, status names and in who sends the actuator calls. None of it is changed in the Brain's logic: it is one adapter, chosen by `guardian.adapter: v1`.
@@ -41,16 +45,41 @@ The 10 that were refused, and the readings the Brain cannot use yet, are differe
 
 | Sensor | Theirs | Ours | Effect |
 | --- | --- | --- | --- |
-| `air_quality` | `aqi` a decimal, `smoke` | `aqi` a whole number, `pm25_ugm3`, `pm10_ugm3` required | refused (`value_invalid`) |
-| `power_meter` | `load_kw`, `capacity_kw` | `power_load` with `voltage_v` required | stored, not used (alias `power_meter: power_load` would be refused for the missing voltage) |
+| `air_quality` | `aqi` a decimal, `smoke` | `aqi` 0..500 (a decimal is accepted), `pm25_ugm3` and `pm10_ugm3` optional | **fixed 8 Nov**: accepted; `smoke` is dropped (a smoke source is not wired) |
+| `power_meter` | `load_kw`, `capacity_kw` | `power_load`, `voltage_v` optional | **fixed 8 Nov**: `twin.type_aliases: {power_meter: power_load}` in `partners.guardian-v1.yaml` |
 | `rain_gauge`, `flow_meter`, `grid_meter` | in their registry | not modelled | stored, not used |
 
 The Twin team's own card (still the template) lists "power load" and "air quality", which are our names from the shared Data Dictionary: their Guardian is the one that departs from it.
 
+## Run it against the real Guardian (Compose)
+
+```bash
+make guardian-up     # builds the Guardian from ../guardian and the Brain image, starts six containers, waits for health (about a minute once built)
+make guardian-down   # stops them; the volumes stay
+```
+
+`docker-compose.guardian.yml` is a separate stack (project `city-brain-guardian`, its own volumes and host ports); the mock stack in `docker-compose.yml` is untouched, and the two can run side by side. The Brain runs `serve --live` with `deploy/compose/partners.guardian-v1.yaml`, so it really connects to its partners (plain `serve` uses in-process mocks).
+
+| Service | What it is | Host port (loopback) |
+| --- | --- | --- |
+| `guardian` | the Guardian team's Guardian, listening on 8003 as in the root compose; `/timeline` is its screen | 8103 |
+| `twin` | their Twin mock: signed 1.0 readings pushed to the Guardian, `POST /inject/{kind}` to start an incident | 8111 |
+| `twin-bridge` | `mocks/guardian_twin`: their Twin mock as the Brain's Twin (below) | none |
+| `brain` | the Brain, `guardian.adapter: v1`, `twin.dialect: guardian-v1`, gateway on; the screen | 8081 |
+| `neo4j`, `qdrant` | the Brain's two stores | 7475, 7688 (Neo4j) |
+
+**Why a bridge.** Their Twin mock cannot be read by the Brain as it is: it has no `/topology` or `/capabilities`, calls its cursor `cursor` and sends no stream id, and it does not know `broadcast_alert` or `recall_unit`. `mocks/guardian_twin` fills exactly those gaps. The readings pass through untouched, so the Guardian's signature still checks. The topology is built from the Guardian's own `city_model.yaml`, `crosschecks.yaml` and `policies.yaml` (mounted read-only) and the sensors seen on the stream. The Twin team's real Twin replaces both `twin` and `twin-bridge` when it exists: set `twin.url`.
+
+**Secrets.** `TWIN_HMAC_SECRET` is the one Twin key (the Guardian reads it as `TWIN_HMAC_KEY` too); `GUARDIAN_HMAC_KEY` signs verdicts; `BRAIN_API_KEY` is the Brain's login on the Guardian. Dev values are the defaults; set real ones in `.env`.
+
+**What was run (8 Nov 2026), all against the real Guardian.** Every reading reached the Brain and the Guardian, and each got a verdict (247 readings, 247 verdicts in the first minute). `POST /inject/fake_flood` on their Twin: the Guardian called the reading `suspicious`, the Brain opened an incident and the gate refused the alert and the valve call (`no Guardian verdict referenced`). A real flood: once the Guardian trusted it the Brain sent `broadcast_alert` with a `trust_ref` and the Twin answered `broadcast`; the valve call stayed held (two independent trusted sources and a person's approval are needed). A restarted Twin: the Brain reported `brain.degraded`, noticed the new stream and discarded its saved state. `tests/test_guardian_stack.py` keeps the bridge, the config and the file honest.
+
+**What this does not show.** A valve, grid, signal or dispatch call going through `POST /v1/actuator-calls` in this stack (the first two are held for approval; their Twin mock emits no crime readings, so no dispatch). Those paths were run piece by piece earlier (above) and are tested with their payloads. Air quality and the power meter were refused in that first run (47 readings in a minute); they are accepted now (table above), by making the fields the Brain never decides on optional. Units dispatched through the Guardian never report `unit_status`, so a fire or ambulance incident would not close by itself here.
+
 ## Still open
 
-1. **The Twin's other endpoints.** Their Twin mock has no `/topology` or `/capabilities`, which the Brain reads at start-up, so the whole Brain service cannot yet run against it; the readings, verdicts and actuator calls above were chained piece by piece. The real Twin's endpoints are the Twin team's to say.
-2. **Who pushes readings to the Guardian.** In their design the Twin pushes; our mock Twin does not, so our own mocks cannot drive their Guardian end to end.
+1. **The Twin's other endpoints.** Their Twin mock has no `/topology` or `/capabilities`, which the Brain reads at start-up; `mocks/guardian_twin` stands in for them (above). The real Twin must offer them, or the Brain's MCP tools. The real Twin's endpoints are the Twin team's to say.
+2. **Who pushes readings to the Guardian.** In their design the Twin pushes; our mock Twin does not, so our own mocks cannot drive their Guardian. The Compose stack above uses their Twin mock, which does.
 3. **Actuator ids.** Their registry names `valve-port-12`, `grid-port`, `sig-port-01`, `dispatch-central`; ours come from the Twin's topology. The Twin has to expose the ids the Guardian knows.
 4. **Dispatch details.** `mode` and `target_id` (pursuit) are sent inside `params`; whether the Twin honours them is untested.
 5. **Conformance.** `brain conformance --guardian` still checks our contract, so it fails against theirs; a v1 mode is not written.

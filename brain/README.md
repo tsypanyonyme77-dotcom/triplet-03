@@ -15,13 +15,17 @@ Four rules explain most of the design:
 3. **Code disposes.** A model may reason, but deterministic checks run before the gate; a scripted team passes every scenario with no network.
 4. **Nothing is silent.** A held action, a refused reading or an outage each produce a named event with its reason.
 
-**The Brain between its partners.** The Twin sends readings, the Guardian sends a verdict per reading, the Brain sends signed actuator calls back to the Twin. Every link names its protocol.
+**The Brain between its partners.** The Twin sends readings to the Brain. The Guardian does not sit in that path: it judges readings and returns a verdict per reading, which the Brain asks for. The Brain sends signed actuator calls back to the Twin. Every link names its protocol. The two lines under the Brain exist only with the Guardian team's Guardian, which the Twin also feeds and which audits valve, grid, signal and dispatch calls on their way to the Twin.
 
 ![The City Brain between the Twin and the Guardian](docs/diagrams/print/fig0-context.svg)
 
 **Six planes** from the interoperability edge to learning (a grey box is new in the Convergence design):
 
 ![The layered architecture](docs/diagrams/print/fig1-layered-architecture.svg)
+
+**The Guardian, wired the ways that exist.** Our contract (the default, what the mock speaks), the Guardian team's contract 1.0 (`guardian.adapter: v1`, with `GuardianV1Adapter` and `GuardianGateway`) and the inline mode that the Brain supports and no Guardian offers. The Brain does not read the Guardian's alert feed. Detail: [`docs/HOW-IT-WORKS.md`](docs/HOW-IT-WORKS.md#where-the-guardian-sits) and [`docs/GUARDIAN-COMPAT.md`](docs/GUARDIAN-COMPAT.md).
+
+![The Guardian wired three ways](docs/diagrams/print/fig9-guardian-wiring.svg)
 
 **One reading, end to end** (`BrainService._handle` in [`src/brain/runtime.py`](src/brain/runtime.py)):
 
@@ -45,7 +49,7 @@ The team deliberation is a planning graph; the gate follows it, and a person can
 
 ![The planning graph](docs/diagrams/print/fig2-planning-graph.svg)
 
-**Where logic ends and partners begin.** Decision code never imports a protocol; two small ports (`ports.py`) and the adapters outside them are all that touch a partner. A new Twin or Guardian is a `config/partners.yaml` edit (enforced by `tests/test_layering.py`).
+**Where logic ends and partners begin.** Decision code never imports a protocol; two small ports (`ports.py`) and the adapters outside them are all that touch a partner. A new Twin or Guardian is a `config/partners.yaml` edit (`guardian.adapter: rest` or `v1`) (enforced by `tests/test_layering.py`).
 
 ![Where logic ends and partners begin](docs/diagrams/print/fig8-partner-boundary.svg)
 
@@ -66,6 +70,8 @@ uv run pytest tests -q                        # the test suite (tests that need 
 ```
 
 Or in containers, with both mocks, Neo4j and Qdrant: `scripts/up.sh` (Docker Compose, profile `core`; it builds the image and waits for health).
+
+With the Guardian team's real Guardian (contract 1.0) and their Twin mock instead of our mocks: `make guardian-up` (a separate stack, `docker-compose.guardian.yml`; what runs and what it does not show: [`docs/GUARDIAN-COMPAT.md`](docs/GUARDIAN-COMPAT.md#run-it-against-the-real-guardian-compose)).
 
 **Two databases are on by default, each for one job** (`graph.backend: neo4j`):
 - **Neo4j keeps the City Graph:** every reading, verdict, incident, decision and action, linked, so a run can be explored as a graph at http://127.0.0.1:7474 ("why was this unit sent?" is one query, in [`docs/graph-queries.md`](docs/graph-queries.md)). Start it alone with `make neo4j`.
@@ -248,13 +254,13 @@ Partner addresses, protocols and the names of the secret variables are in [`conf
 |------|---------|
 | [`INTERFACE.md`](INTERFACE.md) | The Interface Card (R1) |
 | `src/brain/` | Layer code (map: [`docs/codebase/CODEBASE.md`](docs/codebase/CODEBASE.md)) |
-| `mocks/` | Stand-ins for twin + guardian |
+| `mocks/` | Stand-ins for twin + guardian, and `guardian_twin/`, the bridge that lets the Brain read the Guardian team's Twin mock |
 | `tests/` | Tests, named as sentences |
 | `scenarios/` | The Test Book scenarios (`t12` to `t16`), city topologies, one trigger script per scenario |
 | `logs/canonical/` | One verified log per scenario |
 | `config/`, `contracts/` | Partner settings and policy; JSON schemas and one example of every message |
 | `docs/` | Our report part, how it works, security, decisions, diagrams ([`docs/README.md`](docs/README.md)) |
-| `Dockerfile`, `docker-compose.yml`, `deploy/`, `scripts/`, `Makefile` | Containers and helpers (`make help` lists every target) |
+| `Dockerfile`, `docker-compose.yml`, `docker-compose.guardian.yml`, `deploy/`, `scripts/`, `Makefile` | Containers (the mock stack, and the stack with the real Guardian) and helpers (`make help` lists every target) |
 
 ## Members
 

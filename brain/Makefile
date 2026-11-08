@@ -17,7 +17,7 @@ NEO4J_PW ?= citybrain-test-pw
 SERVERS_ENV = NEO4J_PASSWORD=$(NEO4J_PW) QDRANT_URL=http://127.0.0.1:6333 MQTT_URL=mqtt://127.0.0.1:1883
 ENVFILE = $(if $(wildcard .env),--env-file .env,)
 
-.PHONY: neo4j sleep full-sleep full full-scenario full-agents full-state full-logs full-down help setup serve scenario scenarios llm llm-all reliability \
+.PHONY: guardian-up guardian-down neo4j sleep full-sleep full full-scenario full-agents full-state full-logs full-down help setup serve scenario scenarios llm llm-all reliability \
         test test-all servers-up servers-down servers-status \
         obs bench bench-quick baselines variants redteam security-report conformance check \
         image up down smoke hall-kit \
@@ -113,6 +113,12 @@ up: ## the Brain and both mock partners in containers on http://127.0.0.1:8080
 
 down: ## stop that stack
 > docker compose --profile core --profile full --profile mqtt --profile obs down
+
+guardian-up: ## the Brain with the Guardian team's REAL Guardian (contract 1.0) and their Twin mock: Brain http://127.0.0.1:8081, Guardian screen http://127.0.0.1:8103/timeline
+> docker compose -f docker-compose.guardian.yml up -d --build --wait
+
+guardian-down: ## stop that stack (the volumes stay; add -v by hand to drop them)
+> docker compose -f docker-compose.guardian.yml down
 
 smoke: ## start the stack, run t14 over the network mocks, verify the log, stop
 > scripts/compose_smoke.sh

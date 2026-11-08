@@ -23,8 +23,8 @@ Reading types the Brain acts on today: `cctv_anomaly`, `gunshot`, `emergency_cal
 |---|---|---|
 | `traffic_camera` | `congestion_score` 0..1, `vehicle_count` ≥ 0, `avg_speed_kmh` ≥ 0, `smoke_detected` (default false) | a field is missing or out of range |
 | `water_level` | `level_m` ≥ 0, `flow_rate_m3s` (optional) | `level_m` is negative |
-| `power_load` | `load_kw` ≥ 0, `capacity_kw` > 0, `voltage_v` ≥ 0 | `capacity_kw` is zero or less |
-| `air_quality` | `aqi` 0..500, `pm25_ugm3` ≥ 0, `pm10_ugm3` ≥ 0 | `aqi` is above 500 |
+| `power_load` | `load_kw` ≥ 0, `capacity_kw` > 0, `voltage_v` ≥ 0 (optional) | `capacity_kw` is zero or less |
+| `air_quality` | `aqi` 0..500 (a decimal is accepted), `pm25_ugm3` ≥ 0 and `pm10_ugm3` ≥ 0 (both optional) | `aqi` is above 500 |
 
 Fields outside these lists are dropped by perception and named in `dropped_fields` on the timeline.
 

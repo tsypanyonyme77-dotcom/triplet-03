@@ -150,13 +150,13 @@ class WaterLevel(_Value):
 class PowerLoad(_Value):
     load_kw: float = Field(ge=0.0)
     capacity_kw: float = Field(gt=0.0)
-    voltage_v: float = Field(ge=0.0)
+    voltage_v: float | None = Field(default=None, ge=0.0)  # optional: the Guardian team's power_meter has none; nothing here decides on it
 
 
 class AirQuality(_Value):
-    aqi: int = Field(ge=0, le=500)
-    pm25_ugm3: float = Field(ge=0.0)
-    pm10_ugm3: float = Field(ge=0.0)
+    aqi: float = Field(ge=0, le=500)  # a decimal is accepted: the Guardian team's Twin sends one
+    pm25_ugm3: float | None = Field(default=None, ge=0.0)  # optional: only `aqi` decides anything (the smog rule)
+    pm10_ugm3: float | None = Field(default=None, ge=0.0)
 
 
 VALUE_MODELS: dict[str, type[_Value]] = {

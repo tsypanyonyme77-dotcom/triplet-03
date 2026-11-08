@@ -89,3 +89,19 @@ def test_our_own_dialect_is_unchanged():
         ours.ingest(SENT)
 
     assert error.value.code == "bad_contract_version"
+
+
+def test_their_air_quality_with_a_decimal_aqi_and_no_particulates_is_accepted():
+    reading = resign({**SENT, "sensor_id": "aq-port-01", "sensor_type": "air_quality", "value": {"aqi": 42.5, "smoke": False}})
+
+    seen = perception().ingest(reading)
+
+    assert seen.reading.type == "air_quality" and seen.value.aqi == 42.5 and seen.value.pm25_ugm3 is None
+
+
+def test_their_power_meter_is_our_power_load_without_a_voltage_once_aliased():
+    reading = resign({**SENT, "sensor_id": "pm-port-01", "sensor_type": "power_meter", "value": {"load_kw": 360.0, "capacity_kw": 800.0}})
+
+    seen = perception(type_aliases={"power_meter": "power_load"}).ingest(reading)
+
+    assert seen.reading.type == "power_load" and seen.value.load_kw == 360.0 and seen.value.voltage_v is None
