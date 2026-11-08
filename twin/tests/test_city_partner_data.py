@@ -36,13 +36,11 @@ def test_a_unit_reports_each_state_once_with_its_incident():
     assert {i for _, i in states} == {incident["incident_id"]}
 
 
-def test_calls_name_their_caller_and_air_quality_says_where_the_smoke_is():
+def test_calls_name_their_caller_and_a_fire_is_found_in_its_zone():
     city = TwoBlocksCity("building-fire")
     city.step(48.0)
     readings = city.sensor_readings()
     assert all(r["value"]["caller_id"] for r in _of_type(readings, "emergency_call"))
-    smoke = {r["zone_id"]: r["value"]["smoke_detected"] for r in _of_type(readings, "air_quality")}
-    assert smoke == {"zone-01": True, "zone-02": False, "zone-03": False}
     (incident,) = city.open_incidents()
     assert incident["kind"] == "fire" and incident["zone_id"] in ("zone-01", "zone-03")
 
@@ -97,3 +95,41 @@ def test_a_unit_at_real_work_is_not_recalled_and_an_unknown_one_is_named():
             break
     assert city.recall_unit(unit) == {"status": "rejected", "reason": "unit_busy", "unit_id": unit}
     assert city.recall_unit("nobody") == {"status": "rejected", "reason": "unknown_unit", "unit_id": "nobody"}
+
+
+def test_smoke_drifts_over_the_whole_small_map_while_a_fire_smokes():
+    city = TwoBlocksCity("building-fire")
+    city.step(48.0)
+    assert {r["value"]["smoke_detected"] for r in _of_type(city.sensor_readings(), "air_quality")} == {True}
+
+
+def test_a_downpour_is_read_by_every_gauge_but_floods_only_the_blocked_street():
+    city = TwoBlocksCity("city", 1)
+    city.flood_street("dip-1-4")
+    city.step(30.0)
+    readings = city.sensor_readings()
+    rain = {r["sensor_id"]: r["value"]["mm_per_hr"] for r in _of_type(readings, "rainfall")}
+    assert len(rain) > 1 and len(set(rain.values())) == 1 and rain["rain-dip-1-4"] > 0
+    depth = {r["sensor_id"]: r["value"]["level_m"] for r in _of_type(readings, "water_level")}
+    assert depth["wl-dip-1-4"] > 0 and all(d == 0 for s, d in depth.items() if s != "wl-dip-1-4")
+
+
+def test_a_pole_camera_inside_a_block_sees_its_own_block_smoke():
+    city = TwoBlocksCity("building-fire")
+    city.step(48.0)
+    smoke = {r["sensor_id"]: r["value"]["smoke_detected"] for r in _of_type(city.sensor_readings(), "traffic_camera")}
+    assert smoke["cam-zone-01"] is True and smoke["cam-zone-02"] is False
+
+
+def test_each_drain_has_its_own_zone_next_to_the_streets_and_the_other_drains():
+    city = TwoBlocksCity("city", 1)
+    zones = {z["zone_id"]: z for z in city.zones()}
+    assert {"zone-01", "zone-02", "zone-03", "zone-dip-2-3"} <= set(zones)
+    assert "zone-dip-2-3" in zones["zone-03"]["adjacent"] and "zone-03" in zones["zone-dip-2-3"]["adjacent"]
+    assert "zone-dip-1-2" in zones["zone-dip-2-3"]["adjacent"]
+    for r in city.sensor_readings():
+        if r["type"] == "water_level":
+            assert r["zone_id"] == "zone-" + r["sensor_id"].split("-", 1)[1]
+        if r["type"] == "rainfall":
+            assert r["zone_id"] == "zone-03"     # one cloud
+    assert city.broadcast_alert("zone-dip-2-3", "siren", "Flooding.")["status"] == "broadcast"

@@ -44,7 +44,7 @@ def post(client, body, key=KEY):
 
 def test_health_and_zones(client):
     assert client.get("/health").json()["status"] == "ok"
-    assert {z["zone_id"] for z in client.get("/zones").json()["zones"]} == {"zone-01", "zone-02", "zone-03"}
+    assert {"zone-01", "zone-02", "zone-03"} <= {z["zone_id"] for z in client.get("/zones").json()["zones"]}
 
 
 def test_readings_are_signed_and_sequence_increases_per_sensor(client, app):
