@@ -7,7 +7,7 @@ import asyncio
 import httpx
 import pytest
 
-from conftest import load_mock
+from conftest import ALL_TYPES, load_mock
 from twin.city.two_blocks import TwoBlocksCity
 from twin.config import Settings
 from twin.main import create_app
@@ -33,8 +33,8 @@ def world(monkeypatch):
     brain = load_mock("brain", "e2e_brain")
     city = TwoBlocksCity("ped-hit")
     city.step(60.0)  # the accident has happened and been called in
-    twin = create_app(Settings(emit_enabled=False, hmac_key=HMAC, brain_api_key=API_KEY,
-                               guardian_ingest_url="http://guardian:8001/ingest", brain_notify_url="http://brain:8002/notify"), city)
+    twin = create_app(Settings(emit_enabled=False, hmac_key=HMAC, brain_api_key=API_KEY, guardian_push_api_key=API_KEY,
+                               guardian_extended_types=ALL_TYPES, guardian_ingest_url="http://guardian:8001/v1/readings"), city)
     router = Router({"twin": twin, "guardian": guardian.app, "brain": brain.app})
     real = httpx.AsyncClient
     monkeypatch.setattr(httpx, "AsyncClient", lambda **kw: real(**{"transport": router, **kw}))
@@ -43,8 +43,8 @@ def world(monkeypatch):
 
 async def _report_incident(twin, brain, client) -> str:
     twin.state.emitter.client = client
-    await twin.state.emitter.tick()  # readings go to the Guardian, the Brain is pinged
-    await brain.desk.poll_once(client)  # the Brain reads what the Guardian verified
+    await twin.state.emitter.tick()  # readings go to the Guardian
+    await brain.desk.poll_once(client)  # the Brain pulls them from the Twin and asks the Guardian about each
     incidents = (await client.get("http://brain:8002/api/incidents")).json()["incidents"]
     assert len(incidents) == 1
     return incidents[0]["incident_id"]
@@ -67,8 +67,8 @@ def test_an_incident_end_to_end(world):
     first, again, seen = asyncio.run(scenario())
     assert first["result"]["status"] == "dispatched"
     assert again["result"]["status"] in ("duplicate", "dispatched")  # the mock's idempotency key may replay the first answer
-    for expected in [("twin", "reading_emitted"), ("twin", "brain_notified"), ("guardian", "readings_verified"), ("guardian", "verdict_issued"),
-                     ("city_brain", "notified"), ("city_brain", "incident_reported"), ("twin", "actuator_call_received"),
+    for expected in [("twin", "reading_emitted"), ("guardian", "readings_verified"), ("guardian", "verdict_issued"),
+                     ("city_brain", "incident_reported"), ("twin", "actuator_call_received"),
                      ("twin", "unit_dispatched"), ("city_brain", "actuator_called")]:
         assert expected in seen, f"missing {expected} in {seen}"
 
@@ -86,8 +86,7 @@ def test_brain_without_valid_key_is_refused_by_twin(world, monkeypatch):
 
 
 def test_twin_survives_partner_down():
-    down = create_app(Settings(emit_enabled=False, live=False, guardian_ingest_url="http://nowhere:1/ingest",
-                               brain_notify_url="http://nowhere:1/notify"))
+    down = create_app(Settings(emit_enabled=False, live=False, guardian_ingest_url="http://nowhere:1/v1/readings"))
 
     class Dead(httpx.AsyncBaseTransport):
         async def handle_async_request(self, request):
@@ -100,4 +99,4 @@ def test_twin_survives_partner_down():
 
     assert asyncio.run(scenario())  # the readings are still built and kept
     kinds = [e["kind"] for e in down.state.events.recent()]
-    assert kinds.count("delivery_failed") == 2
+    assert kinds.count("delivery_failed") == 1

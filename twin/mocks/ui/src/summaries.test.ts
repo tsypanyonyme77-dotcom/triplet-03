@@ -19,8 +19,8 @@ describe('readingSummary', () => {
     expect(readingSummary(reading('traffic_camera', { vehicle_count: 3, avg_speed_kmh: 20, congestion_score: 0.5 }))).toBe(
       '3 vehicles, 20 km/h, congestion 0.5',
     )
-    expect(readingSummary(reading('water_level', { level_m: 0.32, flow_rate_m3s: 1.5, pump_on: true }))).toBe(
-      'water 0.32 m deep, draining 1.5 m³/s, pump on',
+    expect(readingSummary(reading('water_level', { level_m: 0.92, road_depth_m: 0.32, flow_rate_m3s: 1.5, pump_on: true }))).toBe(
+      'drain shaft at 0.92 m, 0.32 m on the road, draining 1.5 m³/s, pump on',
     )
     expect(readingSummary(reading('rainfall', { mm_per_hr: 120 }))).toBe('rain 120 mm/h')
   })
@@ -41,5 +41,26 @@ describe('readingSummary', () => {
 describe('incidentActions', () => {
   it('orders the known actions and keeps unknown ones', () => {
     expect(incidentActions(['open_road', 'dispatch_police', 'new_one']).map((a) => a.label)).toEqual(['Dispatch police', 'Open the road', 'new_one'])
+  })
+})
+
+describe('readingSummary for the Guardian, which reads contract 1.0', () => {
+  const guardian = (sensor_type: string, value: Record<string, unknown>) => ({
+    sensor_id: 's',
+    sensor_type,
+    zone_id: 'zone-03',
+    timestamp: '2026-11-08T10:00:00Z',
+    sequence_no: 1,
+    value,
+  })
+
+  it('names what its fields say', () => {
+    expect(readingSummary(guardian('emergency_call', { incident_type: 'crime', call_id: 'call-1', caller_id: 'ped0' }))).toBe(
+      'crime call call-1 from ped0',
+    )
+    expect(readingSummary(guardian('air_quality', { aqi: 90, smoke: true }))).toBe('AQI 90, smoke')
+    expect(readingSummary(guardian('water_level', { level_m: 1.1 }))).toBe('drain shaft at 1.1 m')
+    expect(readingSummary(guardian('rain_gauge', { rainfall_mm_h: 40 }))).toBe('rain 40 mm/h')
+    expect(readingSummary(guardian('flow_meter', { flow_rate_m3s: 0.3 }))).toBe('draining 0.3 m³/s')
   })
 })

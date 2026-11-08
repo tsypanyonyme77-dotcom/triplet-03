@@ -16,6 +16,18 @@ def load_mock(layer: str, name: str):
     return module
 
 
+ALL_TYPES = ("cctv_anomaly", "building_fire", "unit_status")   # the mock Guardian takes every type the Twin has
+
+
+def send_to_guardian(client, reading, dialect):
+    """A Twin reading through the mock Guardian's real door; its verdict, or None for one the dialect does not send."""
+    verdict = None
+    for envelope in dialect.render(reading):
+        got = client.post("/v1/readings", json=envelope).json()["results"][0]["verdict"]
+        verdict = verdict or got
+    return verdict
+
+
 @pytest.fixture(autouse=True)
 def _chain_logs_in_a_temporary_folder(tmp_path_factory, monkeypatch):
     """Incident chain logs from tests never land in the triplet's logs/ folder, which holds scenario runs (R2)."""

@@ -1,7 +1,5 @@
 """Periodic feed: signs the readings the city offers, keeps them for readers that poll (the City Brain's
-GET /readings and list_readings), and pushes them to the Guardian, in its contract 1.0 (guardian_push)
-or, for the mock Guardian, as our own envelopes. The mock City Brain can be notified after each batch
-(no data); the real one polls."""
+GET /readings and list_readings), and pushes them to the Guardian in its contract 1.0 (guardian_push)."""
 from __future__ import annotations
 
 import asyncio
@@ -12,12 +10,13 @@ import httpx
 from twin.city.base import CitySource
 from twin.config import Settings
 from twin.devices import DeviceRegistry
-from twin.contract import CONTRACT_VERSION, build_reading, now_iso
+from twin.contract import build_reading
 from twin.events import EventLog
 from twin.partners.brain_timeline import BrainTimeline
 from twin.partners.guardian_push import GuardianPush
 from twin.partners.reading_log import ReadingLog
 from twin.reading_cadence import ReadingCadence
+from twin.sensor_model import SensorModel
 
 
 class Emitter:
@@ -26,11 +25,12 @@ class Emitter:
                  guardian: GuardianPush | None = None, view: Callable[[dict[str, Any]], dict[str, Any]] | None = None,
                  timeline: BrainTimeline | None = None) -> None:
         """`log`: where readings are kept for readers that poll. `guardian`: the push in the Guardian's
-        contract (else our own envelopes go to guardian_ingest_url). `view`: applied to each reading before
+        contract. `view`: applied to each reading before
         it is signed (unit_status as the partner that sent the unit knows it). `timeline`: our events on the
         City Brain's screen."""
         self.timeline = timeline
-        self.cadence = ReadingCadence(dict(settings.reading_intervals), settings.emit_interval_s)
+        self.cadence = ReadingCadence(dict(settings.reading_intervals), settings.emit_interval_s, call_limits=settings.realistic_sensors)
+        self.sensors = SensorModel(settings.emit_interval_s, settings.seed) if settings.realistic_sensors else None
         self.settings = settings
         self.step_city = step_city  # False in live mode: the LiveRunner advances the city
         self.city = city
@@ -58,6 +58,8 @@ class Emitter:
         self.cadence.next_tick()
         for spec in self.city.sensor_readings():
             sensor_id = spec["sensor_id"]
+            if self.sensors is not None:
+                spec = self.sensors.apply(spec)   # every tick, reported or not: a sensor measures all the time
             if self.devices.blocks(sensor_id) or not self.cadence.due(spec):
                 continue
             spec = self.view(spec)
@@ -94,42 +96,11 @@ class Emitter:
             for queue in list(self._subscribers):
                 if not queue.full():
                     queue.put_nowait(reading)
-        if self.guardian is not None:
-            if self.client is not None:
-                await self.guardian.push(self.client, readings)
-        else:
-            await self._push_to_guardian(readings)
-        await self._notify_brain(len(readings))
+        if self.guardian is not None and self.client is not None:
+            await self.guardian.push(self.client, readings)
         if self.timeline is not None and self.client is not None:
             await self.timeline.flush(self.client)
         return readings
-
-    async def _push_to_guardian(self, readings: list[dict[str, Any]]) -> None:
-        url = self.settings.guardian_ingest_url
-        if not url or self.client is None or not readings:
-            return
-        results = await asyncio.gather(*(self.client.post(url, json=r) for r in readings), return_exceptions=True)
-        failed = [r for r in results if isinstance(r, Exception) or r.status_code >= 400]
-        seq = readings[0]["sequence_no"]
-        if failed:
-            self.events.emit("delivery_failed", f"guardian delivery failed for {len(failed)}/{len(readings)} readings", target="guardian",
-                             sequence_no=seq, first_error=str(failed[0])[:200])
-        else:
-            self.events.emit("reading_emitted", f"feed sent to Guardian: {len(readings)} readings (seq {seq})",
-                             target="guardian", sequence_no=seq, count=len(readings))
-
-    async def _notify_brain(self, count: int) -> None:
-        url = self.settings.brain_notify_url
-        if not url or self.client is None:
-            return
-        body = {"contract_version": CONTRACT_VERSION, "event": "readings_available",
-                "timestamp": now_iso(), "readings": count}  # deliberately no data
-        try:
-            resp = await self.client.post(url, json=body)
-            resp.raise_for_status()
-            self.events.emit("brain_notified", "notified City Brain that new readings are available", target="city_brain")
-        except httpx.HTTPError as exc:
-            self.events.emit("delivery_failed", "city brain notification failed", target="city_brain", error=str(exc)[:200])
 
     async def run(self) -> None:
         async with httpx.AsyncClient(timeout=2.0) as client:

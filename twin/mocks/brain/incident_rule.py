@@ -57,7 +57,7 @@ class IncidentBoard:
     def observe(self, reading: dict[str, Any], verdict: dict[str, Any], now_s: float) -> dict[str, Any] | None:
         """One reading with its Guardian verdict. Untrusted readings are ignored. Returns the
         incident when this is its first trusted report, else None."""
-        if verdict.get("trust") != "trusted" or not is_report(reading):
+        if verdict.get("status") != "trusted" or not is_report(reading):
             return None
         v = reading["value"]
         iid = v["incident_id"]

@@ -3,9 +3,11 @@ import type { Reading } from './api'
 /** One line for a reading in the stream, naming what matters for its type. */
 export function readingSummary(reading: Reading): string {
   const v = reading.value
-  switch (reading.type) {
+  switch (reading.type ?? reading.sensor_type) {
     case 'emergency_call':
-      return `${v.category} call ${v.call_id} about ${v.incident_id} (confidence ${v.caller_confidence})`
+      return v.incident_type
+        ? `${v.incident_type} call ${v.call_id} from ${v.caller_id}`
+        : `${v.category} call ${v.call_id} about ${v.incident_id} (confidence ${v.caller_confidence})`
     case 'cctv_anomaly':
       return `${v.anomaly_type} seen (confidence ${v.confidence})${v.incident_id ? `, ${v.incident_id}` : ''}`
     case 'building_fire':
@@ -13,11 +15,17 @@ export function readingSummary(reading: Reading): string {
         ? `smoke in ${v.building_id}: ${v.temp_c} C, CO2 ${v.co2_ppm} ppm, ${v.incident_id}`
         : `smoke gone from ${v.building_id}`
     case 'air_quality':
-      return `AQI ${v.aqi}, PM2.5 ${v.pm25_ugm3}, PM10 ${v.pm10_ugm3}`
+      return v.smoke !== undefined ? `AQI ${v.aqi}${v.smoke ? ', smoke' : ''}` : `AQI ${v.aqi}, PM2.5 ${v.pm25_ugm3}, PM10 ${v.pm10_ugm3}`
     case 'traffic_camera':
       return `${v.vehicle_count} vehicles, ${v.avg_speed_kmh} km/h, congestion ${v.congestion_score}`
     case 'water_level':
-      return `water ${v.level_m} m deep, draining ${v.flow_rate_m3s} m³/s${v.pump_on ? ', pump on' : ''}`
+      return v.flow_rate_m3s === undefined
+        ? `drain shaft at ${v.level_m} m`
+        : `drain shaft at ${v.level_m} m, ${v.road_depth_m ?? 0} m on the road, draining ${v.flow_rate_m3s} m³/s${v.pump_on ? ', pump on' : ''}`
+    case 'flow_meter':
+      return `draining ${v.flow_rate_m3s} m³/s`
+    case 'rain_gauge':
+      return `rain ${v.rainfall_mm_h} mm/h`
     case 'rainfall':
       return `rain ${v.mm_per_hr} mm/h`
     default:

@@ -1,13 +1,15 @@
 /** The HTTP calls and message shapes both consoles share. */
 export interface Verdict {
   verdict_id: string
-  trust: 'trusted' | 'untrusted'
+  status: 'trusted' | 'suspect' | 'untrusted' | 'unknown'
   reasons: string[]
 }
 
+/** The City Brain's console reads the Twin's own readings (`type`); the Guardian's, its contract 1.0 (`sensor_type`). */
 export interface Reading {
   sensor_id: string
-  type: string
+  type?: string
+  sensor_type?: string
   zone_id: string
   timestamp: string
   sequence_no: number

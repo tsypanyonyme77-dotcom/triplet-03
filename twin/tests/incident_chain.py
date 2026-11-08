@@ -21,6 +21,7 @@ from fastapi.testclient import TestClient
 from twin.city.two_blocks import TwoBlocksCity 
 from twin.config import Settings 
 from twin.main import create_app 
+from twin.partners.guardian_dialect import GuardianDialect 
 
 KEY, API_KEY = "dev-only-hmac-key", "scenario-key"
 READING_EVERY_S = 1.0
@@ -58,6 +59,7 @@ class ChainRun:
         self.board = self.brain.IncidentBoard()
         self.rule = self.brain.IncidentDispatchRule() if auto else None  # manual mode: nobody decides
         self.emitter, self.sim = self.app.state.emitter, self.city.sim
+        self.dialect = GuardianDialect(KEY, ("cctv_anomaly", "building_fire", "unit_status"))
         self.timeline: list[dict] = []
         self.frames: list[dict] = []
         self._seen_sim = 0
@@ -84,12 +86,17 @@ class ChainRun:
         for reading in self.emitter.build_readings():
             if reading["type"] in ("traffic_camera", "air_quality", "water_level", "rainfall"):
                 continue  # periodic feeds: verified too in the real stack, left out of this timeline
-            verdict = self.guardian.post("/ingest", json=reading).json()
+            verdict = None
+            for envelope in self.dialect.render(reading):
+                got = self.guardian.post("/v1/readings", json=envelope).json()["results"][0]["verdict"]
+                verdict = verdict or got
+            if verdict is None:
+                continue     # a kind of call the Guardian's contract has no type for
             v = reading["value"]
             self.note(t, "twin", "reading_emitted", f"{reading['type']} {reading['sensor_id']} seq {reading['sequence_no']} "
                       f"-> {v.get('incident_id')}", sensor_id=reading["sensor_id"], type=reading["type"])
-            self.note(t, "guardian", "verdict", f"{verdict['verdict_id']} {verdict['trust']} for {reading['sensor_id']}",
-                      verdict_id=verdict["verdict_id"], trust=verdict["trust"])
+            self.note(t, "guardian", "verdict", f"{verdict['verdict_id']} {verdict['status']} for {reading['sensor_id']}",
+                      verdict_id=verdict["verdict_id"], trust=verdict["status"])
             noted = self.board.observe(reading, verdict, t)
             if noted:
                 wait = f"deciding in {self.rule.decision_delay_s:.0f} s" if self.rule else "listed, waiting for an operator"

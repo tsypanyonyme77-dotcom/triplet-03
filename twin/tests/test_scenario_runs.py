@@ -4,7 +4,7 @@ import asyncio
 import httpx
 import pytest
 
-from conftest import load_mock
+from conftest import ALL_TYPES, load_mock
 from twin.city.two_blocks import TwoBlocksCity
 from twin.config import Settings
 from twin.main import create_app
@@ -32,7 +32,7 @@ def _world(monkeypatch, tmp_path, partners=("guardian", "brain"), scenario="ped-
     guardian, brain = load_mock("guardian", "run_guardian"), load_mock("brain", "run_brain")
     twin = create_app(Settings(hmac_key=HMAC, brain_api_key=BRAIN_KEY, guardian_api_key=GUARDIAN_KEY, operator_key=OPERATOR,
                                emit_interval_s=0.05, log_dir=str(tmp_path), guardian_url="http://guardian:8001", brain_url="http://brain:8002",
-                               guardian_ingest_url="http://guardian:8001/ingest", brain_notify_url="http://brain:8002/notify"),
+                               guardian_ingest_url="http://guardian:8001/v1/readings", guardian_extended_types=ALL_TYPES),
                       TwoBlocksCity(scenario))
     apps = {"twin": twin}
     if "guardian" in partners:
