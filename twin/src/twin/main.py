@@ -19,11 +19,12 @@ from contextlib import asynccontextmanager, suppress
 from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 
-from twin.actuators import ACTUATORS, ParamError, describe
+from twin.actuation import Actuation, CallRefused
+from twin.actuators import describe
 from twin.city.base import CitySource
 from twin.city.two_blocks import TwoBlocksCity
 from twin.config import Settings
-from twin.contract import CONTRACT_VERSION, ActuatorCall, now_iso
+from twin.contract import CONTRACT_VERSION, ActuatorCall
 from twin.devices import DeviceRegistry
 from twin.emitter import Emitter
 from twin.events import EventLog
@@ -50,10 +51,10 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
     devices = DeviceRegistry()
     emitter = Emitter(settings, city, events, step_city=live is None, devices=devices)
     partners = {"guardian": settings.guardian_url, "city_brain": settings.brain_url}
-    answered: dict[str, dict] = {}  # idempotency_key -> the first call and its response
+    actuation = Actuation(city, devices, events)
 
     def new_run() -> None:
-        answered.clear()  # idempotency keys of the old run no longer apply
+        actuation.new_run()
         devices.clear_all()
 
     runs = ScenarioRunner(live, events, partners, settings.log_dir, new_run) if live is not None else None
@@ -87,7 +88,7 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
 
     app = FastAPI(title="Twin Layer", version="0.1.0", lifespan=lifespan)
     app.state.emitter, app.state.events, app.state.city, app.state.live, app.state.runs = emitter, events, city, live, runs
-    answered: dict[str, dict] = {}  # idempotency_key -> the first call and its response
+    app.state.actuation = actuation
 
     @app.get("/health")
     def health():
@@ -291,44 +292,10 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
         if auth_on and x_api_key != layer_keys[call.requesting_layer]:
             events.emit("actuator_rejected", "actuator call rejected: bad or missing X-Api-Key", reason="unauthorized")
             raise HTTPException(401, f"missing or invalid X-Api-Key header for {call.requesting_layer}")
-        if call.contract_version != CONTRACT_VERSION:
-            raise HTTPException(400, f"unsupported contract_version '{call.contract_version}', this twin speaks '{CONTRACT_VERSION}'")
-        spec = ACTUATORS.get(call.action)
-        if spec is None:
-            raise HTTPException(400, f"unknown action '{call.action}', known actions: {sorted(ACTUATORS)}")
-        if call.actuator_id != spec["actuator_id"]:
-            raise HTTPException(400, f"action '{call.action}' belongs to actuator_id '{spec['actuator_id']}', got '{call.actuator_id}'")
-        if spec.get("guardian_only") and call.requesting_layer != "guardian":
-            events.emit("actuator_rejected", f"{call.action} rejected: guardian only", reason="guardian_only")
-            raise HTTPException(403, f"{call.action} may only be requested by the guardian")
-        if call.requesting_layer == "city_brain" and not call.trust_ref:
-            events.emit("actuator_rejected", f"{call.action} rejected: city_brain call without trust_ref", reason="trust_ref_required")
-            raise HTTPException(403, "trust_ref is required for city_brain calls: act only on a Guardian-verified reading")
-        if call.idempotency_key and call.idempotency_key in answered:
-            first = answered[call.idempotency_key]
-            if (first["action"], first["params"]) != (call.action, call.params):
-                raise HTTPException(409, f"idempotency_key '{call.idempotency_key}' was used for a different call")
-            events.emit("actuator_call_replayed", f"{call.action} retried with key {call.idempotency_key}: first answer returned",
-                        action=call.action, idempotency_key=call.idempotency_key)
-            return JSONResponse({**first["response"], "replayed": True})
-        events.emit("actuator_call_received", f"{call.requesting_layer} called {call.action}: {call.justification}",
-                    action=call.action, params=call.params, requesting_layer=call.requesting_layer, trust_ref=call.trust_ref,
-                    idempotency_key=call.idempotency_key)
         try:
-            result = spec["handler"](call.params, city, devices)
-        except ParamError as exc:
-            raise HTTPException(422, str(exc))
-        kind = {"dispatched": "unit_dispatched", "closed": "road_closed", "opened": "road_opened", "quarantined": "device_quarantined",
-                "isolated": "device_isolated", "cleared": "device_cleared", "on": "pump_started", "off": "pump_stopped",
-                "duplicate": "actuator_duplicate"}.get(result["status"], "actuator_rejected")
-        events.emit(kind, f"{call.action} -> {result['status']} ({result.get('unit_id') or result.get('pump_id') or result.get('reason', '')})",
-                    action=call.action, result=result)
-        response = {"contract_version": CONTRACT_VERSION, "actuator_id": call.actuator_id, "action": call.action,
-                    "received_at": now_iso(), "result": result}
-        if call.idempotency_key:
-            response["idempotency_key"] = call.idempotency_key
-            answered[call.idempotency_key] = {"action": call.action, "params": call.params, "response": response}
-        return JSONResponse(response)
+            return JSONResponse(actuation.execute(call))
+        except CallRefused as exc:
+            raise HTTPException(exc.status_code, exc.detail)
 
     return app
 
