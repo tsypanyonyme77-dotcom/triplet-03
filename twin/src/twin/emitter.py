@@ -1,9 +1,11 @@
-"""Periodic feed: signs the readings the city offers (emergency calls, cameras), pushes them to the
-Guardian and notifies City Brain (no data: the Brain reads what the Guardian verified)."""
+"""Periodic feed: signs the readings the city offers, keeps them for readers that poll (the City Brain's
+GET /readings and list_readings), and pushes them to the Guardian, in its contract 1.0 (guardian_push)
+or, for the mock Guardian, as our own envelopes. The mock City Brain can be notified after each batch
+(no data); the real one polls."""
 from __future__ import annotations
 
 import asyncio
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 
@@ -12,16 +14,25 @@ from twin.config import Settings
 from twin.devices import DeviceRegistry
 from twin.contract import CONTRACT_VERSION, build_reading, now_iso
 from twin.events import EventLog
+from twin.partners.guardian_push import GuardianPush
+from twin.partners.reading_log import ReadingLog
 
 
 class Emitter:
     def __init__(self, settings: Settings, city: CitySource, events: EventLog, step_city: bool = True,
-                 devices: DeviceRegistry | None = None) -> None:
+                 devices: DeviceRegistry | None = None, log: ReadingLog | None = None,
+                 guardian: GuardianPush | None = None, view: Callable[[dict[str, Any]], dict[str, Any]] | None = None) -> None:
+        """`log`: where readings are kept for readers that poll. `guardian`: the push in the Guardian's
+        contract (else our own envelopes go to guardian_ingest_url). `view`: applied to each reading before
+        it is signed (unit_status as the partner that sent the unit knows it)."""
         self.settings = settings
         self.step_city = step_city  # False in live mode: the LiveRunner advances the city
         self.city = city
         self.events = events
         self.devices = devices or DeviceRegistry()
+        self.log = log if log is not None else ReadingLog()
+        self.guardian = guardian
+        self.view = view or (lambda reading: reading)
         self.client: httpx.AsyncClient | None = None
         self.latest: dict[str, dict[str, Any]] = {}  # the newest reading by sensor_id
         self._seq: dict[str, int] = {}
@@ -42,6 +53,7 @@ class Emitter:
             sensor_id = spec["sensor_id"]
             if self.devices.blocks(sensor_id):
                 continue
+            spec = self.view(spec)
             self._seq[sensor_id] = self._seq.get(sensor_id, 0) + 1
             readings.append(build_reading(
                 sensor_id=sensor_id, sensor_type=spec["type"], zone_id=spec["zone_id"], sequence_no=self._seq[sensor_id],
@@ -56,6 +68,7 @@ class Emitter:
         readings = self.build_readings()
         for reading in readings:
             self.latest[reading["sensor_id"]] = reading
+            self.log.append(reading)
             if reading["type"] == "emergency_call":
                 v = reading["value"]
                 self.events.emit("emergency_call_reading", f"emergency call {v['call_id']} ({v['category']}) -> {v['incident_id']}",
@@ -71,7 +84,11 @@ class Emitter:
             for queue in list(self._subscribers):
                 if not queue.full():
                     queue.put_nowait(reading)
-        await self._push_to_guardian(readings)
+        if self.guardian is not None:
+            if self.client is not None:
+                await self.guardian.push(self.client, readings)
+        else:
+            await self._push_to_guardian(readings)
         await self._notify_brain(len(readings))
         return readings
 

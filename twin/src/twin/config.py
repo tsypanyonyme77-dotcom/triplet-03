@@ -13,12 +13,20 @@ class Settings:
     brain_url: str = ""
     guardian_ingest_url: str = ""
     brain_notify_url: str = ""
+    # How readings reach the Guardian: "guardian-v1" = its contract 1.0, batches to /v1/readings (the real
+    # Guardian); "twin" = our own envelopes, one POST each (the mock Guardian in twin/mocks)
+    guardian_dialect: str = "twin"
+    guardian_push_api_key: str = ""   # the Twin's key on the Guardian (its TWIN_API_KEY)
     # Security. Each layer has its own key, so `requesting_layer` is checked and not just claimed.
     # All empty = auth disabled (tests only).
     hmac_key: str = "dev-only-hmac-key"
     brain_api_key: str = ""
     guardian_api_key: str = ""
+    brain_hmac_secret: str = ""   # the City Brain signs its actuator calls with this (its BRAIN_HMAC_SECRET)
+    tools_api_key: str = ""       # required on the Guardian's POST /tools/{action} when set
     operator_key: str = ""  # demo controls and the timeline; empty = open
+    # MCP (the City Brain's default carrier): Host headers accepted at /mcp; empty = any
+    mcp_allowed_hosts: tuple[str, ...] = ("127.0.0.1:*", "localhost:*", "twin:*", "twin")
     # Emission
     emit_enabled: bool = True
     emit_interval_s: float = 1.0
@@ -43,14 +51,26 @@ class Settings:
         seed = os.environ.get("TWIN_SEED")
         guardian = os.environ.get("GUARDIAN_URL", "").rstrip("/")
         brain = os.environ.get("BRAIN_URL", "").rstrip("/")
+        dialect = os.environ.get("GUARDIAN_DIALECT", "guardian-v1")
+        if dialect not in ("guardian-v1", "twin"):
+            raise ValueError(f"GUARDIAN_DIALECT must be 'guardian-v1' or 'twin', got {dialect!r}")
+        ingest_path = "/v1/readings" if dialect == "guardian-v1" else "/ingest"
+        hosts = os.environ.get("TWIN_MCP_ALLOWED_HOSTS")
         return cls(
             guardian_url=guardian,
             brain_url=brain,
-            guardian_ingest_url=os.environ.get("GUARDIAN_INGEST_URL") or (f"{guardian}/ingest" if guardian else ""),
-            brain_notify_url=os.environ.get("BRAIN_NOTIFY_URL") or (f"{brain}/notify" if brain else ""),
-            hmac_key=os.environ.get("TWIN_HMAC_KEY", cls.hmac_key),
+            guardian_ingest_url=os.environ.get("GUARDIAN_INGEST_URL") or (f"{guardian}{ingest_path}" if guardian else ""),
+            # the real City Brain polls for readings; only the mock wants to be told (set BRAIN_NOTIFY_URL for it)
+            brain_notify_url=os.environ.get("BRAIN_NOTIFY_URL", ""),
+            guardian_dialect=dialect,
+            guardian_push_api_key=os.environ.get("TWIN_API_KEY", ""),
+            # one Twin signing key, under the name the triplet uses (TWIN_HMAC_SECRET) or the Guardian's (TWIN_HMAC_KEY)
+            hmac_key=os.environ.get("TWIN_HMAC_SECRET") or os.environ.get("TWIN_HMAC_KEY") or cls.hmac_key,
             brain_api_key=os.environ.get("TWIN_BRAIN_API_KEY", ""),
             guardian_api_key=os.environ.get("TWIN_GUARDIAN_API_KEY", ""),
+            brain_hmac_secret=os.environ.get("BRAIN_HMAC_SECRET", ""),
+            tools_api_key=os.environ.get("TWIN_TOOLS_API_KEY", ""),
+            mcp_allowed_hosts=tuple(h.strip() for h in hosts.split(",") if h.strip()) if hosts is not None else cls.mcp_allowed_hosts,
             operator_key=os.environ.get("TWIN_OPERATOR_KEY", ""),
             emit_interval_s=float(os.environ.get("TWIN_EMIT_INTERVAL_S", cls.emit_interval_s)),
             scenario=os.environ.get("TWIN_SCENARIO", cls.scenario),
