@@ -142,6 +142,7 @@ class BrainService:
             partners.twin.type_aliases,
             self.keyring,
             partners.twin.max_age_s,
+            partners.twin.dialect,
         )
         packs_dir = partners.brain.packs_dir
         self._packs_dir = (Path(packs_dir) if Path(packs_dir).is_absolute() else config.home() / packs_dir) if packs_dir else None

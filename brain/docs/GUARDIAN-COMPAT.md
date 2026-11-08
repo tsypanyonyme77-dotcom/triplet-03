@@ -31,9 +31,25 @@ with `BRAIN_API_KEY` and `GUARDIAN_HMAC_KEY` set to the values the Guardian team
 
 Verdicts verified and parsed; the quarantine check; a valve, grid and signal call forwarded to their Twin mock; a dispatch through `dispatch-central` (a unit came back); and refusals with their reasons for an unknown and a missing trust reference. `tests/test_guardian_v1.py` holds the same cases offline, using payloads from their card.
 
-## Still open (not the Guardian adapter)
+## The Twin's readings: `twin.dialect: guardian-v1`
 
-1. **The Twin's readings.** Their Twin mock sends `sensor_type` (we read `type`), signs with an `hmac` field (we read `provenance`), uses contract `1.0` (we accept `2026-09-17`), and has sensors we do not model (`rain_gauge`, `flow_meter`, `grid_meter`, `power_meter` for our `power_load`). Our Brain cannot read their Twin's stream as it stands. The Twin team's real contract decides which side moves.
+Their Twin sends `sensor_type`, a signed `hmac`, contract `1.0` and `sequence_reset`; ours reads `type` and `provenance`. With `twin.dialect: guardian-v1` the Brain reads theirs: it checks the `hmac` as they document it (with the Twin secret, `TWIN_HMAC_SECRET`), accepts `1.0`, turns `sensor_type` into `type`, believes a counter reset only when the reading is newer than the last one seen, and maps their emergency incident types onto our categories (the caller id is dropped). The signature check is proved on a reading their Twin mock really sent and on the example in their card.
+
+Chained for real: 60 readings from their Twin mock, 50 accepted (signatures verified), and their Guardian's verdict on each of the 50 came back `trusted` and parsed.
+
+The 10 that were refused, and the readings the Brain cannot use yet, are differences in the sensor values, which the Data Dictionary has to settle:
+
+| Sensor | Theirs | Ours | Effect |
+| --- | --- | --- | --- |
+| `air_quality` | `aqi` a decimal, `smoke` | `aqi` a whole number, `pm25_ugm3`, `pm10_ugm3` required | refused (`value_invalid`) |
+| `power_meter` | `load_kw`, `capacity_kw` | `power_load` with `voltage_v` required | stored, not used (alias `power_meter: power_load` would be refused for the missing voltage) |
+| `rain_gauge`, `flow_meter`, `grid_meter` | in their registry | not modelled | stored, not used |
+
+The Twin team's own card (still the template) lists "power load" and "air quality", which are our names from the shared Data Dictionary: their Guardian is the one that departs from it.
+
+## Still open
+
+1. **The Twin's other endpoints.** Their Twin mock has no `/topology` or `/capabilities`, which the Brain reads at start-up, so the whole Brain service cannot yet run against it; the readings, verdicts and actuator calls above were chained piece by piece. The real Twin's endpoints are the Twin team's to say.
 2. **Who pushes readings to the Guardian.** In their design the Twin pushes; our mock Twin does not, so our own mocks cannot drive their Guardian end to end.
 3. **Actuator ids.** Their registry names `valve-port-12`, `grid-port`, `sig-port-01`, `dispatch-central`; ours come from the Twin's topology. The Twin has to expose the ids the Guardian knows.
 4. **Dispatch details.** `mode` and `target_id` (pursuit) are sent inside `params`; whether the Twin honours them is untested.

@@ -56,6 +56,9 @@ class TwinConfig(BaseModel):
     mqtt: MqttConfig = Field(default_factory=MqttConfig)
     hmac_secret_env: str = "TWIN_HMAC_SECRET"
     require_signature: bool = True
+    # brain: readings in our contract (`type`, `provenance`). guardian-v1: readings as the Guardian team's contract 1.0 has them (`sensor_type`, a signed `hmac`,
+    # `sequence_reset`), so one Twin stream serves the Guardian and the Brain; the signature is the Guardian's, checked with the same Twin secret.
+    dialect: Literal["brain", "guardian-v1"] = "brain"
     # A signed reading whose timestamp is more than this many seconds from the Brain's clock is refused (`reading_stale`). None: off, because
     # scenarios replay readings stamped in the past; set it on a live Twin, a few times its reporting interval.
     max_age_s: float | None = Field(default=None, gt=0)
