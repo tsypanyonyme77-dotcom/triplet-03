@@ -17,6 +17,7 @@ class Settings:
     # Guardian); "twin" = our own envelopes, one POST each (the mock Guardian in twin/mocks)
     guardian_dialect: str = "twin"
     guardian_push_api_key: str = ""   # the Twin's key on the Guardian (its TWIN_API_KEY)
+    guardian_extended_types: tuple[str, ...] = ()   # our types the Guardian has registered (partners/guardian_dialect.py, EXTENDED)
     # The City Brain's timeline screen takes our events here (R3); the token is its TWIN_PUSH_TOKEN, if it asks for one
     brain_events_url: str = ""
     brain_push_token: str = ""
@@ -68,6 +69,7 @@ class Settings:
             brain_notify_url=os.environ.get("BRAIN_NOTIFY_URL", ""),
             guardian_dialect=dialect,
             guardian_push_api_key=os.environ.get("TWIN_API_KEY", ""),
+            guardian_extended_types=tuple(t.strip() for t in os.environ.get("GUARDIAN_EXTENDED_TYPES", "").split(",") if t.strip()),
             # unset: the real City Brain's route; empty: off (the mock has no such route)
             brain_events_url=(f"{brain}/api/events" if brain else "") if events_url is None else events_url,
             brain_push_token=os.environ.get("TWIN_PUSH_TOKEN", ""),

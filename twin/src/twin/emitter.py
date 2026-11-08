@@ -72,7 +72,10 @@ class Emitter:
         readings = self.build_readings()
         for reading in readings:
             self.latest[reading["sensor_id"]] = reading
-            self.log.append(reading)
+            # the City Brain asks the Guardian about every reading it pulls, and one with no verdict costs it the whole
+            # verdict deadline and puts it in degraded mode: it is offered only what the Guardian can judge
+            if self.guardian is None or self.guardian.judges(reading):
+                self.log.append(reading)
             if reading["type"] == "emergency_call":
                 v = reading["value"]
                 self.events.emit("emergency_call_reading", f"emergency call {v['call_id']} ({v['category']}) -> {v['incident_id']}",

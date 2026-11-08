@@ -19,6 +19,10 @@ class GuardianPush:
     def __init__(self, url: str, api_key: str, dialect: GuardianDialect, events: EventLog) -> None:
         self.url, self.api_key, self.dialect, self.events = url, api_key, dialect, events
 
+    def judges(self, reading: dict[str, Any]) -> bool:
+        """False for a reading the Guardian will have no verdict on. With no Guardian configured, nothing is withheld."""
+        return not self.url or self.dialect.judges(reading)
+
     async def push(self, client: httpx.AsyncClient, readings: list[dict[str, Any]]) -> None:
         if not self.url:
             return

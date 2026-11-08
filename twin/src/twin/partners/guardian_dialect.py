@@ -3,6 +3,8 @@
 Its envelope is `{contract_version: "1.0", sensor_id, sensor_type, zone_id, timestamp, sequence_no, value,
 sequence_reset, hmac}`, with no other field, and `value` must hold exactly the fields its sensor registry
 lists for the type, so each type is mapped here and a reading of a type it does not know is not sent.
+EXTENDED lists the Twin's types its stock registry lacks: they go out only when configured
+(GUARDIAN_EXTENDED_TYPES), once the Guardian has registered them with these exact fields.
 The sensor id and sequence number are the Twin's own, the same the City Brain reads, because the Brain
 asks the Guardian for its verdict by that pair.
 
@@ -51,6 +53,15 @@ MAPPINGS: dict[str, list[tuple[str, Callable[[str], str], Callable[[dict[str, An
 }
 
 
+# sent only when named in GUARDIAN_EXTENDED_TYPES: the Guardian's registry must hold these fields first
+EXTENDED: dict[str, list[tuple[str, Callable[[str], str], Callable[[dict[str, Any]], dict[str, Any] | None]]]] = {
+    "cctv_anomaly": [("cctv_anomaly", lambda s: s, lambda v: {"anomaly_type": v["anomaly_type"], "confidence": float(v["confidence"])})],
+    "building_fire": [("building_fire", lambda s: s, lambda v: {"building_id": v["building_id"], "smoke_detected": bool(v["smoke_detected"]),
+                                                                "temp_c": float(v["temp_c"]), "co2_ppm": float(v["co2_ppm"])})],
+    "unit_status": [("unit_status", lambda s: s, lambda v: {"unit_id": v["unit_id"], "incident_id": v["incident_id"], "state": v["state"]})],
+}
+
+
 def guardian_hmac(envelope: dict[str, Any], key: str) -> str:
     body = {k: v for k, v in envelope.items() if k != "hmac"}
     payload = json.dumps(body, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
@@ -60,14 +71,23 @@ def guardian_hmac(envelope: dict[str, Any], key: str) -> str:
 class GuardianDialect:
     """Renders the Twin's readings for the Guardian, remembering which sensors it has already sent."""
 
-    def __init__(self, key: str) -> None:
+    def __init__(self, key: str, extended_types: tuple[str, ...] = ()) -> None:
+        unknown = set(extended_types) - set(EXTENDED)
+        if unknown:
+            raise ValueError(f"GUARDIAN_EXTENDED_TYPES: no mapping for {sorted(unknown)}; known: {sorted(EXTENDED)}")
         self.key = key
+        self.mappings = {**MAPPINGS, **{t: EXTENDED[t] for t in extended_types}}
         self._sent: set[str] = set()
+
+    def judges(self, reading: dict[str, Any]) -> bool:
+        """Whether the Guardian will have a verdict on this reading, under the reading's own id."""
+        return any(sensor_id_of(reading["sensor_id"]) == reading["sensor_id"] and value_of(reading["value"]) is not None
+                   for _, sensor_id_of, value_of in self.mappings.get(reading["type"], []))
 
     def render(self, reading: dict[str, Any]) -> list[dict[str, Any]]:
         """The Guardian envelopes for one of our readings (none for a type it does not know)."""
         out = []
-        for their_type, sensor_id_of, value_of in MAPPINGS.get(reading["type"], []):
+        for their_type, sensor_id_of, value_of in self.mappings.get(reading["type"], []):
             value = value_of(reading["value"])
             if value is None:
                 continue
