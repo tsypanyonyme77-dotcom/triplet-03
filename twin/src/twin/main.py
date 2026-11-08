@@ -2,7 +2,9 @@
 
 Read side : GET /zones, GET /sensors, GET /stream/readings (SSE), GET /events, GET /units, GET /responses
 Write side: GET /actuators, POST /actuators/call
-Push side : the emitter pushes signed readings to the Guardian and notifies City Brain (see emitter.py).
+Push side : the emitter pushes signed readings to the Guardian (see emitter.py).
+Partners  : the City Brain's carriers, GET /readings, GET /topology, GET /capabilities, POST /actuators/{action},
+            and the same as MCP tools at /mcp; the Guardian's POST /tools/{action} (see twin/partners/).
 Viewer    : GET /live/status, GET /live/map, GET /live/agents, GET /stream/frames (SSE)
 Operator  : POST /live/control, POST /scenarios/{id}/run, GET /scenarios, GET /scenarios/runs[/{n}],
             GET /timeline (ground truth included),
@@ -29,6 +31,14 @@ from twin.devices import DeviceRegistry
 from twin.emitter import Emitter
 from twin.events import EventLog
 from twin.live import LiveRunner
+from twin.partners.brain_calls import BrainDoor
+from twin.partners.brain_http import brain_router
+from twin.partners.brain_mcp import brain_mcp_server, mcp_app
+from twin.partners.guardian_dialect import GuardianDialect
+from twin.partners.guardian_push import GuardianPush
+from twin.partners.guardian_tools import GuardianDoor, guardian_router
+from twin.partners.incident_links import IncidentLinks
+from twin.partners.reading_log import ReadingLog
 from twin.scenario_runs import DEFAULT_SPEED, ScenarioBusy, ScenarioRunner
 from twin.testbook import SCENARIOS
 from twin.timeline import collect
@@ -49,13 +59,23 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
     events = EventLog("twin", settings.log_dir)
     live = LiveRunner(city, events, settings.live_speed) if settings.live else None
     devices = DeviceRegistry()
-    emitter = Emitter(settings, city, events, step_city=live is None, devices=devices)
+    links = IncidentLinks(city)
+    reading_log = ReadingLog()
+    guardian_push = (GuardianPush(settings.guardian_ingest_url, settings.guardian_push_api_key, GuardianDialect(settings.hmac_key), events)
+                     if settings.guardian_dialect == "guardian-v1" else None)
+    emitter = Emitter(settings, city, events, step_city=live is None, devices=devices, log=reading_log, guardian=guardian_push,
+                      view=links.partner_view)
     partners = {"guardian": settings.guardian_url, "city_brain": settings.brain_url}
     actuation = Actuation(city, devices, events)
+    brain_door = BrainDoor(actuation, city, links, events, hmac_secret=settings.brain_hmac_secret, api_key=settings.brain_api_key)
+    guardian_door = GuardianDoor(actuation, city, links, events, api_key=settings.tools_api_key)
+    mcp_server = brain_mcp_server(reading_log, city, brain_door)
+    mcp_asgi = mcp_app(mcp_server, list(settings.mcp_allowed_hosts))   # creates the session manager the lifespan runs
 
     def new_run() -> None:
         actuation.new_run()
         devices.clear_all()
+        links.clear()
 
     runs = ScenarioRunner(live, events, partners, settings.log_dir, new_run) if live is not None else None
     layer_keys = {"city_brain": settings.brain_api_key, "guardian": settings.guardian_api_key}
@@ -80,7 +100,8 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
         for task in tasks:
             task.add_done_callback(report_if_crashed)
         events.emit("startup", f"twin up (scenario={settings.scenario}, interval={settings.emit_interval_s}s)")
-        yield
+        async with mcp_server.session_manager.run():   # the MCP endpoint's sessions (/mcp)
+            yield
         for task in tasks:
             task.cancel()
             with suppress(asyncio.CancelledError):
@@ -88,7 +109,8 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
 
     app = FastAPI(title="Twin Layer", version="0.1.0", lifespan=lifespan)
     app.state.emitter, app.state.events, app.state.city, app.state.live, app.state.runs = emitter, events, city, live, runs
-    app.state.actuation = actuation
+    app.state.actuation, app.state.links, app.state.reading_log = actuation, links, reading_log
+    app.state.mcp_server = mcp_server
 
     @app.get("/health")
     def health():
@@ -296,6 +318,11 @@ def create_app(settings: Settings | None = None, city: CitySource | None = None)
             return JSONResponse(actuation.execute(call))
         except CallRefused as exc:
             raise HTTPException(exc.status_code, exc.detail)
+
+    # ---- the partners' own doors, after ours (POST /actuators/call must win over /actuators/{action}) ----
+    app.include_router(brain_router(reading_log, city, brain_door))      # GET /readings, /topology, /capabilities, POST /actuators/{action}
+    app.include_router(guardian_router(guardian_door))                   # POST /tools/{action}
+    app.mount("/", mcp_asgi)                                             # /mcp; last, since a mount at / matches every path
 
     return app
 
