@@ -1,0 +1,10 @@
+{"ts": "2026-11-08T14:16:16.459978+00:00", "scenario": "T3", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
+{"ts": "2026-11-08T14:16:16.471534+00:00", "scenario": "T3", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:16:16.474607+00:00", "scenario": "T3", "step": "inject", "kind": "replay", "params": {"sensor_id": "wl-port-03"}, "status": 200}
+{"ts": "2026-11-08T14:16:16.474638+00:00", "scenario": "T3", "step": "wait", "seconds": 3}
+{"ts": "2026-11-08T14:16:19.484298+00:00", "scenario": "T3", "step": "check", "what": "replay detected", "passed": true}
+{"ts": "2026-11-08T14:16:19.487892+00:00", "scenario": "T3", "step": "inject", "kind": "sequence_reset", "params": {"sensor_id": "wl-port-03"}, "status": 200}
+{"ts": "2026-11-08T14:16:19.487927+00:00", "scenario": "T3", "step": "wait", "seconds": 7}
+{"ts": "2026-11-08T14:16:26.501997+00:00", "scenario": "T3", "step": "check", "what": "sequence reset not a replay", "passed": true, "seq": 1}
+{"ts": "2026-11-08T14:16:26.510944+00:00", "scenario": "T3", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:16:26.510992+00:00", "scenario": "T3", "step": "end", "passed": true}

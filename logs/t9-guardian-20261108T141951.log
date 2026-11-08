@@ -1,0 +1,7 @@
+{"ts": "2026-11-08T14:19:26.815690+00:00", "scenario": "T9", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
+{"ts": "2026-11-08T14:19:26.867992+00:00", "scenario": "T9", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:19:26.871174+00:00", "scenario": "T9", "step": "inject", "kind": "coordinated", "params": {"zone_id": "zone-08"}, "status": 200}
+{"ts": "2026-11-08T14:19:26.871208+00:00", "scenario": "T9", "step": "wait", "seconds": 25}
+{"ts": "2026-11-08T14:19:51.897672+00:00", "scenario": "T9", "step": "check", "what": "zone-08 under_attack", "passed": true, "threat": {"zone-07": "normal", "zone-08": "under_attack", "zone-03": "normal", "zone-12": "normal"}}
+{"ts": "2026-11-08T14:19:51.902875+00:00", "scenario": "T9", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:19:51.932194+00:00", "scenario": "T9", "step": "end", "passed": true}

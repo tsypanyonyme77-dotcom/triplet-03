@@ -1,0 +1,10 @@
+{"ts": "2026-11-08T14:14:58.695534+00:00", "scenario": "T1", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
+{"ts": "2026-11-08T14:14:58.748521+00:00", "scenario": "T1", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:14:58.751809+00:00", "scenario": "T1", "step": "inject", "kind": "fake_flood", "params": {"sensor_id": "wl-port-03", "level_m": 1.8}, "status": 200}
+{"ts": "2026-11-08T14:14:58.751847+00:00", "scenario": "T1", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:15:08.769355+00:00", "scenario": "T1", "step": "verdict", "sensor_id": "wl-port-03", "status": "untrusted", "reasons": ["rate_of_change", "no_rainfall_corroboration", "no_flow_corroboration", "no_upstream_level_corroboration", "sensor_isolated"]}
+{"ts": "2026-11-08T14:15:08.769400+00:00", "scenario": "T1", "step": "check", "what": "verdict untrusted", "passed": true, "reasons": ["rate_of_change", "no_rainfall_corroboration", "no_flow_corroboration", "no_upstream_level_corroboration", "sensor_isolated"]}
+{"ts": "2026-11-08T14:15:08.773903+00:00", "scenario": "T1", "step": "check", "what": "rollback to ~0.40 m", "passed": true, "value": {"level_m": 0.4075}}
+{"ts": "2026-11-08T14:15:08.812678+00:00", "scenario": "T1", "step": "check", "what": "brain does not touch the valve", "passed": true, "brain": {"brain": "ignored", "sensor_id": "wl-port-03", "status": "untrusted", "reasons": ["rate_of_change", "no_rainfall_corroboration", "no_flow_corroboration", "no_upstream_level_corroboration", "sensor_isolated"], "would": "nothing"}}
+{"ts": "2026-11-08T14:15:08.818544+00:00", "scenario": "T1", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:15:08.828212+00:00", "scenario": "T1", "step": "end", "passed": true}

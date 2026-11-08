@@ -1,0 +1,18 @@
+{"ts": "2026-11-08T14:21:08.234424+00:00", "scenario": "T11", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
+{"ts": "2026-11-08T14:21:08.285839+00:00", "scenario": "T11", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:21:08.288812+00:00", "scenario": "T11", "step": "inject", "kind": "real_flood", "params": {"rainfall_mm_h": 40}, "status": 200}
+{"ts": "2026-11-08T14:21:08.288844+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:21:18.307272+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:21:28.324333+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:21:38.332601+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:21:48.349032+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:21:58.365666+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:22:08.379018+00:00", "scenario": "T11", "step": "wait", "seconds": 10}
+{"ts": "2026-11-08T14:22:18.399019+00:00", "scenario": "T11", "step": "verdict", "sensor_id": "wl-port-03", "status": "trusted", "reasons": ["rate_of_change"]}
+{"ts": "2026-11-08T14:22:18.399058+00:00", "scenario": "T11", "step": "check", "what": "real flood trusted", "passed": true, "reasons": ["rate_of_change"]}
+{"ts": "2026-11-08T14:22:18.404229+00:00", "scenario": "T11", "step": "inject", "kind": "spike", "params": {"sensor_id": "aq-res-01", "value": 380.0}, "status": 200}
+{"ts": "2026-11-08T14:22:18.404294+00:00", "scenario": "T11", "step": "wait", "seconds": 12}
+{"ts": "2026-11-08T14:22:30.424086+00:00", "scenario": "T11", "step": "check", "what": "attack elsewhere flagged", "passed": true}
+{"ts": "2026-11-08T14:22:30.467337+00:00", "scenario": "T11", "step": "check", "what": "valve call forwarded", "passed": true, "brain": {"call_id": "call-e567ef02", "decision": "forwarded", "reasons": [], "twin_reply": {"status": "ok", "current_state": {"state": "closed"}, "reverts_at": null}}}
+{"ts": "2026-11-08T14:22:30.472740+00:00", "scenario": "T11", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:22:30.480786+00:00", "scenario": "T11", "step": "end", "passed": true}

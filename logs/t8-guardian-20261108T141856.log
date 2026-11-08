@@ -1,0 +1,9 @@
+{"ts": "2026-11-08T14:18:53.049561+00:00", "scenario": "T8", "step": "start", "guardian": "http://localhost:8100", "twin": "http://localhost:8101", "brain": "http://localhost:8102"}
+{"ts": "2026-11-08T14:18:53.097284+00:00", "scenario": "T8", "step": "inject", "kind": "clear", "params": {"weather": true}, "status": 200}
+{"ts": "2026-11-08T14:18:53.100781+00:00", "scenario": "T8", "step": "inject", "kind": "fire_in_sea", "params": {}, "status": 200}
+{"ts": "2026-11-08T14:18:53.100818+00:00", "scenario": "T8", "step": "wait", "seconds": 3}
+{"ts": "2026-11-08T14:18:56.108887+00:00", "scenario": "T8", "step": "verdict", "sensor_id": "ec-gw-12", "status": "untrusted", "reasons": ["impossible_location", "insufficient_corroboration"]}
+{"ts": "2026-11-08T14:18:56.108923+00:00", "scenario": "T8", "step": "check", "what": "fire in sea untrusted", "passed": true}
+{"ts": "2026-11-08T14:18:56.119010+00:00", "scenario": "T8", "step": "brain_call", "call": {"actuator_id": "dispatch-central", "action": "dispatch_unit", "params": {"unit_type": "fire"}, "zone_id": "zone-12", "trust_ref": "verdict-7271dc5ee797", "incident_id": "inc-T8", "justification": "T8 fire call"}, "decision": "blocked", "reasons": ["trust_ref_not_trusted", "no_road_access"]}
+{"ts": "2026-11-08T14:18:56.119050+00:00", "scenario": "T8", "step": "check", "what": "no dispatch", "passed": true}
+{"ts": "2026-11-08T14:18:56.119069+00:00", "scenario": "T8", "step": "end", "passed": true}
